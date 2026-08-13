@@ -58,8 +58,7 @@ configs/hypr/.luarc.json
 # Wallpapers: local until final curated 2560x1440 set exists, then un-ignore + commit
 wallpapers/
 
-# Specs / brainstorm docs, local only (never commit docs/)
-docs/
+# PillOS: design specs are committed (upstream ignored docs/)
 .playwright/
 .playwright-mcp/
 
