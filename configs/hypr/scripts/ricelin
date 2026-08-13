@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# ricelin — control CLI for the Ricelin shell.
+# pillos — control CLI for the PillOS shell.
 #
 # Thin wrapper over the two quickshell surfaces (the pill and the lock), their
 # watchdogs and the update engine. The watchdog is what keeps a surface alive: it
@@ -8,15 +8,15 @@
 # watchdog down too or the surface just comes back, while `restart` leaves the
 # watchdog running and only cycles the instance.
 #
-#   ricelin restart [pill|lock|all]   cycle a surface           (default: pill)
-#   ricelin start   [pill|lock|all]   start the watchdog        (default: all)
-#   ricelin stop    [pill|lock|all]   stop watchdog + surface   (default: all)
-#   ricelin log     [pill|lock] [..]  follow the quickshell log (default: pill)
-#   ricelin update                    check, show changelog, apply, restart
-#   ricelin status                    what's running and the installed version
+#   pillos restart [pill|lock|all]   cycle a surface           (default: pill)
+#   pillos start   [pill|lock|all]   start the watchdog        (default: all)
+#   pillos stop    [pill|lock|all]   stop watchdog + surface   (default: all)
+#   pillos log     [pill|lock] [..]  follow the quickshell log (default: pill)
+#   pillos update                    check, show changelog, apply, restart
+#   pillos status                    what's running and the installed version
 
 SCRIPTS="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/scripts"
-ENGINE="$SCRIPTS/ricelin-update.py"
+ENGINE="$SCRIPTS/pillos-update.py"
 WATCHDOG="$SCRIPTS/watchdog.sh"
 SURFACES="pill lock"
 
@@ -54,7 +54,7 @@ urow() {
 }
 
 usage() {
-    sec "ricelin · control the shell"
+    sec "pillos · control the shell"
     gap
     urow restart "[pill·lock·all]" "cycle a surface"                "(pill)"
     urow start   "[pill·lock·all]" "start the watchdog"             "(all)"
@@ -92,7 +92,7 @@ installed_version() {
             return
         fi
     fi
-    mf="${XDG_STATE_HOME:-$HOME/.local/state}/ricelin/update.json"
+    mf="${XDG_STATE_HOME:-$HOME/.local/state}/pillos/update.json"
     if [ -f "$mf" ] && command -v jq >/dev/null 2>&1; then
         sha=$(jq -r '.syncedSha // empty' "$mf")
         [ -n "$sha" ] && { printf '%s' "$(echo "$sha" | cut -c1-7)"; return; }
@@ -207,14 +207,14 @@ cmd_update() {
 }
 
 cmd_uninstall() {
-    installer="${XDG_DATA_HOME:-$HOME/.local/share}/ricelin/installer/ricelin_install.py"
+    installer="${XDG_DATA_HOME:-$HOME/.local/share}/pillos/installer/pillos_install.py"
     [ -f "$installer" ] || die "installer not found ($installer); remove ~/.config/hypr and ~/.config/quickshell by hand, your originals sit next to them as .bak"
     command -v python3 >/dev/null 2>&1 || die "python3 not found"
     exec python3 "$installer" --uninstall
 }
 
 cmd_status() {
-    sec "ricelin"
+    sec "pillos"
     gap
     for s in $SURFACES; do
         if is_up "$s"; then mk="${flame}●${rst}"; lab="${cream}$s${rst}"; stt="${cream}running${rst}"
@@ -238,5 +238,5 @@ case "$cmd" in
     status) cmd_status ;;
     uninstall) cmd_uninstall ;;
     "" | -h | --help | help) usage ;;
-    *) die "unknown command '$cmd' (try: ricelin help)" ;;
+    *) die "unknown command '$cmd' (try: pillos help)" ;;
 esac

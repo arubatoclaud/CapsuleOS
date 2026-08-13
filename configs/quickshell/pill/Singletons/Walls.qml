@@ -17,8 +17,8 @@ import Quickshell.Io
  *
  * The folder resolves through one chain, first hit wins: an explicit
  * `wallpaperDir` in flags.json, then the dir wallpaper.sh resolved and wrote
- * to the ricelin-wallpaper-dir state file on its last run, then
- * ~/Ricelin/wallpapers for a first boot before wallpaper.sh init has run.
+ * to the pillos-wallpaper-dir state file on its last run, then
+ * ~/PillOS/wallpapers for a first boot before wallpaper.sh init has run.
  *
  * Entries are plain objects: { path, name, mtime, thumb } where path is the
  * absolute source file, mtime its modification time in epoch seconds and
@@ -34,12 +34,12 @@ Singleton {
 
     property string resolvedDir: ""
     readonly property string wpDir: Flags.wallpaperDir.length > 0 ? Flags.wallpaperDir
-        : (resolvedDir.length > 0 ? resolvedDir : Quickshell.env("HOME") + "/Ricelin/wallpapers")
-    readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/ricelin-wp-thumbs/"
+        : (resolvedDir.length > 0 ? resolvedDir : Quickshell.env("HOME") + "/PillOS/wallpapers")
+    readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/pillos-wp-thumbs/"
     readonly property string thumbScript: Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper-thumbs.sh"
     readonly property string setScript: Quickshell.env("HOME") + "/.config/hypr/scripts/wallpaper.sh"
-    readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ricelin-wallpaper"
-    readonly property string dirStateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ricelin-wallpaper-dir"
+    readonly property string stateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos-wallpaper"
+    readonly property string dirStateFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos-wallpaper-dir"
 
     onWpDirChanged: refresh()
 

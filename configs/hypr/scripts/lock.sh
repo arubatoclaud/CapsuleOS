@@ -8,11 +8,11 @@ dir="${XDG_RUNTIME_DIR:-/tmp}"
 # desktop simply blurring into the lock, with no flash.
 for out in $(hyprctl monitors -j | jq -r '.[].name'); do
     [ -n "$out" ] || continue
-    rm -f "$dir/ricelin-lock-$out.png"
-    grim -o "$out" "$dir/ricelin-lock-$out.png" 2>/dev/null &
+    rm -f "$dir/pillos-lock-$out.png"
+    grim -o "$out" "$dir/pillos-lock-$out.png" 2>/dev/null &
 done
 wait
 
 # Poke the lock daemon through its file watch instead of spawning a whole qs client,
 # which shaves the Qt client startup off the lock delay.
-date +%s%N > "$dir/ricelin-lock-trigger"
+date +%s%N > "$dir/pillos-lock-trigger"

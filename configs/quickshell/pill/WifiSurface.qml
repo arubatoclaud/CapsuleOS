@@ -62,9 +62,9 @@ PillSurface {
     property string revealedPw: ""
     property bool revealResolved: false
 
-    readonly property string hsCon: "RicelinHotspot"
+    readonly property string hsCon: "PillOSHotspot"
     readonly property string hsIface: wifiDev ? (wifiDev.name || "wlan0") : "wlan0"
-    property string hsName: "Ricelin"
+    property string hsName: "PillOS"
     property string hsPw: ""
     property bool hsActive: false
     property bool hsBusy: false
@@ -354,7 +354,7 @@ PillSurface {
     }
 
     /**
-     * Persists name and password into the RicelinHotspot profile without
+     * Persists name and password into the PillOSHotspot profile without
      * bringing it up, creating the profile on first edit. A missing or short
      * password is generated here, since a WPA profile with an empty psk would
      * be broken; the field shows the generated value right away.

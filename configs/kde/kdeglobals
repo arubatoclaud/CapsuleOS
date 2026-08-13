@@ -97,7 +97,7 @@ ForegroundPositive=91,191,115
 ForegroundVisited=189,140,58
 
 [General]
-ColorScheme=Ricelin
+ColorScheme=PillOS
 widgetStyle=Breeze
 
 [Icons]

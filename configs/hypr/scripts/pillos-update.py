@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Update engine for the Ricelin rice. The in-app Settings updater shells out to
+Update engine for the PillOS rice. The in-app Settings updater shells out to
 this and parses the single JSON object it prints on stdout.
 
 The model: keep a dedicated pristine clone that the user never touches, so a pull
@@ -28,7 +28,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-DEFAULT_REMOTE = "https://github.com/Gakuseei/Ricelin.git"
+DEFAULT_REMOTE = "https://github.com/arubatoclaud/PillOS.git"
 
 PROTECTED = [
     "hypr/modules/decoration.lua",
@@ -47,12 +47,12 @@ PROTECTED = [
 
 def data_dir():
     base = os.environ.get("XDG_DATA_HOME") or str(Path.home() / ".local" / "share")
-    return Path(base) / "ricelin-update"
+    return Path(base) / "pillos-update"
 
 
 def manifest_path():
     base = os.environ.get("XDG_STATE_HOME") or str(Path.home() / ".local" / "state")
-    return Path(base) / "ricelin" / "update.json"
+    return Path(base) / "pillos" / "update.json"
 
 
 def git(repo, *args, check=True):
@@ -112,7 +112,7 @@ def backup_protected(config_root):
     was live to back up.
     """
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    dest_root = data_dir().parent / "ricelin-update-backup" / stamp
+    dest_root = data_dir().parent / "pillos-update-backup" / stamp
     made = None
     for rel in PROTECTED:
         live = config_root / rel
@@ -358,7 +358,7 @@ def baseline(config_root, sha):
 
 # ── Missing dependencies ──────────────────────────────────────────────────────
 #
-# A Ricelin update can introduce a new package the rice now needs (cava did once).
+# A PillOS update can introduce a new package the rice now needs (cava did once).
 # The engine reads the upstream package manifest from the clone, works out which
 # core packages are not installed on this machine, and offers to install the chosen
 # ones on apply.

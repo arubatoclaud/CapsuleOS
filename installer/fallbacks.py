@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Tier-3 fallback handlers for the Ricelin installer. These cover the packages
+Tier-3 fallback handlers for the PillOS installer. These cover the packages
 that have no native package on a given distro family, so the installer has to
 fetch them another way: build from source, pull a prebuilt release, run a
 crate install, or hand off to Flathub or a project's own installer.
@@ -28,7 +28,7 @@ BIN_DIR = os.path.expanduser("~/.local/bin")
 # Source builds work under the user's cache, never the invocation CWD (a curl|sh
 # run sits in $HOME and would litter it with clones). Each build wipes its own
 # subdir first, so a re-run never trips over a stale checkout.
-BUILD_DIR = os.path.expanduser("~/.cache/ricelin/build")
+BUILD_DIR = os.path.expanduser("~/.cache/pillos/build")
 
 
 def _clone_step(desc, url, name, extra_args=""):

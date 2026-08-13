@@ -17,7 +17,7 @@ copy-on-select = clipboard
 keybind = ctrl+v=paste_from_clipboard
 confirm-close-surface = false
 
-# Warm Ricelin default theme. The wallpaper picker writes a matching
+# Warm PillOS default theme. The wallpaper picker writes a matching
 # palette to the cache file below, which overrides everything here.
 background = #1c120c
 foreground = #e6d6cb
@@ -41,4 +41,4 @@ palette = 13=#d08a96
 palette = 14=#9fc3b4
 palette = 15=#fff6f0
 
-config-file = ?~/.cache/ricelin/ghostty-colors
+config-file = ?~/.cache/pillos/ghostty-colors

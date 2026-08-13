@@ -1,4 +1,4 @@
-# Torii: Ricelin GRUB theme
+# Torii: PillOS GRUB theme
 # Background: night-shrine (2560x1440)
 
 desktop-image: "background.png"

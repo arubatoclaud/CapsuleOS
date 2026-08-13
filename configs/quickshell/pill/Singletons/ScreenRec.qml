@@ -36,7 +36,7 @@ import Quickshell.Io
  *
  * The recent list carries a cover thumbnail per clip: `refreshRecent()` first
  * runs the thumb script (ffmpeg extracts a single frame into a cache dir under
- * `$XDG_CACHE_HOME/ricelin/rec-thumbs`, skipping clips already cached) and only
+ * `$XDG_CACHE_HOME/pillos/rec-thumbs`, skipping clips already cached) and only
  * then re-reads the list, so each entry's `thumb` path is on disk by the time
  * the filmstrip binds to it. Entries are `{ path, name, mtime, sizeLabel,
  * thumb }`.
@@ -46,7 +46,7 @@ Singleton {
 
     readonly property string home: Quickshell.env("HOME")
     readonly property string defaultDir: home + "/Videos/Recordings"
-    readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (home + "/.cache")) + "/ricelin/rec-thumbs/"
+    readonly property string thumbDir: (Quickshell.env("XDG_CACHE_HOME") || (home + "/.cache")) + "/pillos/rec-thumbs/"
     readonly property string thumbScript: home + "/.config/hypr/scripts/rec-thumbs.sh"
     readonly property string outDir: {
         var d = Flags.recordDir;
@@ -383,7 +383,7 @@ Singleton {
             root.recording = false;
             if (exitCode !== 0) {
                 var msg = recErr.text.trim();
-                failProc.command = ["notify-send", "-a", "Ricelin", "-u", "critical",
+                failProc.command = ["notify-send", "-a", "PillOS", "-u", "critical",
                     "Recording failed", msg.length > 0 ? msg : "gpu-screen-recorder exited " + exitCode];
                 failProc.running = true;
             } else {
@@ -403,7 +403,7 @@ Singleton {
 
     Process {
         id: savedProc
-        command: ["notify-send", "-a", "Ricelin", "Recording saved",
+        command: ["notify-send", "-a", "PillOS", "Recording saved",
             root.currentFile.substring(root.currentFile.lastIndexOf("/") + 1)]
     }
 

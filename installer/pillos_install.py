@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-The Ricelin installer orchestrator: the thin top layer that ties distro
+The PillOS installer orchestrator: the thin top layer that ties distro
 detection, the package planner, the fallback handlers, the config deploy and the
 terminal UI into one real install flow.
 
@@ -184,14 +184,14 @@ def _wizard(args, info, manifest):
     grub = False
     if info["bootloader"] == "grub":
         grub = tui.confirm("GRUB theme", [
-            "Install the Ricelin GRUB theme.",
+            "Install the PillOS GRUB theme.",
             "Theme only, it does not touch your boot entries.",
         ])
 
     brave = True if args.brave else False
     if not args.brave:
         bidx = tui.select_one("Brave browser", [
-            ("Install Brave", "Brave browser with the matching Ricelin theme", True),
+            ("Install Brave", "Brave browser with the matching PillOS theme", True),
             ("Skip", "Leave Brave out for now", False),
         ], default=1)
         brave = bidx == 0
@@ -305,19 +305,19 @@ def _summary_lines(info, choices, plan, args, do_pkgs):
     if choices["grub"]:
         lines.append("Install the GRUB theme.")
     if choices["brave"]:
-        lines.append("Install Brave with the matching Ricelin theme.")
+        lines.append("Install Brave with the matching PillOS theme.")
     if choices["fish"]:
         lines.append("Set fish as your login shell.")
     if _is_update(info):
-        lines.append("Update the Ricelin config; your Settings are kept.")
+        lines.append("Update the PillOS config; your Settings are kept.")
     else:
-        lines.append("Back up and deploy the Ricelin config.")
+        lines.append("Back up and deploy the PillOS config.")
     return lines
 
 
 def _is_update(info):
     """
-    True when this run lands on top of an earlier Ricelin deploy, spotted by the
+    True when this run lands on top of an earlier PillOS deploy, spotted by the
     managed marker on the two dirs that always deploy. That flips the messaging
     from "back up and deploy" to "update, your files are kept", since a managed
     replace makes no backup and carries the protected user files across.
@@ -329,23 +329,23 @@ def _is_update(info):
 def seed_wallpapers(dry):
     """
     Give a fresh box a wallpaper to show. Every wallpaper consumer reads
-    ~/Ricelin/wallpapers (wallpaper.sh, the picker, the search, the palette), but
+    ~/PillOS/wallpapers (wallpaper.sh, the picker, the search, the palette), but
     that dir is gitignored and untracked, so a clone ships none: no background, an
     empty picker, the palette never fires. Create the dir plus the downloads
-    subfolder and the ricelin cache, and when it holds no images yet, copy the
+    subfolder and the pillos cache, and when it holds no images yet, copy the
     tracked starter set in so swww, the picker and the palette all light up.
     Fail-soft like every other step: an OSError comes back as (ok, detail) for
     the report instead of aborting the run.
     """
     home = Path.home()
-    wp = home / "Ricelin" / "wallpapers"
+    wp = home / "PillOS" / "wallpapers"
     starters = Path(__file__).resolve().parent / "starter-wallpapers"
     if dry:
-        print("  would seed wallpapers -> ~/Ricelin/wallpapers")
+        print("  would seed wallpapers -> ~/PillOS/wallpapers")
         return True, ""
     try:
         (wp / "downloads").mkdir(parents=True, exist_ok=True)
-        (home / ".cache" / "ricelin").mkdir(parents=True, exist_ok=True)
+        (home / ".cache" / "pillos").mkdir(parents=True, exist_ok=True)
         exts = (".jpg", ".jpeg", ".png")
         has_image = any(p.is_file() and p.suffix.lower() in exts for p in wp.iterdir())
         if has_image:
@@ -402,17 +402,17 @@ def bridge_wallpaper_binary(dry):
     return True, "", True
 
 
-def link_ricelin_cli(dry):
+def link_pillos_cli(dry):
     """
-    Put the `ricelin` control CLI on PATH. The script ships inside the deployed
-    config at ~/.config/hypr/scripts/ricelin, so symlink it into ~/.local/bin where
+    Put the `pillos` control CLI on PATH. The script ships inside the deployed
+    config at ~/.config/hypr/scripts/pillos, so symlink it into ~/.local/bin where
     the wallpaper bridge already lives. Returns (ok, detail, linked) so the caller
     folds it into record() and flags the PATH note only when a fresh link was made.
     """
-    target = deploy.CONFIG_ROOT / "hypr" / "scripts" / "ricelin"
-    link = Path.home() / ".local" / "bin" / "ricelin"
+    target = deploy.CONFIG_ROOT / "hypr" / "scripts" / "pillos"
+    link = Path.home() / ".local" / "bin" / "pillos"
     if dry:
-        print(f"  would link: ricelin -> {target}")
+        print(f"  would link: pillos -> {target}")
         return True, "", False
     if not target.exists():
         return True, "", False
@@ -422,19 +422,19 @@ def link_ricelin_cli(dry):
             link.unlink()
         link.symlink_to(target)
     except OSError as exc:
-        return False, f"{exc}: link ricelin CLI", False
-    print(f"  linked: ricelin -> {target}")
+        return False, f"{exc}: link pillos CLI", False
+    print(f"  linked: pillos -> {target}")
     return True, "", True
 
 
 def deploy_brave_theme(source, dry):
     """
-    Copy the bundled Brave theme into ~/.config/ricelin so the user can point
+    Copy the bundled Brave theme into ~/.config/pillos so the user can point
     Brave at it. Chromium signs its own preferences, so the theme can never be
     applied reliably from outside; it just has to sit on disk, ready to load from
     brave://settings. Returns (ok, detail) so the caller folds it into record().
     """
-    dest_show = "~/.config/ricelin/brave-theme"
+    dest_show = "~/.config/pillos/brave-theme"
     if dry:
         print(f"  would deploy: brave-theme -> {dest_show}")
         return True, ""
@@ -474,7 +474,7 @@ def _seed_update_baseline(source, config_root, dry):
             capture_output=True, text=True, check=True).stdout.strip()
     except (OSError, subprocess.CalledProcessError):
         return True, ""
-    engine = Path(config_root) / "hypr" / "scripts" / "ricelin-update.py"
+    engine = Path(config_root) / "hypr" / "scripts" / "pillos-update.py"
     if not head or not engine.exists():
         return True, ""
     try:
@@ -518,14 +518,14 @@ def _report(plan, failures, notes, info, choices, args, do_pkgs, dry):
     steps.append(("pick a wallpaper", "Super+C to swap or grab more"))
     if choices["brave"]:
         steps.append(("brave theme",
-                      "brave://settings/appearance, load ~/.config/ricelin/brave-theme"))
+                      "brave://settings/appearance, load ~/.config/pillos/brave-theme"))
 
     attention = []
     for step, _detail, hint in failures:
         cmd = hint[len("Run: "):] if hint.startswith("Run: ") else hint
         attention.append((step, cmd))
 
-    title = "Dry run complete" if dry else "Ricelin is in"
+    title = "Dry run complete" if dry else "PillOS is in"
     tui.closing(title, tally, steps, attention, notes or None)
 
 
@@ -547,7 +547,7 @@ def run(args):
         helper_label = "Not needed"
     has_config = any(v["exists"] for v in info["existing"].values())
     if _is_update(info):
-        config_label = "Ricelin (this run updates it, your Settings are kept)"
+        config_label = "PillOS (this run updates it, your Settings are kept)"
     elif has_config:
         config_label = "Found (backed up before anything is replaced)"
     else:
@@ -780,19 +780,19 @@ def run(args):
             record(False, str(exc), "Neutralize configs",
                    "Check ~/.config permissions and re-run the installer.")
 
-        # k2. put the ricelin control CLI on PATH now that the script is deployed.
-        ok, detail, linked = link_ricelin_cli(dry)
-        record(ok, detail, "Link ricelin CLI",
-               "Symlink ~/.local/bin/ricelin to ~/.config/hypr/scripts/ricelin yourself.")
+        # k2. put the pillos control CLI on PATH now that the script is deployed.
+        ok, detail, linked = link_pillos_cli(dry)
+        record(ok, detail, "Link pillos CLI",
+               "Symlink ~/.local/bin/pillos to ~/.config/hypr/scripts/pillos yourself.")
         if linked:
-            notes.append("Linked the ricelin CLI into ~/.local/bin. With it on PATH "
-                         "you can run: ricelin status, ricelin restart, ricelin update.")
+            notes.append("Linked the pillos CLI into ~/.local/bin. With it on PATH "
+                         "you can run: pillos status, pillos restart, pillos update.")
 
         # l. seed a starter wallpaper so the first boot has a background, a
         #    populated picker and a palette to render.
         ok, detail = seed_wallpapers(dry)
         record(ok, detail, "Seed wallpapers",
-               "Copy any image into ~/Ricelin/wallpapers yourself.")
+               "Copy any image into ~/PillOS/wallpapers yourself.")
 
         # m. themes.
         if choices["sddm"]:
@@ -851,7 +851,7 @@ def run(args):
                 notes.append("Skipped the Brave install, only deployed its theme.")
             ok, detail = deploy_brave_theme(args.source, dry)
             record(ok, detail, "Deploy Brave theme",
-                   "Copy configs/brave-theme to ~/.config/ricelin/brave-theme yourself.")
+                   "Copy configs/brave-theme to ~/.config/pillos/brave-theme yourself.")
     finally:
         if keepalive_stop:
             keepalive_stop()
@@ -866,7 +866,7 @@ def run(args):
 
 def run_uninstall(args):
     """
-    Remove every Ricelin-managed config and put the pre-install backups back.
+    Remove every PillOS-managed config and put the pre-install backups back.
     Packages stay; only the deployed files go. Confirms interactively before
     touching anything, and refuses to run headless, since a piped one-liner
     should never be able to wipe a config unattended.
@@ -876,7 +876,7 @@ def run_uninstall(args):
     plan = deploy.uninstall(config_root=deploy.CONFIG_ROOT, apply=False)
     removals = [a for a in plan if a["action"] == "remove"]
     if not removals:
-        tui.info(["Nothing Ricelin-managed found in ~/.config, nothing to remove."])
+        tui.info(["Nothing PillOS-managed found in ~/.config, nothing to remove."])
         tui.outro("Done")
         return 0
 
@@ -893,7 +893,7 @@ def run_uninstall(args):
         tui.outro("Dry run complete")
         return 0
     try:
-        if not tui.confirm("Remove Ricelin", lines):
+        if not tui.confirm("Remove PillOS", lines):
             tui.outro("Cancelled")
             return 0
     except RuntimeError:
@@ -906,22 +906,22 @@ def run_uninstall(args):
             tail = f" (restored {a['restored']})" if a["restored"] else ""
             print(f"  removed: {a['dest']}{tail}")
 
-    link = Path.home() / ".local" / "bin" / "ricelin"
+    link = Path.home() / ".local" / "bin" / "pillos"
     if link.is_symlink():
         try:
             link.unlink()
             print(f"  removed: {link}")
         except OSError:
             pass
-    tui.info(["The repo clone in ~/.local/share/ricelin and your wallpapers in "
-              "~/Ricelin are left for you to delete."])
-    tui.outro("Ricelin removed")
+    tui.info(["The repo clone in ~/.local/share/pillos and your wallpapers in "
+              "~/PillOS are left for you to delete."])
+    tui.outro("PillOS removed")
     return 0
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Install the Ricelin Hyprland rice across distro families.")
+        description="Install the PillOS Hyprland rice across distro families.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Walk the whole flow and change nothing")
     parser.add_argument("--quickstart", action="store_true",
@@ -933,11 +933,11 @@ def main():
     parser.add_argument("--sddm", action="store_true",
                         help="Preselect the torii SDDM login theme")
     parser.add_argument("--brave", action="store_true",
-                        help="Preselect Brave plus its Ricelin theme")
+                        help="Preselect Brave plus its PillOS theme")
     parser.add_argument("--no-deps", action="store_true",
                         help="Skip the package step, only deploy the configs")
     parser.add_argument("--reinstall", action="store_true",
-                        help="Run the full install over an existing Ricelin install")
+                        help="Run the full install over an existing PillOS install")
     parser.add_argument("--uninstall", action="store_true",
                         help="Remove the deployed configs and restore the backups")
     args = parser.parse_args()

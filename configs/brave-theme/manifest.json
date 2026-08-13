@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "version": "1.0.0",
-  "name": "Ricelin",
-  "description": "Warm vermillion-on-dark-brown theme matching the Ricelin rice.",
+  "name": "PillOS",
+  "description": "Warm vermillion-on-dark-brown theme matching the PillOS rice.",
   "theme": {
     "colors": {
       "frame": [34, 24, 19],

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Package-manager operations for the Ricelin multi-distro installer. distro.py
+Package-manager operations for the PillOS multi-distro installer. distro.py
 decides what to do with each package (native, fallback, skip); this module turns
 those decisions into the concrete shell argv that actually queries or installs a
 package on the detected family. Building argv lists instead of running them keeps
@@ -195,7 +195,7 @@ def ensure_aur_helper_steps():
     """
     if aur_helper() is not None:
         return []
-    build_dir = shlex.quote(os.path.join(tempfile.gettempdir(), "ricelin-yay-build"))
+    build_dir = shlex.quote(os.path.join(tempfile.gettempdir(), "pillos-yay-build"))
     return [
         ["sudo", "pacman", "-S", "--needed", "--noconfirm", "git", "base-devel"],
         ["sh", "-c",
@@ -217,7 +217,7 @@ def privileged(argv, family):
 
 def _write_os_release(fields):
     """Write a throwaway os-release with these fields and return its path, for tests."""
-    fd, path = tempfile.mkstemp(prefix="ricelin-osr-")
+    fd, path = tempfile.mkstemp(prefix="pillos-osr-")
     with os.fdopen(fd, "w") as fh:
         for k, v in fields.items():
             fh.write(f'{k}="{v}"\n')

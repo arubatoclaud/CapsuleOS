@@ -16,7 +16,7 @@ Singleton {
     readonly property string dim: adapter.dim
 
     FileView {
-        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/ricelin/colors.json"
+        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/pillos/colors.json"
         blockLoading: true
         watchChanges: true
         printErrors: false

@@ -5,7 +5,7 @@ import Quickshell.Io
 
 /**
  * Local calendar events, persisted as a plain JSON array beside the session
- * flags (~/.local/state/ricelin/events.json). The in-memory `events` is the
+ * flags (~/.local/state/pillos/events.json). The in-memory `events` is the
  * source of truth: add/remove mutate it and write the file, which is read back
  * only at startup. The file is deliberately NOT watched — re-reading our own
  * write races the FileView's cached text and dropped the just-added event (it
@@ -36,7 +36,7 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ricelin"
+    readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos"
 
     property var events: []
     property int nextId: 1

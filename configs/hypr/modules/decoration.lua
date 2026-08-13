@@ -1,5 +1,5 @@
 local home = os.getenv("HOME")
-local ok, wc = pcall(dofile, home .. "/.cache/ricelin/hypr-colors.lua")
+local ok, wc = pcall(dofile, home .. "/.cache/pillos/hypr-colors.lua")
 if not ok then wc = nil end
 
 local function border(hex, fallback)
