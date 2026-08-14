@@ -1,78 +1,54 @@
 <div align="center">
 
-# Ricelin
+# PillOS
 
-**My Hyprland setup on CachyOS. The whole shell is hand-written Quickshell, no copied dotfiles.**
+### macOS Golden Gate — the release Apple never shipped.
 
-![Ricelin desktop](assets/hero.png)
+*One pill. A bridge at night. The desktop California deserved.*
 
 </div>
 
-I started this a few months into Linux, mostly to learn how things work. It somehow turned into my daily driver.
+Every macOS release is named after a California landmark. Somehow, the most
+famous one never got its turn. PillOS fixes that: a Hyprland + Quickshell
+desktop styled as the fictional **macOS Golden Gate** — cold night-bridge
+surfaces, fog-grey type, and International Orange burning through as amber.
 
-## The shell
+Forked with love from [Ricelin](https://github.com/Gakuseei/Ricelin), whose
+hand-written Quickshell pill is the entire chassis. Go star it.
 
-Everything you see is hand-written Quickshell. One pill bar that morphs into whatever surface I need.
+## Highlights
 
-![The pill surfaces](assets/shell.png)
-
-The pill becomes media and now playing, a calendar, the wallpaper picker, clipboard history, an audio and brightness mixer, and network and bluetooth controls. There is also an app launcher, a lock screen, and [rishot](https://github.com/Gakuseei/rishot), my own screenshot and annotation tool, which lives in its own repo so you can read all of it there.
+- **The Pill** — one shape-shifting bar: media, calendar, wallpaper picker,
+  clipboard history, mixer, network, bluetooth, launcher, lock.
+- **Materials** — Glass, Frost or Ink. Pick your translucency in Settings.
+- **Motion** — Calm (Apple's own curve), Spring, or Glide. The shell and
+  Hyprland animate in the same language.
+- **Auto-hide** — the pill slides off the top edge at rest, exactly like the
+  Mac menu bar. Mouse up to bring it home.
+- **Night bridge, day wallpaper** — matugen still repaints everything from
+  your wallpaper when you want it to; the curated theme is the fallback.
+- **Sonoma lock** — thin-weight clock, avatar, frosted password capsule.
 
 ## Stack
 
-- WM: Hyprland, configured in Lua
-- Shell UI: custom Quickshell
-- Terminal: Ghostty
-- Shell: fish
-- Font: JetBrains Mono Nerd
-- Colors: matugen, palette pulled from the wallpaper
-
-matugen pulls a palette from each wallpaper and recolors the pill, terminal, window borders and fastfetch. The shell itself runs a warm vermilion theme I tuned by hand.
-
-<div align="center">
-
-![the palette is pulled from the wallpaper](assets/wallust.gif)
-
-![Wallpaper retheme](assets/retheme.gif)
-
-</div>
+Hyprland (Lua) · Quickshell · ghostty · zsh · Inter + JetBrains Mono Nerd · matugen
 
 ## Install
 
-> [!WARNING]
-> The installer is young. It hasn't had a clean-machine run beyond mine yet, so expect rough edges. Read `install.sh` first and keep backups. If something breaks, file a bug and say it's the installer.
+> **Warning:** young installer, read it first, keep backups.
 
-One line, straight through the pipe:
+    curl -fsSL https://raw.githubusercontent.com/arubatoclaud/PillOS/main/install.sh | bash
 
-```sh
-curl -fsSL https://raw.githubusercontent.com/Gakuseei/Ricelin/main/install.sh | bash
-```
+Flags: `--quickstart` (defaults, no questions) · `--full` (daily apps) ·
+`--sddm` (goldengate login theme) · `--no-deps` (configs only — the sudoless
+path) · `--dry-run` (change nothing).
 
-`install.sh` is a thin bootstrap: it detects your distro (Arch, Debian, Fedora or
-openSUSE), makes sure git and python3 are there, clones the rice into
-`~/.local/share/ricelin`, then hands off to the guided Python installer. That part
-walks you through a short wizard, picks the right package names for your distro,
-pulls the deps and copies the configs into `~/.config`, backing up anything it
-replaces. The monitor layout and GPU env are swapped for portable defaults so it
-boots on any hardware; my own layout is kept next to it as `monitors.lua.example`.
-Then start `Hyprland` from a TTY.
+On a sudoless machine use `--no-deps` and install the package list from
+`installer/packages.json` by other means. Fonts can go to
+`~/.local/share/fonts` without root.
 
-Skip the wizard with flags, passed straight through the pipe:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/Gakuseei/Ricelin/main/install.sh | bash -s -- --quickstart
-```
-
-```
---quickstart  core defaults, no questions
---full        also install the daily apps (dolphin, keepassxc, zathura, imv, rnote)
---sddm        also install the torii SDDM login theme
---no-deps     skip the package step, just deploy the configs
---dry-run     walk the whole flow and change nothing
-```
-
-Ricelin is a Hyprland shell. On Niri, Sway or anything else only rishot (the
-screenshot tool) makes sense; grab it from [rishot](https://github.com/Gakuseei/rishot)'s own installer.
+Your existing `~/.zshrc` is never touched. Your monitor layout is never
+overwritten. Screenshots are bring-your-own (grim + slurp work well).
 
 ## Keybinds
 
@@ -86,16 +62,9 @@ screenshot tool) makes sense; grab it from [rishot](https://github.com/Gakuseei/
 | `Super` + `E` | file manager |
 | `Super` + `T` | toggle floating |
 | `Super` + `L` | lock |
-| `Print` | rishot |
-
-## Notes
-
-These started as my personal dotfiles, built around my own machine. The installer neutralises the hardware-specific bits, but some paths and choices still lean on how I run things, so read before you borrow.
-
-## Support
-
-If Ricelin made your setup nicer, you can [buy me a coffee on Ko-fi](https://ko-fi.com/gakuseei). I build this on my own and it keeps the work going.
 
 ## Credits
 
-The lock screen, the SDDM background and the wallpapers are not mine. See [CREDITS](configs/sddm/themes/torii/CREDITS.md).
+The pill, the installer, the update engine and most of what you see are
+[Gakuseei's Ricelin](https://github.com/Gakuseei/Ricelin), reskinned.
+Lock/SDDM asset credits: [CREDITS](configs/sddm/themes/goldengate/CREDITS.md).
