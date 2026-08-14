@@ -8,7 +8,7 @@ import "lib/setAnim.js" as SetAnim
 import "Singletons"
 
 /**
- * 動 ANIMATION sub-surface: toggles Hyprland animations, sets one master speed
+ * ANIMATION sub-surface: toggles Hyprland animations, sets one master speed
  * across every leaf, and shapes the main motion curve by dragging its two bezier
  * control points. animations.lua is read once per pill session (first seed);
  * after that the in-memory properties are the single source of truth, so
@@ -158,7 +158,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "動"
+            glyph: "\uf04b"
             title: "ANIMATION"
             showBack: true
         }

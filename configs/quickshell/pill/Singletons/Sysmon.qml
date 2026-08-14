@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 /**
- * System-vitals backend for the 系 SYSTEM surface. Polls CPU, memory, swap,
+ * System-vitals backend for the SYSTEM surface. Polls CPU, memory, swap,
  * network, disk and (when a discrete GPU is present) GPU load, temperature and
  * VRAM, exposing them as live properties the surface binds to. Polling only runs
  * while `open` is true, on three decoupled cadences so a slow source never

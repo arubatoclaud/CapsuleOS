@@ -7,7 +7,7 @@ import "lib/setInput.js" as SetInput
 import "Singletons"
 
 /**
- * 操 INPUT sub-surface: edits the pointer, keyboard and cursor settings that live
+ * INPUT sub-surface: edits the pointer, keyboard and cursor settings that live
  * in the Hyprland Lua modules, writing each change straight back to its source so
  * the choice survives a restart. Pointer and keyboard fields rewrite input.lua
  * and reload Hyprland; the layout row cycles a curated list of common layouts.
@@ -365,7 +365,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "操"
+            glyph: "\uf245"
             title: "INPUT"
             showBack: true
         }

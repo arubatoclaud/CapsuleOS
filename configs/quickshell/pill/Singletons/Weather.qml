@@ -17,8 +17,8 @@ import Quickshell.Io
  * is guarded: a partial body or network blip leaves the last good values in place
  * and `ready` simply stays false until the first clean fetch lands.
  *
- * Conditions render as on-brand kanji rather than icons — 晴 clear, 曇 cloud,
- * 雨 rain, 雪 snow, 霧 fog, 雷 thunder, 月 a clear night — keyed off the WMO weather
+ * Conditions render as on-brand kanji rather than icons — clear, cloud,
+ * rain, snow, fog, thunder, a clear night — keyed off the WMO weather
  * code via `glyphFor`, with `labelFor` giving the short english word.
  */
 Singleton {
@@ -40,7 +40,7 @@ Singleton {
     property bool located: false
 
     /**
-     * Maps a WMO weather code to its on-brand kanji. Clear skies show 月 at night
+     * Maps a WMO weather code to its on-brand kanji. Clear skies show at night
      * so the glance reads day-versus-night at a glance; every other condition is
      * the same glyph round the clock.
      */

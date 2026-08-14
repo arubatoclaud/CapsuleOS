@@ -4,7 +4,7 @@ import QtQuick
 import "Singletons"
 
 /**
- * 報 INBOX surface: the notification center. Grouped per app with critical
+ * INBOX surface: the notification center. Grouped per app with critical
  * entries pinned above the fold, an inline clear-all, and a silence empty
  * state; opening marks all notifications seen after a short beat so unread
  * embers register first. Exposes `desiredW` for the pill's morph and docks Ame
@@ -272,9 +272,9 @@ PillSurface {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: Flags.showGlyphs
-                    text: "報"
+                    text: "\uf0f3"
                     color: Theme.cream
-                    font.family: Theme.fontJp
+                    font.family: Theme.fontIcon
                     font.weight: Font.Medium
                     font.pixelSize: 16 * root.s
                 }
@@ -337,9 +337,9 @@ PillSurface {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: Flags.showGlyphs
-                            text: "払"
+                            text: "\uf12d"
                             color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
-                            font.family: Theme.fontJp
+                            font.family: Theme.fontIcon
                             font.pixelSize: 9 * root.s
                             font.weight: Font.Bold
                         }
@@ -589,16 +589,16 @@ PillSurface {
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 visible: Flags.showGlyphs
-                text: "静"
+                text: "\uf1f6"
                 color: Theme.ghost
                 opacity: 0.55
-                font.family: Theme.fontJp
+                font.family: Theme.fontIcon
                 font.weight: Font.Medium
                 font.pixelSize: 32 * root.s
             }
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: Flags.showGlyphs ? "SILENCE" : "No notifications to display"
+                text: Flags.showGlyphs ? "ALL QUIET" : "No notifications to display"
                 color: Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9 * root.s

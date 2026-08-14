@@ -7,7 +7,7 @@ import "lib/setDeco.js" as SetDeco
 import "Singletons"
 
 /**
- * 飾 LOOK sub-surface: edits the window-decoration knobs that live in
+ * LOOK sub-surface: edits the window-decoration knobs that live in
  * decoration.lua and writes each change straight back to its source so the choice
  * survives a restart. Window gaps, rounding and border size, the two opacity
  * fields and the blur block all rewrite the Lua and reload Hyprland so the change
@@ -477,7 +477,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "飾"
+            glyph: "\uf1fc"
             title: "LOOK"
             showBack: true
         }

@@ -5,7 +5,7 @@ import QtQuick.Effects
 import "Singletons"
 
 /**
- * 飴 Ame, the shapeshifter. One molten-glass bead, the shell's only glowing
+ * Ame, the shapeshifter. One molten-glass bead, the shell's only glowing
  * element. Idle it just breathes (2.5% scale over ~8s). No music/audio/physics
  * coupling; every motion is a fixed, scripted timeline.
  *

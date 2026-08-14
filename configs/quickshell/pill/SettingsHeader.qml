@@ -29,7 +29,7 @@ Item {
             visible: Flags.showGlyphs && head.glyph.length > 0
             text: head.glyph
             color: Theme.cream
-            font.family: Theme.fontJp
+            font.family: Theme.fontIcon
             font.weight: Font.Medium
             font.pixelSize: 16 * head.s
         }

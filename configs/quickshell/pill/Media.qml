@@ -9,7 +9,7 @@ import "Singletons"
  * Now-playing card. Album art bleeds edge-to-edge on the left, faded into the
  * card; a blurred copy glows through a near-opaque warm wash behind everything.
  * Right of the cover: title, artist, a dim source/time line, the play/pause
- * seal (奏/休) flanked by 前/次 skips. Playback runs as a brush stroke along the
+ * seal flanked by skips. Playback runs as a brush stroke along the
  * bottom, its painted head the dock for the pill's soul bead. All now-playing
  * data comes from [[Players]]; when two or more players run, the source token
  * glows into a bubble that opens a picker.
@@ -122,7 +122,7 @@ PillSurface {
             visible: Flags.showGlyphs
             anchors.centerIn: parent
             text: skip.kanjiText
-            font.family: Theme.fontJp
+            font.family: Theme.fontIcon
             font.pixelSize: 13 * root.s
             color: skipArea.containsMouse ? Theme.cream : Theme.dim
             Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -480,7 +480,7 @@ PillSurface {
         Behavior on opacity { NumberAnimation { duration: Motion.fast } }
 
         KanjiSkip {
-            kanjiText: "前"
+            kanjiText: "\uf048"
             icon: "prev"
             can: root.hasPlayer && root.player.canGoPrevious
             onActivated: if (root.player) root.player.previous()
@@ -511,9 +511,9 @@ PillSurface {
             Text {
                 visible: Flags.showGlyphs
                 anchors.centerIn: parent
-                text: root.playing ? "奏" : "休"
+                text: root.playing ? "\uf04c" : "\uf04b"
                 color: Theme.bright
-                font.family: Theme.fontJp
+                font.family: Theme.fontIcon
                 font.pixelSize: 16 * root.s
                 font.weight: Font.DemiBold
             }
@@ -539,7 +539,7 @@ PillSurface {
         }
 
         KanjiSkip {
-            kanjiText: "次"
+            kanjiText: "\uf051"
             icon: "next"
             can: root.hasPlayer && root.player.canGoNext
             onActivated: if (root.player) root.player.next()

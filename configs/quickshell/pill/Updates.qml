@@ -6,7 +6,7 @@ import Quickshell.Io
 import "Singletons"
 
 /**
- * 更 UPDATES sub-surface: a terminal-free face for the PillOS update engine. It
+ * UPDATES sub-surface: a terminal-free face for the PillOS update engine. It
  * never touches git itself; it shells out to the python engine at
  * ~/.config/hypr/scripts/pillos-update.py, which prints one JSON object, and
  * renders that. `check` is a safe dry-run that reports how far behind the install
@@ -349,7 +349,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "更"
+            glyph: "\uf021"
             title: "UPDATES"
             showBack: true
         }

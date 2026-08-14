@@ -8,7 +8,7 @@ import Quickshell.Networking
 import "Singletons"
 
 /**
- * 波 WIFI surface: kanji header, wifi enable toggle and the live network list
+ * WIFI surface: kanji header, wifi enable toggle and the live network list
  * sorted by signal strength. Security and known-profile ground truth come from
  * nmcli; clicking a secured unknown network expands an inline password row that
  * connects through `nmcli dev wifi connect`. Standalone root surface, so Escape
@@ -591,9 +591,9 @@ PillSurface {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Flags.showGlyphs
-                text: "波"
+                text: "\uf1eb"
                 color: Theme.cream
-                font.family: Theme.fontJp
+                font.family: Theme.fontIcon
                 font.weight: Font.Medium
                 font.pixelSize: 16 * root.s
             }

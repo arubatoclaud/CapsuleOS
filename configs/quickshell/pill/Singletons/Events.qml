@@ -46,7 +46,7 @@ Singleton {
      * entry can suggest yearly and old ones get classified on load. Plain substring
      * alternation, case-insensitive; accented forms are caught by a safe stem.
      */
-    readonly property var birthdayRe: /geburtstag|geb\.|birthday|b-?day|🎂|cumplea|anniversaire|compleanno|anivers|verjaardag|рожд|誕生|생일|urodziny|do[ğg]um/i
+    readonly property var birthdayRe: /geburtstag|geb\.|birthday|b-?day|🎂|cumplea|anniversaire|compleanno|anivers|verjaardag|рожд|\u8a95\u751f|생일|urodziny|do[ğg]um/i
 
     function isBirthday(t) {
         return root.birthdayRe.test(t || "");

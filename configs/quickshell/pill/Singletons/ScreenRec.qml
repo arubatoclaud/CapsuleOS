@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 /**
- * Screen-recorder backend, shared by the 録 RECORD surface, the pill's hover
+ * Screen-recorder backend, shared by the RECORD surface, the pill's hover
  * cluster record indicator and the record OSD. gpu-screen-recorder is the
  * encoder (cross-vendor nvenc/vaapi/cpu); this singleton owns the capture
  * settings, builds the argv from them, starts and stops the recorder and keeps

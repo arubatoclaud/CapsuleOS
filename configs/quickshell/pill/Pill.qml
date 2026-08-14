@@ -724,7 +724,7 @@ Item {
     }
 
     /**
-     * Rest anchor for Ame: the 時 kanji centre. The idle outline condenses into
+     * Rest anchor for Ame: the kanji centre. The idle outline condenses into
      * the bead here before it moves.
      */
     readonly property point wakePoint: {
@@ -1281,9 +1281,9 @@ Item {
                 Text {
                     id: kanjiFill
                     opacity: (Flags.showGlyphs && !restKanji.barsOn) ? 1 : 0
-                    text: "時"
+                    text: "\uf017"
                     color: Theme.cream
-                    font.family: Theme.fontJp
+                    font.family: Theme.fontIcon
                     font.weight: Font.Medium
                     font.pixelSize: 15 * pill.s
                     Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
