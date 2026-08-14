@@ -337,12 +337,14 @@ def seed_wallpapers(dry):
         if not starters.is_dir():
             print(f"  no starter wallpapers to seed at {starters}")
             return True, ""
-        seeded = 0
-        for src in sorted(starters.iterdir()):
-            if src.is_file() and src.suffix.lower() in exts:
-                shutil.copy2(src, wp / src.name)
-                seeded += 1
-        print(f"  seeded {seeded} starter wallpaper(s) -> {wp}")
+        sources = [p for p in sorted(starters.iterdir())
+                   if p.is_file() and p.suffix.lower() in exts]
+        if not sources:
+            print(f"  starter-wallpapers is empty, nothing to seed -> {wp}")
+            return True, ""
+        for src in sources:
+            shutil.copy2(src, wp / src.name)
+        print(f"  seeded {len(sources)} starter wallpaper(s) -> {wp}")
         return True, ""
     except OSError as exc:
         return False, f"{exc}: seed wallpapers"
