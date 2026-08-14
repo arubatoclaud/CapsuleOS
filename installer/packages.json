@@ -61,10 +61,9 @@
       "names": { "arch": "ghostty", "debian": null, "fedora": null, "suse": "ghostty" },
       "fallback": "ghostty" },
 
-    { "id": "fish", "group": "core", "required": true, "desc": "The shell", "aur": false,
-      "names": { "arch": "fish", "debian": "fish", "fedora": "fish", "suse": "fish" }, "fallback": null },
+    { "id": "zsh", "group": "core", "required": true, "desc": "The shell", "aur": false, "names": { "arch": "zsh", "debian": "zsh", "fedora": "zsh", "suse": "zsh" }, "fallback": null },
 
-    { "id": "zoxide", "group": "core", "required": true, "desc": "Directory jumper the fish config initialises on startup", "aur": false,
+    { "id": "zoxide", "group": "core", "required": true, "desc": "Directory jumper the zsh config initialises on startup", "aur": false,
       "names": { "arch": "zoxide", "debian": "zoxide", "fedora": "zoxide", "suse": "zoxide" }, "fallback": null },
 
     { "id": "cliphist", "group": "core", "required": true, "desc": "Clipboard history behind the pill surface", "aur": false,

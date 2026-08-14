@@ -17,7 +17,6 @@ path and is meant to work headless. --quickstart skips the wizard and takes the
 Quick-profile defaults, so it pairs with --dry-run for a non-interactive check.
 """
 import argparse
-import getpass
 import os
 import shlex
 import shutil
@@ -138,7 +137,6 @@ def _default_choices(args, info, manifest):
         "optional_ids": set(full_ids) if profile == "full" else set(),
         "sddm": args.sddm,
         "grub": False,
-        "fish": True,
         "brave": args.brave,
     }
 
@@ -196,11 +194,9 @@ def _wizard(args, info, manifest):
         ], default=1)
         brave = bidx == 0
 
-    fish = tui.confirm("Login shell", ["Set fish as your login shell. (Recommended)"])
-
     return {
         "profile": profile, "aur_choice": aur_choice, "optional_ids": optional_ids,
-        "sddm": sddm, "grub": grub, "fish": fish, "brave": brave,
+        "sddm": sddm, "grub": grub, "brave": brave,
     }
 
 
@@ -306,8 +302,6 @@ def _summary_lines(info, choices, plan, args, do_pkgs):
         lines.append("Install the GRUB theme.")
     if choices["brave"]:
         lines.append("Install Brave with the matching PillOS theme.")
-    if choices["fish"]:
-        lines.append("Set fish as your login shell.")
     if _is_update(info):
         lines.append("Update the PillOS config; your Settings are kept.")
     else:
@@ -507,7 +501,7 @@ def _report(plan, failures, notes, info, choices, args, do_pkgs, dry):
     steps = []
     if dry:
         steps.append(("dry run", "nothing changed, a real run ends like this"))
-    steps.append(("log back in", "fish and the input group need a fresh session"))
+    steps.append(("log back in", "the input group needs a fresh session"))
     if info["init"] != "systemd" and do_pkgs:
         steps.append(("enable services", "NetworkManager and bluetooth via your init"))
     if do_pkgs or shutil.which("Hyprland"):
@@ -613,7 +607,7 @@ def run(args):
             failures.append((step, detail, hint))
 
     needs_sudo = (do_pkgs or choices["sddm"] or choices.get("grub")
-                  or choices["fish"] or choices["brave"]) and not dry
+                  or choices["brave"]) and not dry
     keepalive_stop = sudo_keepalive() if needs_sudo else None
     try:
         if do_pkgs:
@@ -735,25 +729,6 @@ def run(args):
             notes.append("Linked awww to swww in ~/.local/bin. Make sure "
                          "~/.local/bin is on PATH so the wallpaper script finds it.")
 
-        # j. fish as the login shell, kept even with --no-deps. Never chsh onto a
-        #    binary that is not there: root's chsh skips the shell validation, so
-        #    a missing fish would land in /etc/passwd and break every login.
-        if choices["fish"]:
-            fishbin = shutil.which("fish")
-            if fishbin:
-                # chsh prompts for the login password through PAM, which a piped
-                # `curl | bash` run has no terminal for, so it always failed. Set
-                # it as root instead; the sudo timestamp is already warm.
-                ok, detail = _run(["sudo", "chsh", "-s", fishbin, getpass.getuser()], dry)
-                record(ok, detail, "Set fish as login shell",
-                       "Run: chsh -s $(command -v fish)")
-            elif dry:
-                print("  would set fish as login shell (once fish is installed)")
-            else:
-                record(False, "fish is not installed, login shell left unchanged",
-                       "Set fish as login shell",
-                       "Install fish, then run: chsh -s $(command -v fish)")
-
         # k. deploy the configs and make them portable. A copytree or write
         #    that hits an OSError mid-iteration is recorded and stepped past,
         #    so a real run still finishes with a report instead of a traceback.
@@ -768,6 +743,11 @@ def run(args):
                     if migrated:
                         head = "would migrate" if dry else "migrated"
                         print(f"  {head}: {len(migrated)} ricelin paths to pillos")
+                    continue
+                if action["action"] in ("installed", "skipped-existing"):
+                    if action["action"] == "installed":
+                        head = "would deploy" if dry else "deployed"
+                        print(f"  {head}: {action['step']} -> {action['path']}")
                     continue
                 head = "would deploy" if dry else "deployed"
                 extra = f" (backup {action['backup']})" if action.get("backup") else ""

@@ -41,7 +41,6 @@ PROTECTED = [
     "hypr/modules/stash-apps.lua",
     "hypr/modules/spaces.lua",
     "hypr/hypridle.conf",
-    "fish/config.fish",
 ]
 
 

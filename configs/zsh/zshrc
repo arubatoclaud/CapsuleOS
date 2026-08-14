@@ -1,0 +1,3 @@
+# PillOS zsh config — deliberately stock. Add your own flavor on top.
+eval "$(zoxide init zsh)"
+alias ff='fastfetch'
