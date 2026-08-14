@@ -23,6 +23,15 @@ Singleton {
     readonly property real surfAlpha: material === "glass" ? 0.62 : material === "ink" ? 1.0 : 0.86
 
     /**
+     * Conversion factor for the handful of sites that hard-pin their own alpha
+     * over a surface token instead of taking it whole (the media sheet, the OSD
+     * plate). Normalised on frost, so frost renders byte-identical to the
+     * shipped look while ink drives those alphas up to opaque and glass thins
+     * them. Multiply, then clamp: `Math.min(1, hardAlpha * Theme.surfScale)`.
+     */
+    readonly property real surfScale: surfAlpha / 0.86
+
+    /**
      * Bright warm pop shared by the flame glow, charging glyphs, the recording
      * countdown, the unread inbox dot, the calendar's today cell and the held
      * power tile. The dynamic branch uses the wallpaper accent (Dyn.primary):

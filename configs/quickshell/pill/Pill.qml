@@ -635,9 +635,10 @@ Item {
         opacity: shown ? 1 : 0
         border.width: 1
         border.color: Theme.border
+        /** Qt.alpha replaces the channel rather than scaling it, so the material's own alpha has to be multiplied back in here or the token's translucency is thrown away. */
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Theme.surfAlpha * Flags.pillOpacity) }
+            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Theme.surfAlpha * Flags.pillOpacity) }
         }
         Behavior on budR { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         Behavior on opacity { NumberAnimation { duration: Motion.standard } }
@@ -698,9 +699,10 @@ Item {
         bottomRightRadius: pill.morphRadius * (1 - gameFlat)
         border.width: 1
         border.color: Theme.border
+        /** Material alpha times the user's pill opacity: Qt.alpha sets the channel outright, so leaving Theme.surfAlpha out here would render glass, frost and ink identically. */
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Theme.surfAlpha * Flags.pillOpacity) }
+            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Theme.surfAlpha * Flags.pillOpacity) }
         }
 
         layer.enabled: !pill.morphing

@@ -192,11 +192,17 @@ PillSurface {
             blurMax: 64
         }
 
+        /**
+         * Scrim over the blurred cover bleed. These two alphas are tuned against
+         * the art rather than taken from the token, so they ride Theme.surfScale
+         * to follow the material: frost keeps the shipped 0.88/0.93, ink clamps
+         * to opaque and buries the bleed, glass thins it and lets more art through.
+         */
         Rectangle {
             anchors.fill: parent
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, 0.88) }
-                GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, 0.93) }
+                GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Math.min(1, 0.88 * Theme.surfScale)) }
+                GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Math.min(1, 0.93 * Theme.surfScale)) }
             }
         }
 

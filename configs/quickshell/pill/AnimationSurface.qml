@@ -142,8 +142,10 @@ SettingsSurface {
      * Hyprland, so windows and workspaces settle exactly like the pill does.
      * The curve points mirror Motion.morphCurve and the speed is the matching
      * Hyprland duration: calm lands, spring overshoots, glide stretches. Writes
-     * through the surface's own curve and speed plumbing, so the handles, the
-     * scrub and the undo baseline all stay in sync with what landed on disk.
+     * through the surface's own curve and speed plumbing, so the handles and the
+     * scrub follow what landed on disk. The revert baseline is deliberately left
+     * alone, exactly as the Preset row leaves it: a character pick arms the undo
+     * glyph, so one click takes you back to the curve the tab opened on.
      */
     function applyMotion(v) {
         Flags.motion = v;
@@ -231,7 +233,7 @@ SettingsSurface {
             id: speedRow
             surface: root
             name: "Speed"
-            sub: "Higher is faster, applied to every animation"
+            sub: "Duration in deciseconds — lower is snappier"
             captionOnFocus: true
             icon: "bolt"
             visible: root.animOn
