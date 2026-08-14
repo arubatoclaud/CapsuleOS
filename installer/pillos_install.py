@@ -763,6 +763,12 @@ def run(args):
                 if action["action"] == "skip":
                     print(f"  deploy skip: {action['item']} ({action.get('reason', '')})")
                     continue
+                if action["action"] == "migrate":
+                    migrated = action.get("migrated", [])
+                    if migrated:
+                        head = "would migrate" if dry else "migrated"
+                        print(f"  {head}: {len(migrated)} ricelin paths to pillos")
+                    continue
                 head = "would deploy" if dry else "deployed"
                 extra = f" (backup {action['backup']})" if action.get("backup") else ""
                 if action.get("preserved"):
