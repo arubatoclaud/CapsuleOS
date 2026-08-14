@@ -185,7 +185,6 @@ def _selftest():
     assert native_name(by_id["networkmanager"], "debian") == "network-manager"
     assert native_name(by_id["networkmanager"], "fedora") == "NetworkManager"
     assert native_name(by_id["noto-fonts"], "fedora") == "google-noto-sans-fonts"
-    assert native_name(by_id["kde-cli-tools"], "suse") == "kde-cli-tools6"
 
     # resolve rule
     assert resolve(by_id["bluez-utils"], "debian") == ("skip", None)

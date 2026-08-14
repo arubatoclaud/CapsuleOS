@@ -105,9 +105,6 @@
     { "id": "pamixer", "group": "core", "required": true, "desc": "Volume control the mixer drives", "aur": false,
       "names": { "arch": "pamixer", "debian": "pamixer", "fedora": "pamixer", "suse": "pamixer" }, "fallback": null },
 
-    { "id": "kde-cli-tools", "group": "core", "required": true, "desc": "Provides kioclient and kreadconfig the scripts call", "aur": false,
-      "names": { "arch": "kde-cli-tools", "debian": "kde-cli-tools", "fedora": "kde-cli-tools", "suse": "kde-cli-tools6" }, "fallback": null },
-
     { "id": "kdialog", "group": "core", "required": true, "desc": "Native file dialogs", "aur": false,
       "names": { "arch": "kdialog", "debian": "kdialog", "fedora": "kdialog", "suse": "kdialog" }, "fallback": null },
 
@@ -123,9 +120,6 @@
     { "id": "noto-fonts", "group": "core", "required": true, "desc": "Base text fonts", "aur": false,
       "names": { "arch": "noto-fonts", "debian": "fonts-noto", "fedora": "google-noto-sans-fonts", "suse": "google-noto-sans-fonts" }, "fallback": null },
 
-    { "id": "noto-fonts-cjk", "group": "core", "required": true, "desc": "CJK glyphs for the kanji surfaces", "aur": false,
-      "names": { "arch": "noto-fonts-cjk", "debian": "fonts-noto-cjk", "fedora": "google-noto-sans-cjk-fonts", "suse": "google-noto-sans-cjk-fonts" }, "fallback": null },
-
     { "id": "noto-fonts-emoji", "group": "core", "required": true, "desc": "Color emoji", "aur": false,
       "names": { "arch": "noto-fonts-emoji", "debian": "fonts-noto-color-emoji", "fedora": "google-noto-color-emoji-fonts", "suse": "google-noto-coloremoji-fonts" }, "fallback": null },
 
@@ -136,9 +130,6 @@
       "names": { "arch": "bibata-cursor-theme-bin", "debian": null, "fedora": null, "suse": null },
       "note": "debian has no reliable bibata package, so debian is left null and routes through the github fallback (the Bibata release tarball) like fedora and suse",
       "fallback": "github" },
-
-    { "id": "rishot", "group": "core", "required": true, "desc": "Screenshot and annotate, bound to the Print key", "aur": false,
-      "names": { "arch": null, "debian": null, "fedora": null, "suse": null }, "fallback": "curl" },
 
     { "id": "grim", "group": "core", "required": true, "desc": "Screenshot tool for the lock background", "aur": false,
       "names": { "arch": "grim", "debian": "grim", "fedora": "grim", "suse": "grim" }, "fallback": null },
@@ -167,11 +158,6 @@
       "names": { "arch": "imv", "debian": "imv", "fedora": "imv", "suse": "imv" }, "fallback": null },
 
     { "id": "rnote", "group": "full", "required": false, "desc": "Handwritten notes and sketches", "aur": false,
-      "names": { "arch": "rnote", "debian": null, "fedora": null, "suse": "rnote" }, "fallback": "flatpak", "flatpak_id": "com.github.flxzt.rnote" },
-
-    { "id": "brave", "group": "extra", "required": false, "desc": "Brave browser with the matching PillOS theme", "aur": true,
-      "names": { "arch": "brave-bin", "debian": null, "fedora": null, "suse": null },
-      "note": "extra group is never pulled by the core or full profiles; only installed when the Brave toggle is on. arch brave-bin is AUR; off arch use the Flathub build com.brave.Browser",
-      "fallback": "flatpak", "flatpak_id": "com.brave.Browser" }
+      "names": { "arch": "rnote", "debian": null, "fedora": null, "suse": "rnote" }, "fallback": "flatpak", "flatpak_id": "com.github.flxzt.rnote" }
   ]
 }

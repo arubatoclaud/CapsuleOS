@@ -81,7 +81,7 @@ SettingsSurface {
         return root.installDeps[id] !== false;
     }
 
-    /** Title-case the package id into a readable label, e.g. noto-fonts-cjk -> Noto Fonts Cjk. */
+    /** Title-case the package id into a readable label, e.g. bibata-cursor-theme -> Bibata Cursor Theme. */
     function prettyDep(id) {
         return id.split("-").map(function (w) {
             return w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w;

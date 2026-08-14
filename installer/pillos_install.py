@@ -137,7 +137,6 @@ def _default_choices(args, info, manifest):
         "optional_ids": set(full_ids) if profile == "full" else set(),
         "sddm": args.sddm,
         "grub": False,
-        "brave": args.brave,
     }
 
 
@@ -186,17 +185,9 @@ def _wizard(args, info, manifest):
             "Theme only, it does not touch your boot entries.",
         ])
 
-    brave = True if args.brave else False
-    if not args.brave:
-        bidx = tui.select_one("Brave browser", [
-            ("Install Brave", "Brave browser with the matching PillOS theme", True),
-            ("Skip", "Leave Brave out for now", False),
-        ], default=1)
-        brave = bidx == 0
-
     return {
         "profile": profile, "aur_choice": aur_choice, "optional_ids": optional_ids,
-        "sddm": sddm, "grub": grub, "brave": brave,
+        "sddm": sddm, "grub": grub,
     }
 
 
@@ -300,8 +291,6 @@ def _summary_lines(info, choices, plan, args, do_pkgs):
         lines.append("Install the torii SDDM login theme.")
     if choices["grub"]:
         lines.append("Install the GRUB theme.")
-    if choices["brave"]:
-        lines.append("Install Brave with the matching PillOS theme.")
     if _is_update(info):
         lines.append("Update the PillOS config; your Settings are kept.")
     else:
@@ -421,30 +410,6 @@ def link_pillos_cli(dry):
     return True, "", True
 
 
-def deploy_brave_theme(source, dry):
-    """
-    Copy the bundled Brave theme into ~/.config/pillos so the user can point
-    Brave at it. Chromium signs its own preferences, so the theme can never be
-    applied reliably from outside; it just has to sit on disk, ready to load from
-    brave://settings. Returns (ok, detail) so the caller folds it into record().
-    """
-    dest_show = "~/.config/pillos/brave-theme"
-    if dry:
-        print(f"  would deploy: brave-theme -> {dest_show}")
-        return True, ""
-    src = os.path.join(source, "brave-theme")
-    if not os.path.isdir(src):
-        return False, f"brave theme not found at {src}"
-    dest = os.path.expanduser(dest_show)
-    try:
-        os.makedirs(os.path.dirname(dest), exist_ok=True)
-        shutil.copytree(src, dest, dirs_exist_ok=True)
-    except OSError as exc:
-        return False, f"{exc}: copy brave-theme"
-    print(f"  deployed: brave-theme -> {dest_show}")
-    return True, ""
-
-
 def _seed_update_baseline(source, config_root, dry):
     """
     Hand the in-app updater the commit just installed, so its first check counts new
@@ -510,9 +475,6 @@ def _report(plan, failures, notes, info, choices, args, do_pkgs, dry):
         steps.append(("install Hyprland", "packages were skipped, the rice needs it"))
     steps.append(("open the launcher", "Super+Space; keybinds live in Settings"))
     steps.append(("pick a wallpaper", "Super+C to swap or grab more"))
-    if choices["brave"]:
-        steps.append(("brave theme",
-                      "brave://settings/appearance, load ~/.config/pillos/brave-theme"))
 
     attention = []
     for step, _detail, hint in failures:
@@ -606,8 +568,7 @@ def run(args):
         if not ok:
             failures.append((step, detail, hint))
 
-    needs_sudo = (do_pkgs or choices["sddm"] or choices.get("grub")
-                  or choices["brave"]) and not dry
+    needs_sudo = (do_pkgs or choices["sddm"] or choices.get("grub")) and not dry
     keepalive_stop = sudo_keepalive() if needs_sudo else None
     try:
         if do_pkgs:
@@ -797,47 +758,6 @@ def run(args):
                 else:
                     record(action["ok"], action["detail"], "Install GRUB theme",
                            "Run the GRUB theme steps by hand.")
-
-        # n. optional Brave: install it through the same resolve/fallback path the
-        #    core packages use (arch -> AUR brave-bin, off arch -> Flathub), then
-        #    drop the theme files in place. The theme is never auto-applied, since
-        #    Chromium signs its prefs; the user loads it from brave://settings.
-        if choices["brave"]:
-            if do_pkgs:
-                family = info["family"]
-                brave_pkg = next(
-                    (p for p in manifest["packages"] if p["id"] == "brave"), None)
-                if brave_pkg is None:
-                    action, target = "skip", None
-                else:
-                    action, target = distro.resolve(brave_pkg, family, choices["aur_choice"])
-                if action == "skip":
-                    notes.append("No Brave package for this distro, skipped the install.")
-                elif action == "fallback":
-                    for step in fallbacks.steps_for(target, brave_pkg, family):
-                        if "run" in step:
-                            ok, detail = _run(step["run"], dry)
-                        else:
-                            ok, detail = _shell(step["shell"], dry)
-                        record(ok, detail, "Install Brave",
-                               "Install Brave by hand, then load its theme.")
-                elif pkg.is_installed(target, family):
-                    notes.append("Brave is already installed.")
-                elif distro.is_aur(brave_pkg, family):
-                    ok, detail = _run(
-                        _aur_install_argv([target], family, choices["aur_choice"]), dry)
-                    record(ok, detail, "Install Brave",
-                           "Install Brave by hand, then load its theme.")
-                else:
-                    argv = pkg.privileged(pkg.install_argv([target], family), family)
-                    ok, detail = _run(argv, dry, env=pkg.INSTALL_ENV)
-                    record(ok, detail, "Install Brave",
-                           "Install Brave by hand, then load its theme.")
-            else:
-                notes.append("Skipped the Brave install, only deployed its theme.")
-            ok, detail = deploy_brave_theme(args.source, dry)
-            record(ok, detail, "Deploy Brave theme",
-                   "Copy configs/brave-theme to ~/.config/pillos/brave-theme yourself.")
     finally:
         if keepalive_stop:
             keepalive_stop()
@@ -918,8 +838,6 @@ def main():
                         help="Preselect the Full profile")
     parser.add_argument("--sddm", action="store_true",
                         help="Preselect the torii SDDM login theme")
-    parser.add_argument("--brave", action="store_true",
-                        help="Preselect Brave plus its PillOS theme")
     parser.add_argument("--no-deps", action="store_true",
                         help="Skip the package step, only deploy the configs")
     parser.add_argument("--reinstall", action="store_true",

@@ -284,14 +284,6 @@ def _flatpak(pkg, family):
     ]
 
 
-def _curl(pkg, family):
-    """Hand off to the project's own curl-pipe installer (rishot)."""
-    return [
-        {"desc": "run rishot's own installer",
-         "shell": "curl -fsSL https://raw.githubusercontent.com/Gakuseei/rishot/main/install.sh | sh"},
-    ]
-
-
 _HANDLERS = {
     "cargo": _cargo,
     "ghostty": _ghostty,
@@ -299,7 +291,6 @@ _HANDLERS = {
     "nerdfont": _nerdfont,
     "github": _github,
     "flatpak": _flatpak,
-    "curl": _curl,
 }
 
 

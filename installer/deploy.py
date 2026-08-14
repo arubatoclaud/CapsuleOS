@@ -28,14 +28,13 @@ CONFIGS = REPO_ROOT / "configs"
 CONFIG_ROOT = Path(os.environ.get("XDG_CONFIG_HOME") or (Path.home() / ".config"))
 
 # The deploy set: (name, source under configs/, dest under ~/.config). The first
-# four land as whole dirs; kdeglobals and the session target are single files
-# that sit at a different path than their source in the clone.
+# four land as whole dirs; the session target is a single file that sits at a
+# different path than its source in the clone.
 DEPLOY_SET = [
     ("hypr",       "hypr",                                  "hypr"),
     ("quickshell", "quickshell",                            "quickshell"),
     ("ghostty",    "ghostty",                               "ghostty"),
     ("fastfetch",  "fastfetch",                             "fastfetch"),
-    ("kdeglobals", "kde/kdeglobals",                        "kdeglobals"),
     ("session",    "systemd/user/hyprland-session.target",  "systemd/user/hyprland-session.target"),
 ]
 
@@ -78,8 +77,6 @@ hl.env("XCURSOR_SIZE",    "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
-
-hl.env("QT_QPA_PLATFORMTHEME", "kde")
 """
 
 # Appended only when an nvidia GPU is on the bus.
@@ -541,7 +538,7 @@ def _selftest():
         check(all(a["action"] in ("deploy", "replace", "skip", "migrate",
                                    "installed", "skipped-existing") for a in plan),
               "deploy actions use known verbs")
-        check(not (root / "hypr").exists() and not (root / "kdeglobals").exists(),
+        check(not (root / "hypr").exists() and not (root / "quickshell").exists(),
               "deploy dry-run left the filesystem alone")
 
         # 2. seed a foreign quickshell config so the backup path gets exercised
@@ -619,7 +616,7 @@ def _selftest():
         uninstall(config_root=root, apply=True)
         check((root / "quickshell" / "sentinel.txt").read_text().strip().endswith("user quickshell"),
               "uninstall restored the pristine quickshell from quickshell.bak")
-        check(not (root / "kdeglobals").exists(),
+        check(not (root / "fastfetch").exists(),
               "uninstall removed a managed item with no backup")
         check(not (root / "systemd").exists(),
               "uninstall pruned the empty systemd/user dirs it created")

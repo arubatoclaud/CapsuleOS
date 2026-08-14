@@ -34,7 +34,6 @@
     { "type": "shell", "key": "  shell", "format": "{exe-name}" },
     { "type": "terminal", "key": "  term", "format": "{pretty-name}" },
     { "type": "custom", "key": " 󰂜 bar", "format": "pill (quickshell)" },
-    { "type": "custom", "key": " 󰄀 shot", "format": "rishot" },
     { "type": "custom", "key": "  font", "format": "JetBrains Mono Nerd" },
     { "type": "command", "key": " 󰸉 wall", "text": "basename \"$(cat ${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper)\"" }
   ]
