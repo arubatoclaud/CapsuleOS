@@ -25,10 +25,10 @@ Singleton {
 
         JsonAdapter {
             id: adapter
-            property string primary: "#f5bd6f"
-            property string cream: "#e6d6cb"
-            property string bright: "#fff6f0"
-            property string dim: "#8a7d74"
+            property string primary: "#ffb454"
+            property string cream: "#d5dce6"
+            property string bright: "#f2f6fb"
+            property string dim: "#7d8797"
         }
     }
 }

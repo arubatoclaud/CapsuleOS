@@ -3,7 +3,7 @@ import QtQuick
 import Quickshell
 
 /**
- * Pill palette. Two sources: the curated washi/flame hex below is the identity
+ * Pill palette. Two sources: the curated night-bridge hex below is the identity
  * and the default, used whenever the dynamic-palette flag is off. With the flag
  * on, the surfaces and the whole accent ramp follow the wallpaper through the
  * matugen-fed `Dyn` singleton, while the text family, light veils and shadow
@@ -22,32 +22,32 @@ Singleton {
      * token to black, while the accent always loads and contrasts the pill
      * surface. Static mode keeps the fixed warm hex.
      */
-    readonly property color onGlow: dyn ? Dyn.primary : "#ff9a64"
+    readonly property color onGlow: dyn ? Dyn.primary : "#ffb454"
 
-    readonly property color verm:     dyn ? Qt.darker(Dyn.primary, 1.18) : "#c0442b"
-    readonly property color vermLit:  dyn ? Dyn.primary : "#e0563b"
-    readonly property color vermDeep: dyn ? Dyn.primaryContainer : "#a3371f"
-    readonly property color cream:    dyn ? Dyn.cream : "#e6d6cb"
-    readonly property color bright:   dyn ? Dyn.bright : "#fff6f0"
-    readonly property color dim:      dyn ? Dyn.dim : "#8a7d74"
-    readonly property color cardTop:  dyn ? Dyn.surfaceContainerHigh : "#2e231b"
-    readonly property color cardBot:  dyn ? Dyn.surfaceContainerLow : "#221813"
-    readonly property color border:   dyn ? Dyn.outlineVariant : "#3a2a22"
+    readonly property color verm:     dyn ? Qt.darker(Dyn.primary, 1.18) : "#e0762a"
+    readonly property color vermLit:  dyn ? Dyn.primary : "#ff9838"
+    readonly property color vermDeep: dyn ? Dyn.primaryContainer : "#c2410c"
+    readonly property color cream:    dyn ? Dyn.cream : "#d5dce6"
+    readonly property color bright:   dyn ? Dyn.bright : "#f2f6fb"
+    readonly property color dim:      dyn ? Dyn.dim : "#7d8797"
+    readonly property color cardTop:  dyn ? Dyn.surfaceContainerHigh : "#161c28"
+    readonly property color cardBot:  dyn ? Dyn.surfaceContainerLow : "#10151f"
+    readonly property color border:   dyn ? Dyn.outlineVariant : "#263042"
     readonly property color shadow:     Qt.rgba(0, 0, 0, 0.55)
-    readonly property color tileBg:   dyn ? Dyn.surface : "#211711"
-    readonly property color subtle:   dyn ? Dyn.subtle : "#b9a99e"
-    readonly property color faint:    dyn ? Dyn.faint : "#6f635b"
-    readonly property color iconDim:  dyn ? Dyn.iconDim : "#cdbfb4"
+    readonly property color tileBg:   dyn ? Dyn.surface : "#0e131c"
+    readonly property color subtle:   dyn ? Dyn.subtle : "#a4aebc"
+    readonly property color faint:    dyn ? Dyn.faint : "#5d6570"
+    readonly property color iconDim:  dyn ? Dyn.iconDim : "#b8c2cf"
     readonly property color hair:     Qt.alpha(cream, 0.13)
     readonly property color hairSoft: Qt.alpha(cream, 0.08)
     readonly property color sheen:    Qt.alpha(cream, 0.07)
-    readonly property color vermDim:   dyn ? Qt.darker(Dyn.primary, 1.5) : "#8a5440"
-    readonly property color vermDimDeep: dyn ? Qt.darker(Dyn.primary, 2.2) : "#5a3526"
-    readonly property color vermBurn:  dyn ? Qt.darker(Dyn.primaryContainer, 1.1) : "#8a2c14"
-    readonly property color tickRest:  dyn ? Dyn.tickRest : "#cbb6a3"
+    readonly property color vermDim:   dyn ? Qt.darker(Dyn.primary, 1.5) : "#8a6a48"
+    readonly property color vermDimDeep: dyn ? Qt.darker(Dyn.primary, 2.2) : "#55442e"
+    readonly property color vermBurn:  dyn ? Qt.darker(Dyn.primaryContainer, 1.1) : "#8a3a0a"
+    readonly property color tickRest:  dyn ? Dyn.tickRest : "#aab6c6"
     readonly property color threadBg:  Qt.alpha(cream, 0.13)
-    readonly property color flameCore: dyn ? Qt.lighter(onGlow, 1.03) : "#ffd9c2"
-    readonly property color flameGlow: dyn ? onGlow : "#ff9a64"
+    readonly property color flameCore: dyn ? Qt.lighter(onGlow, 1.03) : "#ffe2b8"
+    readonly property color flameGlow: dyn ? onGlow : "#ffb454"
 
     /**
      * Flame canvas ramp: literal hex strings (color type won't work), fed
@@ -55,12 +55,12 @@ Singleton {
      * to #aarrggbb and corrupts the gradient render, so the dynamic branch passes
      * matugen's raw hex strings through untouched rather than any Qt.darker math.
      */
-    readonly property string flameInk:   dyn ? Dyn.primary : "#f0795a"
-    readonly property string flameEmber: dyn ? Dyn.primaryContainer : "#7e2812"
-    readonly property string flameBurn:  dyn ? Dyn.primaryContainer : "#8a2c14"
-    readonly property string flameTip:   dyn ? Dyn.onPrimaryContainer : "#ffb38a"
-    readonly property color todayWarm: dyn ? onGlow : "#ffb38a"
-    readonly property color ghost:     dyn ? Dyn.surfaceContainerHighest : "#594636"
+    readonly property string flameInk:   dyn ? Dyn.primary : "#ff9838"
+    readonly property string flameEmber: dyn ? Dyn.primaryContainer : "#7a3410"
+    readonly property string flameBurn:  dyn ? Dyn.primaryContainer : "#8a3a0a"
+    readonly property string flameTip:   dyn ? Dyn.onPrimaryContainer : "#ffcf8f"
+    readonly property color todayWarm: dyn ? onGlow : "#ffcf8f"
+    readonly property color ghost:     dyn ? Dyn.surfaceContainerHighest : "#2e3a50"
     readonly property color frameBg:      Qt.alpha(cream, 0.055)
     readonly property color frameBorder:  Qt.alpha(cream, 0.10)
     readonly property color creamMenu:     Qt.alpha(cream, 0.82)

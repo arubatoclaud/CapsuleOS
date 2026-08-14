@@ -93,18 +93,18 @@ hl.env("__GL_GSYNC_ALLOWED",        "0")
 hl.env("__GL_VRR_ALLOWED",          "0")
 """
 
-# Warm fallback palette for the first fastfetch render, before any wallpaper is
-# picked. Matches the baked warm ghostty default. The live wallcolors.py
+# Night-bridge fallback palette for the first fastfetch render, before any wallpaper is
+# picked. Matches the baked night-bridge ghostty default. The live wallcolors.py
 # overwrites config.jsonc from the wallpaper palette on every change after.
-WARM_DEFAULT = {
-    "primary": "#e0563b",
-    "dim": "#7a6453",
-    "on_primary_container": "#f0b85e",
-    "surface_container": "#2e231b",
-    "surface_container_high": "#3a2c22",
-    "subtle": "#b89a86",
-    "outline": "#594636",
-    "bright": "#fff6f0",
+NIGHT_DEFAULT = {
+    "primary": "#ffb454",
+    "dim": "#5d6570",
+    "on_primary_container": "#ffe2b8",
+    "surface_container": "#161c28",
+    "surface_container_high": "#1d2534",
+    "subtle": "#a4aebc",
+    "outline": "#263042",
+    "bright": "#f2f6fb",
 }
 
 
@@ -316,7 +316,7 @@ def _seq(hexcol):
 def _fastfetch_palette():
     """
     Pick the palette for the fastfetch render: the live wallpaper colours if a
-    cache is already there and every value parses as hex, else the warm default
+    cache is already there and every value parses as hex, else the night-bridge default
     so a fresh box (or a corrupt colors.json) still renders instead of aborting
     the whole neutralize.
     """
@@ -324,13 +324,13 @@ def _fastfetch_palette():
     if cache.is_file():
         try:
             data = json.loads(cache.read_text())
-            if all(k in data for k in WARM_DEFAULT):
-                for k in WARM_DEFAULT:
+            if all(k in data for k in NIGHT_DEFAULT):
+                for k in NIGHT_DEFAULT:
                     _seq(data[k])  # prove every hex parses before trusting it
                 return data, "cache"
         except (OSError, ValueError, TypeError):
             pass
-    return WARM_DEFAULT, "default"
+    return NIGHT_DEFAULT, "default"
 
 
 def _render_fastfetch(ff_dir, palette, apply):
