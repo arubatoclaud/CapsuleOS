@@ -74,6 +74,8 @@ SettingsSurface {
             r.push({ item: pillBlurRow, kind: "toggle", get: function () { return Flags.pillBlur; }, set: function (v) { Flags.pillBlur = v; root.applyPillBlur(v); } });
             r.push({ item: materialRow, kind: "seg", vals: ["glass", "frost", "ink"], get: function () { return Flags.material; }, set: function (v) { root.setMaterial(v); } });
             r.push({ item: autoHideRow, kind: "toggle", get: function () { return Flags.autoHide; }, set: function (v) { Flags.autoHide = v; } });
+            if (Flags.autoHide)
+                r.push({ item: hideDelayRow, kind: "seg", vals: ["off", "short", "medium", "long"], get: function () { return Flags.autoHideDelay; }, set: function (v) { Flags.autoHideDelay = v; } });
         }
         return r;
     }
@@ -110,6 +112,13 @@ SettingsSurface {
         { label: "Glass", value: "glass" },
         { label: "Frost", value: "frost" },
         { label: "Ink", value: "ink" }
+    ]
+
+    readonly property var delayOptions: [
+        { label: "Off", value: "off" },
+        { label: "Short", value: "short" },
+        { label: "Medium", value: "medium" },
+        { label: "Long", value: "long" }
     ]
 
     property string decoText: ""
@@ -950,6 +959,19 @@ SettingsSurface {
                     s: root.s
                     on: Flags.autoHide
                     onToggled: Flags.autoHide = !Flags.autoHide
+                }
+            }
+
+            FieldRow {
+                id: hideDelayRow
+                label: "Delay"
+                caption: "Dwell on the edge to reveal, linger before retracting"
+                collapsed: !Flags.autoHide
+                SettingsSeg {
+                    s: root.s
+                    options: root.delayOptions
+                    value: Flags.autoHideDelay
+                    onPicked: v => Flags.autoHideDelay = v
                 }
             }
 

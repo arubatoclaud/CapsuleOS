@@ -32,7 +32,18 @@ Singleton {
     property alias pillOpacity: adapter.pillOpacity
     property alias pillBlur: adapter.pillBlur
     property alias autoHide: adapter.autoHide
+    property alias autoHideDelay: adapter.autoHideDelay
     property alias topGap: adapter.topGap
+
+    /**
+     * Auto-hide timing derived from autoHideDelay: how long the pointer must
+     * dwell on the edge strip before the pill reveals, and how long it lingers
+     * after the pointer leaves before retracting. "off" restores the original
+     * instant behaviour in both directions.
+     */
+    readonly property var _delaySteps: ({ off: [0, 0], short: [120, 350], medium: [200, 600], long: [350, 1100] })
+    readonly property int revealDwellMs: (_delaySteps[autoHideDelay] || _delaySteps.medium)[0]
+    readonly property int hideLingerMs: (_delaySteps[autoHideDelay] || _delaySteps.medium)[1]
     property alias appGap: adapter.appGap
     property alias recordCountdown: adapter.recordCountdown
     property alias recordDir: adapter.recordDir
@@ -97,6 +108,8 @@ Singleton {
             property bool pillBlur: false
             /** macOS menubar behaviour: the pill retracts off the top edge at rest and releases its reserved band, and a thin hover strip at the screen edge slides it back. */
             property bool autoHide: false
+            /** Auto-hide pacing: "off" instant, else short/medium/long scale the reveal dwell and hide linger together. */
+            property string autoHideDelay: "medium"
             /** Top margin as a fraction of the shipped 8px. 0 sits the pill flush to the screen edge. */
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */

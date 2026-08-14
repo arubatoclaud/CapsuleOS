@@ -285,9 +285,49 @@ ShellRoot {
              * hold, peek, drag, OSD, toast, quick-record chooser or game bar all
              * keep it out, and anything summoned by keybind rather than by the
              * pointer lands with the pill visible.
+             *
+             * The pointer side of the transition is timed rather than instant:
+             * revealing from hidden needs a short dwell on the edge strip, so a
+             * cursor flung at a tab bar sitting under the strip never flashes
+             * the pill, and leaving arms a linger so the pill survives a brief
+             * mouse-out. Every non-pointer cause — an OSD, a keybind summon,
+             * a surface, fullscreen — still switches immediately, and the
+             * "off" delay setting restores instant in both directions.
              */
-            readonly property bool autoHidden: Flags.autoHide && !monFullscreen
-                && !surfaceOpen && pill.mode === "rest" && !pill.hovered && !edgePeek.hovered
+            property bool autoHidden: false
+            readonly property bool restingHideable: Flags.autoHide && !monFullscreen
+                && !surfaceOpen && pill.mode === "rest"
+            readonly property bool pointerHeld: pill.hovered || edgePeek.hovered
+
+            onRestingHideableChanged: {
+                if (restingHideable) {
+                    armLinger();
+                } else {
+                    lingerT.stop();
+                    dwellT.stop();
+                    autoHidden = false;
+                }
+            }
+            onPointerHeldChanged: {
+                if (pointerHeld) {
+                    lingerT.stop();
+                    if (autoHidden) {
+                        if (Flags.revealDwellMs <= 0) autoHidden = false;
+                        else dwellT.restart();
+                    }
+                } else {
+                    dwellT.stop();
+                    armLinger();
+                }
+            }
+            function armLinger() {
+                if (!restingHideable || pointerHeld || autoHidden) return;
+                if (Flags.hideLingerMs <= 0) autoHidden = true;
+                else lingerT.restart();
+            }
+            Timer { id: dwellT; interval: Flags.revealDwellMs; onTriggered: overlay.autoHidden = false }
+            Timer { id: lingerT; interval: Flags.hideLingerMs; onTriggered: overlay.autoHidden = true }
+            Component.onCompleted: armLinger()
 
             onMonFullscreenChanged: if (monFullscreen) {
                 if (root.openMon === modelData.name) root.close();
