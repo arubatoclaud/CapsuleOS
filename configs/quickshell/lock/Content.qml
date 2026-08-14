@@ -17,9 +17,10 @@ Item {
 
     /**
      * Password visibility toggle for the capsule eye. Masked renders no text at
-     * all: each char lights one ember bead instead of the usual bullet row, and
-     * the freshest bead burns cream like a wick tip. Reveal swaps beads for the
-     * plain string. Reset on every auth attempt so a retry never leaks state.
+     * all: the TextInput itself draws transparent and a plain bullet row stands in
+     * for the characters, the way Sonoma's field does. Reveal swaps the bullets
+     * for the real string. Reset on every auth attempt so a retry never leaks
+     * state.
      */
     property bool reveal: false
 
@@ -43,7 +44,7 @@ Item {
     readonly property var months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     readonly property string dateText: {
         var d = sysClock.date;
-        return weekdays[d.getDay()] + " · " + months[d.getMonth()] + " " + d.getDate();
+        return weekdays[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getDate();
     }
 
     readonly property var player: {
@@ -112,37 +113,21 @@ Item {
         onTriggered: if (content.player) content.player.positionChanged()
     }
 
-    Text {
-        visible: content.isMain
-        x: parent.width * 0.055
-        y: parent.height * 0.065
-        text: content.dateText
-        color: Theme.cream
-        opacity: 0.85
-        font.family: Theme.font
-        font.weight: 600
-        font.pixelSize: 11 * content.s
-        font.letterSpacing: 3.5 * content.s
-        font.capitalization: Font.AllUppercase
-        layer.enabled: true
-        layer.effect: MultiEffect {
-            shadowEnabled: true
-            shadowColor: Qt.rgba(0, 0, 0, 0.45)
-            shadowBlur: 0.6
-            shadowVerticalOffset: 1
-            shadowHorizontalOffset: 0
-        }
-    }
-
+    /**
+     * Sonoma's clock: hairline, huge, centred on the upper tenth of the screen,
+     * with the date reading as one quiet line directly under it. The drop shadow
+     * stays — at Font.Thin over a bright patch of wallpaper the strokes vanish
+     * without it.
+     */
     Text {
         id: clockText
         visible: content.isMain
         anchors.horizontalCenter: parent.horizontalCenter
-        y: parent.height * 0.24
+        y: parent.height * 0.10
         color: Theme.bright
-        font.family: "Zen Kaku Gothic New"
-        font.weight: 500
-        font.pixelSize: 130 * content.s
+        font.family: Theme.font
+        font.weight: Font.Thin
+        font.pixelSize: 96 * content.s
         /** Qt reads "h" as 24h unless the same format holds AP, and the AM/PM sits in its own label here, so the 12h hour is built by hand. */
         text: {
             var d = sysClock.date;
@@ -157,8 +142,8 @@ Item {
         layer.enabled: true
         layer.effect: MultiEffect {
             shadowEnabled: true
-            shadowColor: Qt.rgba(0, 0, 0, 0.5)
-            shadowBlur: 1.0
+            shadowColor: Qt.rgba(0, 0, 0, 0.45)
+            shadowBlur: 0.9
             shadowVerticalOffset: 2
             shadowHorizontalOffset: 0
         }
@@ -167,14 +152,34 @@ Item {
     Text {
         visible: content.isMain && Flags.time12h
         anchors.left: clockText.right
-        anchors.leftMargin: 12 * content.s
+        anchors.leftMargin: 10 * content.s
         anchors.baseline: clockText.baseline
         color: Theme.bright
-        opacity: 0.55
-        font.family: "Zen Kaku Gothic New"
-        font.weight: 600
-        font.pixelSize: 34 * content.s
+        opacity: 0.5
+        font.family: Theme.font
+        font.weight: Font.Light
+        font.pixelSize: 26 * content.s
         text: Qt.formatDateTime(sysClock.date, "AP")
+    }
+
+    Text {
+        visible: content.isMain
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: clockText.bottom
+        anchors.topMargin: 4 * content.s
+        text: content.dateText
+        color: Theme.cream
+        font.family: Theme.font
+        font.weight: Font.Medium
+        font.pixelSize: 14 * content.s
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            shadowEnabled: true
+            shadowColor: Qt.rgba(0, 0, 0, 0.45)
+            shadowBlur: 0.6
+            shadowVerticalOffset: 1
+            shadowHorizontalOffset: 0
+        }
     }
 
     Column {
@@ -182,7 +187,8 @@ Item {
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         anchors.leftMargin: parent.width * 0.045
-        anchors.bottomMargin: parent.height * 0.075
+        /** Sits on the same baseline as the auth capsule so the two bottom clusters read as one row. */
+        anchors.bottomMargin: parent.height * 0.12
         spacing: 9 * content.s
 
         Row {
@@ -276,17 +282,84 @@ Item {
         }
     }
 
+    /**
+     * The account disc above the field. `~/.face` is the freedesktop convention
+     * the display managers already read, so the lock picks up whatever avatar the
+     * user set once; with no file (or an unreadable one) the disc falls back to
+     * the first letter of the login name rather than an empty hole.
+     *
+     * A radius on the enclosing Rectangle would not clip the photo — Qt's clip is
+     * rectangular — so the crop is a MultiEffect mask, the same recipe the cover
+     * art above uses.
+     */
+    Rectangle {
+        id: avatar
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: capsule.top
+        anchors.bottomMargin: 18 * content.s
+        width: 72 * content.s
+        height: width
+        radius: width / 2
+        color: Theme.fieldBg
+        border.width: 1
+        border.color: Theme.hair
+        antialiasing: true
+        opacity: content.isMain ? (content.authenticating ? 0.6 : 1) : 0
+
+        Image {
+            id: face
+            anchors.fill: parent
+            source: "file://" + Quickshell.env("HOME") + "/.face"
+            fillMode: Image.PreserveAspectCrop
+            smooth: true
+            mipmap: true
+            asynchronous: true
+            visible: face.status === Image.Ready
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                maskEnabled: true
+                maskSource: faceMask
+            }
+        }
+
+        Item {
+            id: faceMask
+            anchors.fill: parent
+            layer.enabled: true
+            visible: false
+            Rectangle {
+                anchors.fill: parent
+                radius: width / 2
+                antialiasing: true
+            }
+        }
+
+        Text {
+            anchors.centerIn: parent
+            visible: face.status !== Image.Ready
+            text: {
+                var u = Quickshell.env("USER") || Quickshell.env("LOGNAME") || "";
+                return u.length > 0 ? u.charAt(0).toUpperCase() : "?";
+            }
+            color: Theme.cream
+            font.family: Theme.font
+            font.weight: Font.Medium
+            font.pixelSize: 30 * content.s
+        }
+    }
+
     Rectangle {
         id: capsule
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: parent.height * 0.09
-        width: 340 * content.s
-        height: 50 * content.s
+        anchors.bottomMargin: parent.height * 0.12
+        width: 300 * content.s
+        height: 44 * content.s
         radius: height / 2
         color: Theme.fieldBg
         border.width: 1
         border.color: Theme.fieldBorder
+        antialiasing: true
         opacity: content.isMain ? (content.authenticating ? 0.6 : 1) : 0
 
         transform: Translate { id: capsuleShift }
@@ -303,15 +376,15 @@ Item {
         TextInput {
             id: input
             anchors.fill: parent
-            anchors.leftMargin: 24 * content.s
-            anchors.rightMargin: 46 * content.s
+            anchors.leftMargin: 20 * content.s
+            anchors.rightMargin: 42 * content.s
             verticalAlignment: TextInput.AlignVCenter
             horizontalAlignment: TextInput.AlignHCenter
             echoMode: TextInput.Normal
             color: content.reveal ? Theme.bright : "transparent"
             font.family: Theme.font
-            font.pixelSize: 15 * content.s
-            font.letterSpacing: 2 * content.s
+            font.pixelSize: 14 * content.s
+            font.letterSpacing: 1 * content.s
             clip: true
             focus: true
             enabled: !content.authenticating
@@ -320,10 +393,6 @@ Item {
                     content.showError = false;
                 if (Pw.text !== text)
                     Pw.text = text;
-                while (beadModel.count < text.length)
-                    beadModel.append({});
-                while (beadModel.count > text.length)
-                    beadModel.remove(beadModel.count - 1);
             }
 
             Connections {
@@ -342,7 +411,7 @@ Item {
                 visible: content.reveal && input.text.length > 0
                 width: 2 * content.s
                 height: input.cursorRectangle.height
-                color: Theme.verm
+                color: Theme.bright
                 SequentialAnimation on opacity {
                     running: input.activeFocus
                     loops: Animation.Infinite
@@ -354,66 +423,57 @@ Item {
             }
         }
 
+        /**
+         * Placeholder and error share the one label: an empty field reads "Enter
+         * Password", and a rejected attempt (which clears the field) turns the
+         * same line into whatever PAM said.
+         */
         Text {
             anchors.centerIn: parent
+            width: input.width
+            horizontalAlignment: Text.AlignHCenter
+            elide: Text.ElideRight
             visible: input.text.length === 0
             text: {
                 if (!content.showError)
-                    return "password";
+                    return "Enter Password";
                 var pamMsg = content.auth ? content.auth.lastError : "";
-                return pamMsg.length > 0 ? pamMsg.toLowerCase() : "wrong password";
+                return pamMsg.length > 0 ? pamMsg : "Wrong password";
             }
-            color: content.showError ? Theme.error : Theme.dim
+            color: content.showError ? Theme.error : Qt.alpha(Theme.cream, 0.6)
             font.family: Theme.font
-            font.pixelSize: 14 * content.s
-            font.letterSpacing: 1 * content.s
+            font.pixelSize: 13 * content.s
+            font.weight: Font.Medium
         }
 
         /**
-         * One bead per typed char instead of the usual bullets, fed by a
-         * ListModel so existing beads survive each keystroke untouched (a plain
-         * number model rebuilds every delegate and flickers). Only the freshest
-         * bead pulses, as the wick tip.
+         * Plain bullets stand in for the characters while the field is masked —
+         * the TextInput itself draws transparent, so this row is all the user
+         * sees until the eye reveals the real string.
          */
-        ListModel { id: beadModel }
-
-        Row {
+        Text {
             anchors.centerIn: parent
-            spacing: 9 * content.s
+            width: input.width
+            horizontalAlignment: Text.AlignHCenter
+            elide: Text.ElideRight
             visible: !content.reveal && input.text.length > 0
-
-            Repeater {
-                model: beadModel
-                delegate: Rectangle {
-                    id: bead
-                    required property int index
-                    width: 7 * content.s
-                    height: width
-                    radius: width / 2
-                    color: bead.index === input.text.length - 1 ? Theme.cream : Theme.verm
-                    scale: 0
-                    Component.onCompleted: pop.start()
-                    NumberAnimation { id: pop; target: bead; property: "scale"; to: 1; duration: 170; easing.type: Easing.OutBack }
-                    SequentialAnimation on opacity {
-                        running: bead.index === input.text.length - 1
-                        loops: Animation.Infinite
-                        NumberAnimation { to: 0.35; duration: 480 }
-                        NumberAnimation { to: 1; duration: 480 }
-                    }
-                }
-            }
+            text: "•".repeat(input.text.length)
+            color: Theme.bright
+            font.family: Theme.font
+            font.pixelSize: 15 * content.s
+            font.letterSpacing: 3 * content.s
         }
 
         GlyphIcon {
             id: eye
             anchors.right: parent.right
-            anchors.rightMargin: 16 * content.s
+            anchors.rightMargin: 14 * content.s
             anchors.verticalCenter: parent.verticalCenter
-            width: 20 * content.s
-            height: 20 * content.s
+            width: 18 * content.s
+            height: 18 * content.s
             name: content.reveal ? "eye-off" : "eye"
-            color: eyeArea.containsMouse ? Theme.cream : Theme.dim
-            stroke: 1.8
+            color: eyeArea.containsMouse ? Theme.bright : Qt.alpha(Theme.cream, 0.55)
+            stroke: 1.7
 
             MouseArea {
                 id: eyeArea
