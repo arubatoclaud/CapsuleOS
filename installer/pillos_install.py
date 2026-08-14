@@ -174,7 +174,7 @@ def _wizard(args, info, manifest):
     sddm = True if args.sddm else False
     if not args.sddm and _has_display_manager():
         sddm = tui.confirm("SDDM login theme", [
-            "Install the torii SDDM login theme. (Recommended)",
+            "Install the goldengate SDDM login theme. (Recommended)",
             "A system change that needs sudo.",
         ])
 
@@ -288,7 +288,7 @@ def _summary_lines(info, choices, plan, args, do_pkgs):
             names = ", ".join(sorted({h for _, h, _ in plan["fallbacks"]}))
             lines.append("Build via fallback: " + names + ".")
     if choices["sddm"]:
-        lines.append("Install the torii SDDM login theme.")
+        lines.append("Install the goldengate SDDM login theme.")
     if choices["grub"]:
         lines.append("Install the GRUB theme.")
     if _is_update(info):
@@ -745,7 +745,7 @@ def run(args):
 
         # m. themes.
         if choices["sddm"]:
-            sddm_installer = os.path.join(args.source, "sddm", "themes", "torii", "install.sh")
+            sddm_installer = os.path.join(args.source, "sddm", "themes", "goldengate", "install.sh")
             if os.path.isfile(sddm_installer):
                 ok, detail = _run(["sh", sddm_installer], dry)
                 record(ok, detail, "Install SDDM theme",
@@ -839,7 +839,7 @@ def main():
     parser.add_argument("--full", action="store_true",
                         help="Preselect the Full profile")
     parser.add_argument("--sddm", action="store_true",
-                        help="Preselect the torii SDDM login theme")
+                        help="Preselect the goldengate SDDM login theme")
     parser.add_argument("--no-deps", action="store_true",
                         help="Skip the package step, only deploy the configs")
     parser.add_argument("--reinstall", action="store_true",

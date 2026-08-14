@@ -82,7 +82,7 @@ def render_fastfetch(pill):
     """
     Recolour the fastfetch readout from the same pill palette. fastfetch has no
     daemon, so writing the rendered config is enough, the next run picks it up.
-    The accent drives the keys and the torii, the surface ramp the bridge body,
+    The accent drives the keys and the bridge cables, the surface ramp the bridge body,
     and a dim text tone the section rules, so it tracks the wallpaper like the
     pill and terminal do.
     """

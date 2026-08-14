@@ -41,7 +41,7 @@ DEPLOY_SET = [
 # Personal bootloader entries that never deploy. A generic grub-theme installer
 # comes later; these three are tied to Erik's disks and machine, so the deploy
 # set leaves them out on purpose.
-GRUB_EXCLUDED = ["grub/install-torii.sh", "grub/probe-sda4.sh", "grub/10_pillos"]
+GRUB_EXCLUDED = ["grub/install-goldengate.sh", "grub/probe-sda4.sh", "grub/10_pillos"]
 
 # User-owned config files a re-run must never reset: the same protected set the
 # update engine three-way merges (hand-mirrored from pillos-update.py, which
@@ -305,7 +305,7 @@ def _fastfetch_palette():
 
 def _render_fastfetch(ff_dir, palette, apply):
     """
-    Stamp the palette into config.jsonc so a fresh terminal shows the torii
+    Stamp the palette into config.jsonc so a fresh terminal shows the goldengate
     splash before any wallpaper is picked. Same placeholder swap the live
     wallcolors.py does on every wallpaper change, so first render and the rest
     line up. Returns the config.jsonc path, or None when the template is missing.

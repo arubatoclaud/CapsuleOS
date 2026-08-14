@@ -11,7 +11,7 @@ place while you move the arrows; the moment you submit it freezes into scrollbac
 and the next prompt prints under it.
 
 The skin is the locked PillOS Hanko: the vermilion edge marker that echoes the
-pill's hanko stamps and the torii, corner-bracketed answers, square seals for
+pill's hanko stamps and the goldengate, corner-bracketed answers, square seals for
 multiselect and round dots for single choice, all in the rice's ember palette.
 
 Keys come from /dev/tty, the controlling terminal, not from stdin. The real
@@ -64,7 +64,7 @@ RADIO_OFF = "○"
 LBRACKET = "「"
 RBRACKET = "」"
 
-TORII = [
+GOLDENGATE = [
     (DEEP, "      ╱▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔╲"),
     (DEEP, "   ▗▄████████████████████▄▖"),
     (INK, "      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"),
@@ -254,9 +254,9 @@ def _confirm_block(title, summary, idx, width):
 
 
 def banner():
-    """Print the torii art, the name and repo, then the intro marker once."""
+    """Print the goldengate art, the name and repo, then the intro marker once."""
     width = _width()
-    lines = [_clip([("", "  "), (color, art)], width) for color, art in TORII]
+    lines = [_clip([("", "  "), (color, art)], width) for color, art in GOLDENGATE]
     lines.append("")
     lines.append(
         _clip(

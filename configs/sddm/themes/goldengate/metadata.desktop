@@ -1,0 +1,16 @@
+[SddmGreeterTheme]
+Name=goldengate
+Description=PillOS golden gate login
+Author=Gakuseei
+License=MIT
+Type=sddm-theme
+Version=1.0
+Website=https://github.com/Gakuseei
+Screenshot=
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=
+Email=255211761+Gakuseei@users.noreply.github.com
+Theme-Id=goldengate
+Theme-API=2.0
+QtVersion=6
