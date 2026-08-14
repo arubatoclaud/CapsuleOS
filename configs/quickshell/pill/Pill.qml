@@ -801,7 +801,9 @@ Item {
      * fed by a window-level HoverHandler in shell.qml: pointer events only exist
      * inside the input mask, so "window hovered" means "pointer over the pill (or
      * bud)". That sidesteps the per-item hover flicker the child MouseAreas and
-     * the centred width morph would otherwise cause.
+     * the centred width morph would otherwise cause. With auto-hide on the mask
+     * also carries the 4px reveal strip at the screen edge, so hovering there
+     * counts as hovering the pill and is what brings it back.
      */
     readonly property real inputPadRight: bud.shown ? bud.budR + 2 * s : 0
 

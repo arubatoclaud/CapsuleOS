@@ -236,11 +236,12 @@ ShellRoot {
             screen: modelData
             color: "transparent"
             exclusionMode: ExclusionMode.Normal
-            exclusiveZone: Flags.gameMode ? gameBarH : reservedH
+            /** Auto-hide gives the band back to the windows: nothing is reserved, so tiled clients climb to the screen edge and the pill floats over them on demand. */
+            exclusiveZone: Flags.gameMode ? gameBarH : (Flags.autoHide ? 0 : reservedH)
             aboveWindows: true
 
             anchors { top: true; left: true; right: true }
-            implicitHeight: Flags.gameMode ? gameBarH : reservedH
+            implicitHeight: Flags.gameMode ? gameBarH : (Flags.autoHide ? 1 : reservedH)
 
             mask: emptyReserve
             Region { id: emptyReserve }
@@ -276,6 +277,18 @@ ShellRoot {
                 return false;
             }
 
+            /**
+             * autoHide: the pill retracts like the fullscreen case, but a 4px
+             * hover strip stays interactive at the top edge so mousing there
+             * reveals it. Only the resting pill ever hides — `pill.mode` is the
+             * shell's own definition of "nothing to show", so a hover latch,
+             * hold, peek, drag, OSD, toast, quick-record chooser or game bar all
+             * keep it out, and anything summoned by keybind rather than by the
+             * pointer lands with the pill visible.
+             */
+            readonly property bool autoHidden: Flags.autoHide && !monFullscreen
+                && !surfaceOpen && pill.mode === "rest" && !pill.hovered && !edgePeek.hovered
+
             onMonFullscreenChanged: if (monFullscreen) {
                 if (root.openMon === modelData.name) root.close();
                 if (root.peekMon === modelData.name) root.peekMon = "";
@@ -291,8 +304,15 @@ ShellRoot {
 
             anchors { top: true; left: true; right: true; bottom: true }
 
-            mask: monFullscreen ? hiddenRegion : (modal ? fullRegion : pillRegion)
+            mask: monFullscreen ? hiddenRegion : (autoHidden ? edgeRegion : (modal ? fullRegion : pillRegion))
             Region { id: hiddenRegion }
+            Region {
+                id: edgeRegion
+                x: 0
+                y: 0
+                width: overlay.width
+                height: 4
+            }
             Region {
                 id: pillRegion
                 readonly property real baseW: Math.max(pill.width, pill.targetW)
@@ -300,6 +320,20 @@ ShellRoot {
                 y: pill.y
                 width: baseW + pill.inputPadRight
                 height: Math.max(pill.height, pill.targetH)
+
+                /**
+                 * With auto-hide on, the reveal strip stays part of the pill's
+                 * own mask. Without it the mask swap that reveals the pill drops
+                 * the pointer that just triggered it — the edge strip is no
+                 * longer masked in, hover goes false, and the pill retracts into
+                 * a flicker loop instead of sliding out.
+                 */
+                Region {
+                    x: 0
+                    y: 0
+                    width: overlay.width
+                    height: Flags.autoHide ? 4 : 0
+                }
             }
             Region {
                 id: fullRegion
@@ -327,6 +361,18 @@ ShellRoot {
                         root.peekMon = "";
                     }
                 }
+            }
+
+            /**
+             * The auto-hide reveal strip: hover only, four pixels tall, no
+             * MouseArea, so it never swallows a click meant for the window
+             * underneath. It is what keeps `autoHidden` false while the pointer
+             * rests at the screen edge.
+             */
+            Item {
+                anchors { top: parent.top; left: parent.left; right: parent.right }
+                height: 4
+                HoverHandler { id: edgePeek; enabled: Flags.autoHide }
             }
 
             FocusScope {
@@ -427,7 +473,8 @@ ShellRoot {
                     surface: overlay.surface
                     forcePinned: root.peekMon === overlay.modelData.name
 
-                    opacity: overlay.monFullscreen ? 0 : 1
+                    /** Retract: fullscreen and auto-hide share one slide-and-fade, so the pill leaves and returns the same way whichever hid it. */
+                    opacity: (overlay.monFullscreen || overlay.autoHidden) ? 0 : 1
                     Behavior on opacity {
                         NumberAnimation {
                             duration: Motion.morph
@@ -436,7 +483,7 @@ ShellRoot {
                         }
                     }
                     transform: Translate {
-                        y: overlay.monFullscreen ? -(pill.height + overlay.topGap) : 0
+                        y: (overlay.monFullscreen || overlay.autoHidden) ? -(pill.height + overlay.topGap) : 0
                         Behavior on y {
                             NumberAnimation {
                                 duration: Motion.morph

@@ -31,6 +31,7 @@ Singleton {
     property alias uiFont: adapter.uiFont
     property alias pillOpacity: adapter.pillOpacity
     property alias pillBlur: adapter.pillBlur
+    property alias autoHide: adapter.autoHide
     property alias topGap: adapter.topGap
     property alias appGap: adapter.appGap
     property alias recordCountdown: adapter.recordCountdown
@@ -94,6 +95,8 @@ Singleton {
             property string uiFont: ""
             property real pillOpacity: 1.0
             property bool pillBlur: false
+            /** macOS menubar behaviour: the pill retracts off the top edge at rest and releases its reserved band, and a thin hover strip at the screen edge slides it back. */
+            property bool autoHide: false
             /** Top margin as a fraction of the shipped 8px. 0 sits the pill flush to the screen edge. */
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */

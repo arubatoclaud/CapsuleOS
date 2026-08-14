@@ -73,6 +73,7 @@ SettingsSurface {
             r.push({ item: pillOpRow, kind: "scrub", bump: function (d) { pillOpScrub.bump(d); } });
             r.push({ item: pillBlurRow, kind: "toggle", get: function () { return Flags.pillBlur; }, set: function (v) { Flags.pillBlur = v; root.applyPillBlur(v); } });
             r.push({ item: materialRow, kind: "seg", vals: ["glass", "frost", "ink"], get: function () { return Flags.material; }, set: function (v) { root.setMaterial(v); } });
+            r.push({ item: autoHideRow, kind: "toggle", get: function () { return Flags.autoHide; }, set: function (v) { Flags.autoHide = v; } });
         }
         return r;
     }
@@ -938,6 +939,17 @@ SettingsSurface {
                     options: root.materialOptions
                     value: Flags.material
                     onPicked: v => root.setMaterial(v)
+                }
+            }
+
+            FieldRow {
+                id: autoHideRow
+                label: "Auto-hide pill"
+                caption: "Slide away at rest, reveal on the top edge"
+                LinkToggle {
+                    s: root.s
+                    on: Flags.autoHide
+                    onToggled: Flags.autoHide = !Flags.autoHide
                 }
             }
 
