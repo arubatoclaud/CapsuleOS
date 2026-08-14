@@ -11,8 +11,8 @@ Thumbs.db
 *.legacy
 
 # install.sh ownership markers and config backups, only ever live under ~/.config
-.ricelin-managed
-*.bak-ricelin-*
+.pillos-managed
+*.bak-pillos-*
 
 # Per-machine
 .envrc
@@ -58,8 +58,7 @@ configs/hypr/.luarc.json
 # Wallpapers: local until final curated 2560x1440 set exists, then un-ignore + commit
 wallpapers/
 
-# Specs / brainstorm docs, local only (never commit docs/)
-docs/
+# PillOS: design specs are committed (upstream ignored docs/)
 .playwright/
 .playwright-mcp/
 
@@ -68,7 +67,7 @@ docs/
 /configs/decisions.md
 /configs/mount-disks.sh
 /configs/grub/probe-sda4.sh
-/configs/grub/10_ricelin
+/configs/grub/10_pillos
 __pycache__/
 configs/hypr/hyprsunset.conf
 .impeccable/

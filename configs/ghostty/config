@@ -17,28 +17,28 @@ copy-on-select = clipboard
 keybind = ctrl+v=paste_from_clipboard
 confirm-close-surface = false
 
-# Warm Ricelin default theme. The wallpaper picker writes a matching
-# palette to the cache file below, which overrides everything here.
-background = #1c120c
-foreground = #e6d6cb
-cursor-color = #e0563b
-selection-background = #594636
-selection-foreground = #fff6f0
-palette = 0=#2e231b
-palette = 1=#c0442b
-palette = 2=#8a9a5b
-palette = 3=#d89a5b
-palette = 4=#6f8da0
-palette = 5=#b06a78
-palette = 6=#7fa89a
-palette = 7=#e6d6cb
-palette = 8=#594636
-palette = 9=#e0563b
-palette = 10=#a8b56e
-palette = 11=#f0b85e
-palette = 12=#8fa9bb
-palette = 13=#d08a96
-palette = 14=#9fc3b4
-palette = 15=#fff6f0
+# Cool Fog — PillOS night-bridge default. The wallpaper picker writes a
+# matching palette to the cache file below, which overrides everything here.
+background = #0a0e16
+foreground = #c3cddb
+cursor-color = #ffb454
+selection-background = #2a3547
+selection-foreground = #f2f6fb
+palette = 0=#1a2230
+palette = 1=#d4707c
+palette = 2=#7fb3a3
+palette = 3=#d9b26a
+palette = 4=#8fa9c9
+palette = 5=#a68fc9
+palette = 6=#7fb3c3
+palette = 7=#c3cddb
+palette = 8=#3a4658
+palette = 9=#e08a96
+palette = 10=#99ccb8
+palette = 11=#ecc985
+palette = 12=#a9c3e0
+palette = 13=#c0aade
+palette = 14=#99ccd9
+palette = 15=#f2f6fb
 
-config-file = ?~/.cache/ricelin/ghostty-colors
+config-file = ?~/.cache/pillos/ghostty-colors

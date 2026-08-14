@@ -5,7 +5,7 @@ import Quickshell.Io
 import "../lib/binds.js" as Binds
 
 /**
- * 場 SPACES store: the single read/writer of ~/.config/hypr/modules/spaces.lua,
+ * SPACES store: the single read/writer of ~/.config/hypr/modules/spaces.lua,
  * the user-defined special workspaces the Workspaces settings page creates. Each
  * entry is { id, name, desc, key, glyph, apps[] }: id is the special-workspace
  * name (a slug of the display name), key a single Super-prefixed letter, glyph an

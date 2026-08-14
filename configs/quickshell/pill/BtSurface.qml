@@ -6,7 +6,7 @@ import Quickshell.Bluetooth
 import "Singletons"
 
 /**
- * 歯 BLUETOOTH surface: kanji header, scan with 25s auto-stop, adapter toggle,
+ * BLUETOOTH surface: kanji header, scan with 25s auto-stop, adapter toggle,
  * live device list. Known devices use the Quickshell connect/disconnect calls;
  * unpaired devices run a bluetoothctl pair-trust-connect flow with an inline
  * ember while running and a transient failure line. Standalone root surface, so
@@ -197,9 +197,9 @@ PillSurface {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Flags.showGlyphs
-                text: "歯"
+                text: "\uf293"
                 color: Theme.cream
-                font.family: Theme.fontJp
+                font.family: Theme.fontIcon
                 font.weight: Font.Medium
                 font.pixelSize: 16 * root.s
             }

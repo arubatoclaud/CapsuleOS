@@ -8,7 +8,7 @@ import "lib/setAnim.js" as SetAnim
 import "Singletons"
 
 /**
- * 動 ANIMATION sub-surface: toggles Hyprland animations, sets one master speed
+ * ANIMATION sub-surface: toggles Hyprland animations, sets one master speed
  * across every leaf, and shapes the main motion curve by dragging its two bezier
  * control points. animations.lua is read once per pill session (first seed);
  * after that the in-memory properties are the single source of truth, so
@@ -37,8 +37,10 @@ SettingsSurface {
      */
     rows: {
         var r = [{ item: enabledRow, kind: "toggle", get: function () { return root.animOn; }, set: function (v) { root.animOn = v; root.writeEnabled(v); } }];
-        if (root.animOn)
+        if (root.animOn) {
+            r.push({ item: motionRow, kind: "seg", vals: ["calm", "spring", "glide"], get: function () { return Flags.motion; }, set: function (v) { root.applyMotion(v); } });
             r.push({ item: speedRow, kind: "scrub", bump: function (d) { speedScrub.bump(d); } });
+        }
         return r;
     }
 
@@ -56,6 +58,12 @@ SettingsSurface {
     property real cy1: 1.0
     property real cx2: 0.32
     property real cy2: 1.0
+
+    readonly property var motionOptions: [
+        { label: "Calm", value: "calm" },
+        { label: "Spring", value: "spring" },
+        { label: "Glide", value: "glide" }
+    ]
 
     readonly property var presets: [
         { label: "Smooth", x1: 0.23, y1: 1.0, x2: 0.32, y2: 1.0 },
@@ -129,6 +137,28 @@ SettingsSurface {
         reloadTimer.restart();
     }
 
+    /**
+     * Sets the shell's motion character and pushes the same character down to
+     * Hyprland, so windows and workspaces settle exactly like the pill does.
+     * The curve points mirror Motion.morphCurve and the speed is the matching
+     * Hyprland duration: calm lands, spring overshoots, glide stretches. Writes
+     * through the surface's own curve and speed plumbing, so the handles and the
+     * scrub follow what landed on disk. The revert baseline is deliberately left
+     * alone, exactly as the Preset row leaves it: a character pick arms the undo
+     * glyph, so one click takes you back to the curve the tab opened on.
+     */
+    function applyMotion(v) {
+        Flags.motion = v;
+        root.cx1 = v === "spring" ? 0.34 : v === "glide" ? 0.45 : 0.32;
+        root.cy1 = v === "spring" ? 1.56 : v === "glide" ? 0.05 : 0.72;
+        root.cx2 = v === "spring" ? 0.64 : v === "glide" ? 0.15 : 0.0;
+        root.cy2 = 1.0;
+        editor.syncHandles();
+        root.writeCurve();
+        root.speed = v === "glide" ? 5.2 : v === "spring" ? 4.0 : 3.0;
+        root.writeSpeed(root.speed);
+    }
+
     FileView { id: animFile; path: root.animPath; blockLoading: true; printErrors: false }
     FileView { id: animWriter; path: root.animPath; atomicWrites: true; printErrors: false }
     Process { id: reloadProc; command: ["setsid", "-f", "sh", "-c", "sleep 0.3; hyprctl reload"] }
@@ -158,7 +188,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "動"
+            glyph: "\uf04b"
             title: "ANIMATION"
             showBack: true
         }
@@ -184,10 +214,26 @@ SettingsSurface {
         }
 
         SettingsRow {
+            id: motionRow
+            surface: root
+            name: "Motion"
+            sub: "Calm settles, spring overshoots, glide stretches"
+            captionOnFocus: true
+            icon: "waves"
+            visible: root.animOn
+            SettingsSeg {
+                s: root.s
+                options: root.motionOptions
+                value: Flags.motion
+                onPicked: v => root.applyMotion(v)
+            }
+        }
+
+        SettingsRow {
             id: speedRow
             surface: root
             name: "Speed"
-            sub: "Higher is faster, applied to every animation"
+            sub: "Duration in deciseconds — lower is snappier"
             captionOnFocus: true
             icon: "bolt"
             visible: root.animOn

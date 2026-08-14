@@ -635,9 +635,10 @@ Item {
         opacity: shown ? 1 : 0
         border.width: 1
         border.color: Theme.border
+        /** Qt.alpha replaces the channel rather than scaling it, so the material's own alpha has to be multiplied back in here or the token's translucency is thrown away. */
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Theme.surfAlpha * Flags.pillOpacity) }
+            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Theme.surfAlpha * Flags.pillOpacity) }
         }
         Behavior on budR { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         Behavior on opacity { NumberAnimation { duration: Motion.standard } }
@@ -698,9 +699,10 @@ Item {
         bottomRightRadius: pill.morphRadius * (1 - gameFlat)
         border.width: 1
         border.color: Theme.border
+        /** Material alpha times the user's pill opacity: Qt.alpha sets the channel outright, so leaving Theme.surfAlpha out here would render glass, frost and ink identically. */
         gradient: Gradient {
-            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Flags.pillOpacity) }
-            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Flags.pillOpacity) }
+            GradientStop { position: 0.0; color: Qt.alpha(Theme.cardTop, Theme.surfAlpha * Flags.pillOpacity) }
+            GradientStop { position: 1.0; color: Qt.alpha(Theme.cardBot, Theme.surfAlpha * Flags.pillOpacity) }
         }
 
         layer.enabled: !pill.morphing
@@ -724,7 +726,7 @@ Item {
     }
 
     /**
-     * Rest anchor for Ame: the 時 kanji centre. The idle outline condenses into
+     * Rest anchor for Ame: the kanji centre. The idle outline condenses into
      * the bead here before it moves.
      */
     readonly property point wakePoint: {
@@ -801,7 +803,9 @@ Item {
      * fed by a window-level HoverHandler in shell.qml: pointer events only exist
      * inside the input mask, so "window hovered" means "pointer over the pill (or
      * bud)". That sidesteps the per-item hover flicker the child MouseAreas and
-     * the centred width morph would otherwise cause.
+     * the centred width morph would otherwise cause. With auto-hide on the mask
+     * also carries the 4px reveal strip at the screen edge, so hovering there
+     * counts as hovering the pill and is what brings it back.
      */
     readonly property real inputPadRight: bud.shown ? bud.budR + 2 * s : 0
 
@@ -1281,9 +1285,9 @@ Item {
                 Text {
                     id: kanjiFill
                     opacity: (Flags.showGlyphs && !restKanji.barsOn) ? 1 : 0
-                    text: "時"
+                    text: "\uf017"
                     color: Theme.cream
-                    font.family: Theme.fontJp
+                    font.family: Theme.fontIcon
                     font.weight: Font.Medium
                     font.pixelSize: 15 * pill.s
                     Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }

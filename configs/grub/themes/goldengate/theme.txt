@@ -1,0 +1,61 @@
+# Goldengate: PillOS GRUB theme (night palette)
+# Background: night gradient (1920x1080)
+
+desktop-image: "background.png"
+desktop-image-scale-method: "stretch"
+title-text: ""
+message-color: "#a4aebc"
+message-bg-color: "#00000000"
+
+# --- Japanese title ---
++ label {
+    left   = 6%
+    top    = 20%
+    width  = 55%
+    align  = "left"
+    text   = "門を選べ"
+    font   = "ToriiTitle Regular 92"
+    color  = "#d5dce6"
+}
+
+# --- subtitle ---
++ label {
+    left   = 6%
+    top    = 33%
+    width  = 55%
+    align  = "left"
+    text   = "CHOOSE YOUR GATE"
+    font   = "Cormorant Bold 26"
+    color  = "#a4aebc"
+}
+
+# --- boot menu ---
++ boot_menu {
+    left            = 6%
+    top             = 40%
+    width           = 44%
+    height          = 50%
+    item_font       = "Cormorant Bold 44"
+    item_color      = "#a4aebc"
+    selected_item_color = "#ffb454"
+    selected_item_pixmap_style = "select_*.png"
+    item_height     = 62
+    item_padding    = 14
+    item_spacing    = 10
+    icon_width      = 0
+    icon_height     = 0
+    item_icon_space = 0
+    scrollbar       = false
+}
+
+# --- countdown ---
++ label {
+    id    = "__timeout__"
+    left  = 6%
+    top   = 90%
+    width = 55%
+    align = "left"
+    text  = "Booting in %d seconds"
+    font  = "Cormorant Bold 26"
+    color = "#a4aebc"
+}

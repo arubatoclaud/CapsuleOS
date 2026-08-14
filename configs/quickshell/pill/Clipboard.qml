@@ -10,7 +10,7 @@ import "Singletons"
  * substring, Return copies the selected entry and closes, hovering a row
  * cross-fades a dismiss glyph that deletes it (Ctrl+X does the same for the
  * keyboard selection). Image entries render their cached thumbnail beside the
- * size label. Holding the 掃 glyph for the heat duration wipes the whole
+ * size label. Holding the glyph for the heat duration wipes the whole
  * history; progress sweeps along the header divider and drains on early
  * release.
  */
@@ -101,7 +101,7 @@ PillSurface {
         anchors.left: parent.left
         anchors.right: parent.right
         s: root.s
-        kanji: "控"
+        kanji: "\uf0ea"
         placeholder: "Search clipboard"
         counterText: root.results.length + " / " + Cliphist.count
         onTextChanged: {
@@ -139,9 +139,9 @@ PillSurface {
             Text {
                 visible: Flags.showGlyphs
                 anchors.centerIn: parent
-                text: "掃"
+                text: "\uede4"
                 color: wipeBtn.tone
-                font.family: Theme.fontJp
+                font.family: Theme.fontIcon
                 font.pixelSize: 12 * root.s
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
             }

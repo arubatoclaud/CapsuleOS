@@ -12,8 +12,8 @@ Item {
 
     implicitHeight: 50
 
-    readonly property color cream: "#e6d6cb"
-    readonly property color white: "#fff6f0"
+    readonly property color cream: "#d5dce6"
+    readonly property color white: "#f2f6fb"
     readonly property color dim2: "#565e6a"
 
     readonly property string secondary: {
@@ -29,8 +29,8 @@ Item {
         anchors.fill: parent
         radius: 14
         gradient: Gradient {
-            GradientStop { position: 0.0; color: "#c0442b" }
-            GradientStop { position: 1.0; color: "#a3371f" }
+            GradientStop { position: 0.0; color: "#e0762a" }
+            GradientStop { position: 1.0; color: "#c2410c" }
         }
         visible: row.selected
     }

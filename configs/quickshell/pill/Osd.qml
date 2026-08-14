@@ -310,7 +310,8 @@ Item {
                 width: 18 * root.s
                 height: 18 * root.s
                 radius: width / 2
-                color: Qt.alpha(Theme.cardBot, 0.8)
+                /** Badge plate alpha is tuned against the art underneath, so it rides Theme.surfScale to follow the material instead of staying translucent under ink. */
+                color: Qt.alpha(Theme.cardBot, Math.min(1, 0.8 * Theme.surfScale))
                 visible: srcIcon.status === Image.Ready
 
                 Image {

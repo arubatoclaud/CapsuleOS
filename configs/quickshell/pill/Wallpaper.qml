@@ -305,7 +305,7 @@ PillSurface {
                 return;
             prevFetch.url = root.focusedPreviewUrl;
             prevFetch.command = ["bash", "-c",
-                "f=\"/tmp/ricelin-wp-preview-$(printf %s \"$1\" | md5sum | cut -d' ' -f1).webm\"; [ -s \"$f\" ] || curl -fsL --max-time 25 -A 'Mozilla/5.0' -o \"$f\" \"$1\" || { rm -f \"$f\"; exit 1; }; printf %s \"$f\"",
+                "f=\"/tmp/pillos-wp-preview-$(printf %s \"$1\" | md5sum | cut -d' ' -f1).webm\"; [ -s \"$f\" ] || curl -fsL --max-time 25 -A 'Mozilla/5.0' -o \"$f\" \"$1\" || { rm -f \"$f\"; exit 1; }; printf %s \"$f\"",
                 "_", root.focusedPreviewUrl];
             prevFetch.running = true;
         }
@@ -433,7 +433,7 @@ PillSurface {
         anchors.right: parent.right
         anchors.rightMargin: filterRow.width + 30 * root.s
         s: root.s
-        kanji: "探"
+        kanji: "\uf002"
         placeholder: "Search wallpapers"
         visible: root.searching
         enabled: root.searching
@@ -616,10 +616,10 @@ PillSurface {
         anchors.verticalCenter: parent.verticalCenter
         z: 0
         visible: Flags.showGlyphs && !root.searching
-        text: "壁"
+        text: "\uf03e"
         color: Theme.ghost
         opacity: 0.55
-        font.family: Theme.fontJp
+        font.family: Theme.fontIcon
         font.weight: Font.Medium
         font.pixelSize: 30 * root.s
     }

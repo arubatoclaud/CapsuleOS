@@ -49,7 +49,7 @@ Item {
         if (surface.screenName.length === 0)
             return "";
         var dir = Quickshell.env("XDG_RUNTIME_DIR") || "/tmp";
-        return "file://" + dir + "/ricelin-lock-" + surface.screenName + ".png";
+        return "file://" + dir + "/pillos-lock-" + surface.screenName + ".png";
     }
 
     clip: true
@@ -262,18 +262,13 @@ Item {
         }
     }
 
-    GlowField {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        /**
-         * Full height: the shader already fades the glow out across the top
-         * 15% of the field, so capping the field at half the screen stamped a
-         * visible hard stop into the middle of it.
-         */
-        height: parent.height
-    }
-
+    /**
+     * No glow field here any more. The Sonoma backdrop is the blurred, darkened
+     * desktop grab above and nothing else; the cava-reactive ember wash that used
+     * to sit on top of it fought the frosted chrome for attention, so GlowField
+     * and shaders/glow.frag are gone. The reveal never depended on it — that runs
+     * entirely off deskOverlay + maskItem below.
+     */
     Content {
         anchors.fill: parent
         s: surface.s

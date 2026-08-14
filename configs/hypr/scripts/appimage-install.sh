@@ -18,8 +18,8 @@ set -euo pipefail
 data_home="${XDG_DATA_HOME:-$HOME/.local/share}"
 apps_dir="$HOME/Applications"
 desktop_dir="$data_home/applications"
-icon_dir="$data_home/ricelin/appimages"
-registry="$data_home/ricelin/appimages.json"
+icon_dir="$data_home/pillos/appimages"
+registry="$data_home/pillos/appimages.json"
 
 mkdir -p "$apps_dir" "$desktop_dir" "$icon_dir"
 [ -f "$registry" ] || echo '{}' >"$registry"
@@ -146,7 +146,7 @@ install_appimage() {
 	local icon_path="$icon_dir/$slug.png"
 	[ -f "$icon_path" ] || { icon_path="$icon_dir/$slug.svg"; [ -f "$icon_path" ] || icon_path=""; }
 
-	local df_out="$desktop_dir/ricelin-$slug.desktop"
+	local df_out="$desktop_dir/pillos-$slug.desktop"
 	{
 		echo "[Desktop Entry]"
 		echo "Type=Application"
@@ -156,7 +156,7 @@ install_appimage() {
 		[ -n "$categories" ] && echo "Categories=$categories"
 		[ -n "$wmclass" ] && echo "StartupWMClass=$wmclass"
 		echo "Terminal=false"
-		echo "X-Ricelin-AppImage=true"
+		echo "X-PillOS-AppImage=true"
 	} >"$df_out"
 
 	reg_set "$slug" "$name" "$dest" "$icon_path" "$df_out" "$appid"

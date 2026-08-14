@@ -29,7 +29,7 @@ ShellRoot {
 
     FileView {
         id: usageStore
-        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ricelin/launcher-usage.json"
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos/launcher-usage.json"
         blockLoading: true
         atomicWrites: true
         printErrors: false

@@ -4,7 +4,7 @@ import QtQuick
 import "Singletons"
 
 /**
- * 設 SETTINGS index: a short list of categories. Each row carries its kanji,
+ * SETTINGS index: a short list of categories. Each row carries its kanji,
  * name and caption, and morphs the pill into that category's sub-surface.
  * Arrow keys move the focused row with the glowing seam and Return opens it.
  */
@@ -34,7 +34,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "設"
+            glyph: "\uf013"
             title: "SETTINGS"
         }
 

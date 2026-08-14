@@ -117,7 +117,7 @@ Singleton {
                 }
             }
             /**
-             * Browser DRM players (Netflix in Brave) often land their title while
+             * Browser DRM players (Netflix in Chromium) often land their title while
              * isPlaying still reads false and never cleanly toggle it, so the
              * active player announces on any real title, not only mid-playback.
              */

@@ -7,7 +7,7 @@ import "lib/monitors.js" as Mon
 import "Singletons"
 
 /**
- * 画 DISPLAY sub-surface. A proportional mini-map of the monitor layout sits on
+ * DISPLAY sub-surface. A proportional mini-map of the monitor layout sits on
  * top: one tile per output (scaled from logical size, placed by real x/y), the
  * main monitor wears a star, clicking a tile selects it and dragging one snaps
  * it left/right/above/below the other monitor as a pending move. Below the map
@@ -512,7 +512,7 @@ SettingsSurface {
             visible: crow.glyphText.length > 0
             text: crow.glyphText
             color: crow.focused ? Theme.cream : Theme.subtle
-            font.family: Theme.fontJp
+            font.family: Theme.fontIcon
             font.pixelSize: 13 * root.s
         }
 
@@ -538,7 +538,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "画"
+            glyph: "\uf108"
             title: "DISPLAY"
             showBack: true
         }
@@ -617,7 +617,7 @@ SettingsSurface {
                             visible: tile.isMain
                             text: "★"
                             color: Theme.vermLit
-                            font.family: Theme.fontJp
+                            font.family: Theme.fontIcon
                             font.pixelSize: 9.5 * root.s
                         }
 

@@ -8,7 +8,7 @@
 #
 set -euo pipefail
 
-state="${XDG_STATE_HOME:-$HOME/.local/state}/ricelin"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/pillos"
 snap="$state/gamemode-snapshot.json"
 mkdir -p "$state"
 

@@ -36,7 +36,7 @@ Item {
         width: Flags.showGlyphs ? implicitWidth : 0
         text: root.kanji
         color: Theme.dim
-        font.family: Theme.fontJp
+        font.family: Theme.fontIcon
         font.weight: Font.Medium
         font.pixelSize: 16 * root.s
     }

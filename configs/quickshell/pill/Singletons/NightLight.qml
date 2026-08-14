@@ -4,7 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 /**
- * 灯 Night-light controller over hyprsunset, the Hyprland blue-light filter.
+ * Night-light controller over hyprsunset, the Hyprland blue-light filter.
  * Off and On push straight to the running daemon over its IPC, so the screen
  * warms or clears at once with no service flicker. Scheduled mode writes a
  * two-profile hyprsunset.conf and restarts the service, handing the clock to the

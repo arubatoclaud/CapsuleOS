@@ -115,8 +115,8 @@ PillSurface {
     /**
      * Ame is the focus cursor: it rings the picked day, or today when this month
      * is in view with nothing picked. Browsing another month with nothing picked
-     * leaves no focus, so the bead parks as a soul ember on the 暦 header glyph
-     * (the calendar's lantern, mirroring Sysmon) rather than floating over a
+     * leaves no focus, so the bead parks as a soul ember on the header glyph
+     * (the calendar's lamp, mirroring Sysmon) rather than floating over a
      * random date cell — which is what read as Ame jumping somewhere random.
      */
     readonly property bool selectedInView: selectedDate.length > 0
@@ -482,9 +482,9 @@ PillSurface {
                     id: calGlyph
                     anchors.verticalCenter: parent.verticalCenter
                     visible: Flags.showGlyphs
-                    text: "暦"
+                    text: "\uf073"
                     color: Theme.cream
-                    font.family: Theme.fontJp
+                    font.family: Theme.fontIcon
                     font.weight: Font.Medium
                     font.pixelSize: 16 * root.s
                 }

@@ -71,7 +71,7 @@ ShellRoot {
             root.doLock()
     }
     FileView {
-        path: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/ricelin-lock-trigger"
+        path: (Quickshell.env("XDG_RUNTIME_DIR") || "/tmp") + "/pillos-lock-trigger"
         watchChanges: true
         printErrors: false
         onLoadFailed: setText("0")

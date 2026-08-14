@@ -6,7 +6,7 @@ import Quickshell.Io
 import "Singletons"
 
 /**
- * 相 APPEARANCE sub-surface: the clock format and seconds, the Japanese-glyph
+ * APPEARANCE sub-surface: the clock format and seconds, the Japanese-glyph
  * toggle that gates every surface header, the palette mode (static flame, dynamic
  * per-wallpaper, or a manually chosen hue), the UI scale and a reduce-motion
  * switch. Reached from the settings index and morphs back to it on an empty click
@@ -66,7 +66,7 @@ SettingsSurface {
     Process {
         id: dynamicProc
         command: ["sh", "-c",
-            "f=\"${XDG_STATE_HOME:-$HOME/.local/state}/ricelin-wallpaper\"; pic=$(cat \"$f\" 2>/dev/null); case \"$pic\" in *.[Mm][Pp]4|*.[Ww][Ee][Bb][Mm]|*.[Mm][Kk][Vv]|*.[Mm][Oo][Vv]) pic=\"${XDG_STATE_HOME:-$HOME/.local/state}/ricelin-wallpaper-still.png\";; esac; [ -f \"$pic\" ] && python3 \"$HOME/.config/hypr/scripts/wallcolors.py\" \"$pic\" >/dev/null 2>&1; hyprctl reload >/dev/null 2>&1; busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions Activate \"sava{sv}\" reload-config 0 0 >/dev/null 2>&1 || true"]
+            "f=\"${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper\"; pic=$(cat \"$f\" 2>/dev/null); case \"$pic\" in *.[Mm][Pp]4|*.[Ww][Ee][Bb][Mm]|*.[Mm][Kk][Vv]|*.[Mm][Oo][Vv]) pic=\"${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper-still.png\";; esac; [ -f \"$pic\" ] && python3 \"$HOME/.config/hypr/scripts/wallcolors.py\" \"$pic\" >/dev/null 2>&1; hyprctl reload >/dev/null 2>&1; busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions Activate \"sava{sv}\" reload-config 0 0 >/dev/null 2>&1 || true"]
     }
 
     Connections {
@@ -102,7 +102,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "相"
+            glyph: "\uf042"
             title: "APPEARANCE"
             showBack: true
         }

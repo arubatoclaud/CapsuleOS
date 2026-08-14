@@ -260,7 +260,7 @@ Column {
         width: parent.width
         visible: picker.addOpen
         s: picker.s
-        kanji: "探"
+        kanji: "\uf002"
         placeholder: "Search apps"
         counterText: picker.results.length + ""
         onTextChanged: {

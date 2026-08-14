@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ricelin installer terminal UI, the widget layer the orchestrator imports.
+PillOS installer terminal UI, the widget layer the orchestrator imports.
 
 This is a clack-style sequential prompt flow, not a full-screen TUI. The terminal
 keeps scrolling: every answered question stays on screen, collapsed to a single
@@ -10,9 +10,9 @@ gave. The screen is never cleared. Only the one currently active prompt redraws 
 place while you move the arrows; the moment you submit it freezes into scrollback
 and the next prompt prints under it.
 
-The skin is the locked Ricelin Hanko: the vermilion edge marker that echoes the
-pill's hanko stamps and the torii, corner-bracketed answers, square seals for
-multiselect and round dots for single choice, all in the rice's ember palette.
+The skin is the locked PillOS night-bridge: the amber edge marker that echoes the
+pill's own marks and the goldengate, corner-bracketed answers, square seals for
+multiselect and round dots for single choice, all in the fog palette.
 
 Keys come from /dev/tty, the controlling terminal, not from stdin. The real
 installer ships as `curl -fsSL ... | bash`, so the process stdin is the piped
@@ -37,12 +37,12 @@ def _rgb(r, g, b):
     return "" if _NO_COLOR else f"\033[38;2;{r};{g};{b}m"
 
 
-VERM = _rgb(192, 68, 43)
-FLAME = _rgb(255, 154, 100)
-CREAM = _rgb(230, 214, 203)
-BRIGHT = _rgb(255, 246, 240)
-DIM = _rgb(138, 125, 116)
-FAINT = _rgb(111, 99, 91)
+VERM = _rgb(255, 152, 56)
+FLAME = _rgb(255, 180, 84)
+CREAM = _rgb(213, 220, 230)
+BRIGHT = _rgb(242, 246, 251)
+DIM = _rgb(125, 135, 151)
+FAINT = _rgb(93, 101, 112)
 GREEN = _rgb(120, 180, 120)
 DEEP = _rgb(63, 69, 80)
 INK = _rgb(51, 55, 63)
@@ -64,7 +64,7 @@ RADIO_OFF = "○"
 LBRACKET = "「"
 RBRACKET = "」"
 
-TORII = [
+GOLDENGATE = [
     (DEEP, "      ╱▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔╲"),
     (DEEP, "   ▗▄████████████████████▄▖"),
     (INK, "      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀"),
@@ -254,24 +254,24 @@ def _confirm_block(title, summary, idx, width):
 
 
 def banner():
-    """Print the torii art, the name and repo, then the intro marker once."""
+    """Print the goldengate art, the name and repo, then the intro marker once."""
     width = _width()
-    lines = [_clip([("", "  "), (color, art)], width) for color, art in TORII]
+    lines = [_clip([("", "  "), (color, art)], width) for color, art in GOLDENGATE]
     lines.append("")
     lines.append(
         _clip(
             [
                 ("", "  "),
-                (FLAME, "Ricelin"),
+                (FLAME, "PillOS"),
                 ("", "   "),
                 (DIM, "A warm Hyprland rice"),
             ],
             width,
         )
     )
-    lines.append(_clip([("", "  "), (FAINT, "github.com/Gakuseei/Ricelin")], width))
+    lines.append(_clip([("", "  "), (FAINT, "github.com/arubatoclaud/PillOS")], width))
     lines.append("")
-    lines.append(_header(INTRO, VERM, "Ricelin installer", CREAM, width))
+    lines.append(_header(INTRO, VERM, "PillOS installer", CREAM, width))
     lines.append(_spacer(width))
     _write("\n".join(lines) + "\n")
 

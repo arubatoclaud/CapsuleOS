@@ -5,7 +5,7 @@ import Quickshell.Io
 
 /**
  * Shared session flags persisted to a small JSON file and watched for external
- * change, so every Ricelin daemon (pill, lock) reads and writes the same
+ * change, so every PillOS daemon (pill, lock) reads and writes the same
  * Do-Not-Disturb and Keep-Awake state live without a second notification server
  * or idle inhibitor. Toggling in one surface updates the others on the next file
  * event, and the state survives a daemon restart.
@@ -19,6 +19,8 @@ Singleton {
     property alias clockSeconds: adapter.clockSeconds
     property alias showGlyphs: adapter.showGlyphs
     property alias paletteMode: adapter.paletteMode
+    property alias material: adapter.material
+    property alias motion: adapter.motion
     property alias wallpaperDir: adapter.wallpaperDir
     property alias randomScope: adapter.randomScope
     property alias uiScale: adapter.uiScale
@@ -29,6 +31,7 @@ Singleton {
     property alias uiFont: adapter.uiFont
     property alias pillOpacity: adapter.pillOpacity
     property alias pillBlur: adapter.pillBlur
+    property alias autoHide: adapter.autoHide
     property alias topGap: adapter.topGap
     property alias appGap: adapter.appGap
     property alias recordCountdown: adapter.recordCountdown
@@ -56,7 +59,7 @@ Singleton {
 
     FileView {
         id: file
-        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/ricelin/flags.json"
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos/flags.json"
         blockLoading: true
         watchChanges: true
         printErrors: false
@@ -76,7 +79,11 @@ Singleton {
             property bool clockSeconds: false
             property bool showGlyphs: true
             property string paletteMode: "static"
-            /** Explicit wallpaper folder override. Empty means autodetect: the dir wallpaper.sh last resolved (ricelin-wallpaper-dir state file), then ~/Ricelin/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
+            /** Surface material: "glass" bright translucent, "frost" the shipped middle, "ink" flat opaque. Rides Theme's surface alpha so every surface follows one choice. */
+            property string material: "frost"
+            /** Motion character: "calm" the shipped Apple-standard settle, "spring" overshoots, "glide" stretches everything cinematic. Drives Motion's durations and curve, and the Hyprland side through the animation surface. */
+            property string motion: "calm"
+            /** Explicit wallpaper folder override. Empty means autodetect: the dir wallpaper.sh last resolved (pillos-wallpaper-dir state file), then ~/PillOS/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
             property string wallpaperDir: ""
             /** Super+B random target: "all" repaints every monitor, "cursor" only the one under the pointer. */
             property string randomScope: "all"
@@ -88,6 +95,8 @@ Singleton {
             property string uiFont: ""
             property real pillOpacity: 1.0
             property bool pillBlur: false
+            /** macOS menubar behaviour: the pill retracts off the top edge at rest and releases its reserved band, and a thin hover strip at the screen edge slides it back. */
+            property bool autoHide: false
             /** Top margin as a fraction of the shipped 8px. 0 sits the pill flush to the screen edge. */
             property real topGap: 1.0
             /** Pill-to-window band as a fraction of the shipped 12px. 0 tucks the windows flush under the pill. */

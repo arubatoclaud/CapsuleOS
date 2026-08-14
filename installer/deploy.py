@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ricelin config deploy layer.
+PillOS config deploy layer.
 
 Copies the rice into ~/.config, drops an ownership marker so uninstall knows
 what is safe to pull, makes the deployed copies portable (neutralize), and
@@ -14,13 +14,12 @@ dry-run friendly.
 """
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-MARKER = ".ricelin-managed"
+MARKER = ".pillos-managed"
 
 # Repo root is the parent of this installer/ dir; the deployable configs sit
 # under configs/ next to it.
@@ -29,25 +28,23 @@ CONFIGS = REPO_ROOT / "configs"
 CONFIG_ROOT = Path(os.environ.get("XDG_CONFIG_HOME") or (Path.home() / ".config"))
 
 # The deploy set: (name, source under configs/, dest under ~/.config). The first
-# five land as whole dirs; kdeglobals and the session target are single files
-# that sit at a different path than their source in the clone.
+# four land as whole dirs; the session target is a single file that sits at a
+# different path than its source in the clone.
 DEPLOY_SET = [
     ("hypr",       "hypr",                                  "hypr"),
     ("quickshell", "quickshell",                            "quickshell"),
     ("ghostty",    "ghostty",                               "ghostty"),
-    ("fish",       "fish",                                  "fish"),
     ("fastfetch",  "fastfetch",                             "fastfetch"),
-    ("kdeglobals", "kde/kdeglobals",                        "kdeglobals"),
     ("session",    "systemd/user/hyprland-session.target",  "systemd/user/hyprland-session.target"),
 ]
 
 # Personal bootloader entries that never deploy. A generic grub-theme installer
 # comes later; these three are tied to Erik's disks and machine, so the deploy
 # set leaves them out on purpose.
-GRUB_EXCLUDED = ["grub/install-torii.sh", "grub/probe-sda4.sh", "grub/10_ricelin"]
+GRUB_EXCLUDED = ["grub/install-goldengate.sh", "grub/probe-sda4.sh", "grub/10_pillos"]
 
 # User-owned config files a re-run must never reset: the same protected set the
-# update engine three-way merges (hand-mirrored from ricelin-update.py, which
+# update engine three-way merges (hand-mirrored from pillos-update.py, which
 # ships standalone and cannot be imported from here). On a managed re-deploy
 # these are carried across the replace instead of reverting to the repo copy,
 # so a curl|sh re-run stops undoing Settings (idle timeouts, keybinds, layout).
@@ -62,7 +59,6 @@ PRESERVED = [
     "hypr/modules/stash-apps.lua",
     "hypr/modules/spaces.lua",
     "hypr/hypridle.conf",
-    "fish/config.fish",
 ]
 
 # The single auto monitor that replaces a user's hand-tuned layout. Their real
@@ -81,8 +77,6 @@ hl.env("XCURSOR_SIZE",    "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
-
-hl.env("QT_QPA_PLATFORMTHEME", "kde")
 """
 
 # Appended only when an nvidia GPU is on the bus.
@@ -93,18 +87,18 @@ hl.env("__GL_GSYNC_ALLOWED",        "0")
 hl.env("__GL_VRR_ALLOWED",          "0")
 """
 
-# Warm fallback palette for the first fastfetch render, before any wallpaper is
-# picked. Matches the baked warm ghostty default. The live wallcolors.py
+# Night-bridge fallback palette for the first fastfetch render, before any wallpaper is
+# picked. Matches the baked night-bridge ghostty default. The live wallcolors.py
 # overwrites config.jsonc from the wallpaper palette on every change after.
-WARM_DEFAULT = {
-    "primary": "#e0563b",
-    "dim": "#7a6453",
-    "on_primary_container": "#f0b85e",
-    "surface_container": "#2e231b",
-    "surface_container_high": "#3a2c22",
-    "subtle": "#b89a86",
-    "outline": "#594636",
-    "bright": "#fff6f0",
+NIGHT_DEFAULT = {
+    "primary": "#ffb454",
+    "dim": "#5d6570",
+    "on_primary_container": "#ffe2b8",
+    "surface_container": "#161c28",
+    "surface_container_high": "#1d2534",
+    "subtle": "#a4aebc",
+    "outline": "#263042",
+    "bright": "#f2f6fb",
 }
 
 
@@ -181,7 +175,7 @@ def _has_nvidia():
 def detect_existing(config_root=CONFIG_ROOT):
     """
     Look at each deploy-set item in ~/.config and report whether it is there
-    and, if so, whether Ricelin put it there (carries our marker) or it is a
+    and, if so, whether PillOS put it there (carries our marker) or it is a
     foreign config we would back up before replacing. Returns a dict keyed by
     item name with the path, exists, managed and a plain status word.
     """
@@ -236,6 +230,13 @@ def deploy(src=CONFIGS, config_root=CONFIG_ROOT, apply=False):
     src = Path(src)
     config_root = Path(config_root)
     actions = []
+    migrated = migrate_state(dry=not apply)
+    actions.append({
+        "item": "migrate_state",
+        "action": "migrate" if migrated else "skip",
+        "migrated": migrated,
+    })
+    actions.append(_deploy_zsh(Path.home(), dry=not apply))
     for name, src_rel, dest_rel in DEPLOY_SET:
         src_path = src / src_rel
         dest = config_root / dest_rel
@@ -277,31 +278,6 @@ def deploy(src=CONFIGS, config_root=CONFIG_ROOT, apply=False):
     return actions
 
 
-def _strip_fish(text):
-    """
-    Make config.fish portable: drop the CachyOS source line and the personal
-    grok installer block, keep everything else so the torii greeting stays.
-    Returns the cleaned text and a list of what was removed.
-    """
-    out, removed, in_grok = [], [], False
-    for line in text.splitlines():
-        s = line.strip()
-        if s.startswith("# >>> grok") or s.startswith(">>> grok"):
-            in_grok = True
-            removed.append("grok block")
-            continue
-        if in_grok:
-            if s.startswith("# <<< grok") or s.startswith("<<< grok"):
-                in_grok = False
-            continue
-        if s.startswith("source /usr/share/cachyos-fish-config"):
-            removed.append("cachyos source")
-            continue
-        out.append(line)
-    cleaned = re.sub(r"\n{3,}", "\n\n", "\n".join(out).strip("\n"))
-    return (cleaned + "\n" if cleaned else ""), removed
-
-
 def _seq(hexcol):
     """A #rrggbb hex string as the 'r;g;b' ANSI colour sequence."""
     return "%d;%d;%d" % tuple(int(hexcol[i:i + 2], 16) for i in (1, 3, 5))
@@ -310,26 +286,26 @@ def _seq(hexcol):
 def _fastfetch_palette():
     """
     Pick the palette for the fastfetch render: the live wallpaper colours if a
-    cache is already there and every value parses as hex, else the warm default
+    cache is already there and every value parses as hex, else the night-bridge default
     so a fresh box (or a corrupt colors.json) still renders instead of aborting
     the whole neutralize.
     """
-    cache = Path.home() / ".cache" / "ricelin" / "colors.json"
+    cache = Path.home() / ".cache" / "pillos" / "colors.json"
     if cache.is_file():
         try:
             data = json.loads(cache.read_text())
-            if all(k in data for k in WARM_DEFAULT):
-                for k in WARM_DEFAULT:
+            if all(k in data for k in NIGHT_DEFAULT):
+                for k in NIGHT_DEFAULT:
                     _seq(data[k])  # prove every hex parses before trusting it
                 return data, "cache"
         except (OSError, ValueError, TypeError):
             pass
-    return WARM_DEFAULT, "default"
+    return NIGHT_DEFAULT, "default"
 
 
 def _render_fastfetch(ff_dir, palette, apply):
     """
-    Stamp the palette into config.jsonc so a fresh terminal shows the torii
+    Stamp the palette into config.jsonc so a fresh terminal shows the goldengate
     splash before any wallpaper is picked. Same placeholder swap the live
     wallcolors.py does on every wallpaper change, so first render and the rest
     line up. Returns the config.jsonc path, or None when the template is missing.
@@ -338,7 +314,7 @@ def _render_fastfetch(ff_dir, palette, apply):
     if not tmpl.is_file():
         return None
     repl = {
-        "__LANTERN__": str(ff_dir / "lantern.txt"),
+        "__GOLDENGATE__": str(ff_dir / "goldengate.txt"),
         "__KEYS__": _seq(palette["primary"]),
         "__SEP__": _seq(palette["dim"]),
         "__LOGO1__": _seq(palette["primary"]),
@@ -384,8 +360,6 @@ def neutralize(config_root=CONFIG_ROOT, apply=False, src=CONFIGS):
       hypridle     -> rewrite /home/erik in the lock_cmd / on-timeout script paths
                       (the conf does not expand env vars, so a literal home is wrong
                       for any other user and idle-lock never fires)
-      fish         -> strip the cachyos source line and the grok block, keep the
-                      torii greeting
       fastfetch    -> render config.jsonc from the palette so the splash shows
       grub         -> never deployed, recorded here for the record
     """
@@ -451,16 +425,6 @@ def neutralize(config_root=CONFIG_ROOT, apply=False, src=CONFIGS):
         if apply and count:
             idle.write_text(text.replace("/home/erik", home))
 
-    # Strip the portability blockers only from a pristine shipped fish. A user's
-    # own config.fish (carried across a re-deploy via PRESERVED, or three-way
-    # merged by the updater) is never rewritten by this step.
-    fish = config_root / "fish" / "config.fish"
-    if fish.is_file() and _pristine("fish/config.fish", config_root, src):
-        cleaned, removed = _strip_fish(fish.read_text())
-        actions.append({"step": "fish", "path": str(fish), "stripped": removed})
-        if apply and removed:
-            fish.write_text(cleaned)
-
     ff = config_root / "fastfetch"
     if (ff / "config.jsonc.in").is_file():
         palette, source = _fastfetch_palette()
@@ -475,7 +439,7 @@ def neutralize(config_root=CONFIG_ROOT, apply=False, src=CONFIGS):
 
 def uninstall(config_root=CONFIG_ROOT, apply=False):
     """
-    Remove every Ricelin-managed item from ~/.config and put its pristine .bak
+    Remove every PillOS-managed item from ~/.config and put its pristine .bak
     back. A dest without our marker is the user's own config, left untouched.
     Returns the action list; nothing is removed unless apply is set.
     """
@@ -489,7 +453,7 @@ def uninstall(config_root=CONFIG_ROOT, apply=False):
         is_dir = dest.is_dir() and not dest.is_symlink()
         if not _is_managed(dest, is_dir):
             actions.append({"item": name, "action": "skip",
-                            "reason": "not Ricelin-managed", "dest": str(dest)})
+                            "reason": "not PillOS-managed", "dest": str(dest)})
             continue
         bak = dest.with_name(dest.name + ".bak")
         restore = str(bak) if (bak.exists() or bak.is_symlink()) else None
@@ -505,6 +469,46 @@ def uninstall(config_root=CONFIG_ROOT, apply=False):
             else:
                 _prune_empty(dest.parent, config_root)
     return actions
+
+
+def migrate_state(dry=False):
+    """One-shot: carry Ricelin-era cache/state to the pillos names so a live
+    machine's settings, wallpaper and palette survive the rename. Copies only
+    when the source exists and the destination doesn't; never deletes."""
+    home = Path.home()
+    state = Path(os.environ.get("XDG_STATE_HOME") or home / ".local" / "state")
+    cache = Path(os.environ.get("XDG_CACHE_HOME") or home / ".cache")
+    data = Path(os.environ.get("XDG_DATA_HOME") or home / ".local" / "share")
+    pairs = [
+        (state / "ricelin", state / "pillos"),
+        (cache / "ricelin", cache / "pillos"),
+        (state / "ricelin-wallpaper", state / "pillos-wallpaper"),
+        (state / "ricelin-wallpaper-dir", state / "pillos-wallpaper-dir"),
+        (data / "ricelin-update", data / "pillos-update"),
+    ]
+    migrated = []
+    for src, dst in pairs:
+        if not src.exists() or dst.exists():
+            continue
+        if not dry:
+            if src.is_dir():
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
+        migrated.append(str(dst))
+    return migrated
+
+
+def _deploy_zsh(home, dry=False):
+    """Ship the stock zsh config for fresh installs, but never touch an
+    existing ~/.zshrc — the owner's shell config is theirs."""
+    src = CONFIGS / "zsh" / "zshrc"
+    dst = home / ".zshrc"
+    if dst.exists():
+        return {"step": "zsh", "action": "skipped-existing", "path": str(dst)}
+    if not dry:
+        shutil.copy2(src, dst)
+    return {"step": "zsh", "action": "installed", "path": str(dst)}
 
 
 def _selftest():
@@ -527,26 +531,28 @@ def _selftest():
 
         # 1. deploy dry-run on an empty root: a plan, no filesystem touched
         plan = deploy(config_root=root, apply=False)
-        check(len(plan) == len(DEPLOY_SET), "deploy plan covers the whole set")
-        check(all("item" in a and "action" in a for a in plan),
+        check(len(plan) == len(DEPLOY_SET) + 2,
+              "deploy plan covers the whole set plus migration and zsh")
+        check(all(("item" in a or "step" in a) and "action" in a for a in plan),
               "every deploy action is well-formed")
-        check(all(a["action"] in ("deploy", "replace", "skip") for a in plan),
+        check(all(a["action"] in ("deploy", "replace", "skip", "migrate",
+                                   "installed", "skipped-existing") for a in plan),
               "deploy actions use known verbs")
-        check(not (root / "hypr").exists() and not (root / "kdeglobals").exists(),
+        check(not (root / "hypr").exists() and not (root / "quickshell").exists(),
               "deploy dry-run left the filesystem alone")
 
-        # 2. seed a foreign fish config so the backup path gets exercised
-        (root / "fish").mkdir()
-        (root / "fish" / "config.fish").write_text("# SENTINEL user fish\n")
+        # 2. seed a foreign quickshell config so the backup path gets exercised
+        (root / "quickshell").mkdir()
+        (root / "quickshell" / "sentinel.txt").write_text("# SENTINEL user quickshell\n")
         plan = deploy(config_root=root, apply=False)
-        fish_act = next(a for a in plan if a["item"] == "fish")
-        check(fish_act["backup"] == str(root / "fish.bak"),
-              "foreign fish is planned for backup -> fish.bak")
+        qs_act = next(a for a in plan if a.get("item") == "quickshell")
+        check(qs_act["backup"] == str(root / "quickshell.bak"),
+              "foreign quickshell is planned for backup -> quickshell.bak")
 
-        # 3. deploy for real: foreign fish backed up, fresh copies marked ours
+        # 3. deploy for real: foreign quickshell backed up, fresh copies marked ours
         deploy(config_root=root, apply=True)
-        check((root / "fish.bak" / "config.fish").read_text().strip().endswith("user fish"),
-              "foreign fish moved aside to fish.bak intact")
+        check((root / "quickshell.bak" / "sentinel.txt").read_text().strip().endswith("user quickshell"),
+              "foreign quickshell moved aside to quickshell.bak intact")
         seen = detect_existing(root)
         check(all(v["status"] == "managed" for v in seen.values()),
               "detect_existing sees every item as managed after deploy")
@@ -559,17 +565,17 @@ def _selftest():
 
         # 4. re-deploy is idempotent: managed -> replace, pristine .bak untouched
         plan = deploy(config_root=root, apply=True)
-        check(next(a for a in plan if a["item"] == "fish")["action"] == "replace",
+        check(next(a for a in plan if a.get("item") == "quickshell")["action"] == "replace",
               "re-deploy replaces our own copy (no second backup)")
-        check((root / "fish.bak" / "config.fish").read_text().strip().endswith("user fish"),
-              "pristine fish.bak never clobbered on re-deploy")
+        check((root / "quickshell.bak" / "sentinel.txt").read_text().strip().endswith("user quickshell"),
+              "pristine quickshell.bak never clobbered on re-deploy")
 
         # 5. neutralize dry-run: a plan with the expected steps, nothing written.
         # hypridle.conf is untracked, so on a fresh deploy only the seed step
         # shows; the rewrite step appears once the file exists.
         plan = neutralize(config_root=root, apply=False)
         steps = {a["step"] for a in plan}
-        check({"monitors", "env", "ghostty", "hypridle-seed", "fish", "fastfetch", "grub-excluded"} <= steps,
+        check({"monitors", "env", "ghostty", "hypridle-seed", "fastfetch", "grub-excluded"} <= steps,
               "neutralize plan has every step")
         check(not (root / "hypr" / "hypridle.conf").exists(),
               "neutralize dry-run did not seed hypridle.conf")
@@ -587,18 +593,18 @@ def _selftest():
         check(env_txt == ENV_BASE + (ENV_NVIDIA if nvidia else ""),
               f"env.lua matches base{' + nvidia' if nvidia else ' (nvidia dropped)'}")
         gh = (root / "ghostty" / "config").read_text()
-        check("?~/.cache/ricelin/ghostty-colors" in gh,
+        check("?~/.cache/pillos/ghostty-colors" in gh,
               "ghostty config-file uses the home-relative colors include")
         idletxt = (root / "hypr" / "hypridle.conf").read_text()
         check(str(Path.home()) + "/.config/hypr/scripts/lock.sh" in idletxt,
               "hypridle lock_cmd points at the real home")
-        ghttxt = (root / "hypr" / "ghosttype.lua").read_text()
-        check(str(Path.home()) + "/Applications/GhostType.AppImage" in ghttxt,
-              "ghosttype.lua AppImage path points at the real home")
-        fishtxt = (root / "fish" / "config.fish").read_text()
-        check("cachyos-fish-config" not in fishtxt and "grok" not in fishtxt
-              and "torii-greeting" in fishtxt,
-              "fish stripped of cachyos + grok, torii greeting kept")
+        ght = root / "hypr" / "ghosttype.lua"
+        if ght.is_file():
+            ghttxt = ght.read_text()
+            check(str(Path.home()) + "/Applications/GhostType.AppImage" in ghttxt,
+                  "ghosttype.lua AppImage path points at the real home")
+        else:
+            check(True, "ghosttype.lua skipped (user-managed, not shipped)")
         ffjson = (root / "fastfetch" / "config.jsonc").read_text()
         check("__" not in ffjson and "system" in ffjson,
               "fastfetch config.jsonc rendered, no placeholders left")
@@ -608,14 +614,34 @@ def _selftest():
         check(len(plan) >= len(DEPLOY_SET) and all(a["action"] in ("remove", "skip") for a in plan),
               "uninstall plan lists the managed removals")
         uninstall(config_root=root, apply=True)
-        check((root / "fish" / "config.fish").read_text().strip().endswith("user fish"),
-              "uninstall restored the pristine fish from fish.bak")
-        check(not (root / "kdeglobals").exists(),
+        check((root / "quickshell" / "sentinel.txt").read_text().strip().endswith("user quickshell"),
+              "uninstall restored the pristine quickshell from quickshell.bak")
+        check(not (root / "fastfetch").exists(),
               "uninstall removed a managed item with no backup")
         check(not (root / "systemd").exists(),
               "uninstall pruned the empty systemd/user dirs it created")
 
-    # 8. backup() numbering, in isolation: free .bak used, taken one steps to .bak.N
+    # 8. _deploy_zsh: ships the stock zsh config only when ~/.zshrc is absent,
+    # and never touches an existing one. Uses its own tempdir standing in for
+    # $HOME, isolated from deploy()'s config_root and the real machine.
+    with tempfile.TemporaryDirectory() as tmp_home:
+        home = Path(tmp_home)
+        sentinel = "# SENTINEL user zshrc\n"
+        (home / ".zshrc").write_text(sentinel)
+        result = _deploy_zsh(home, dry=False)
+        check(result == {"step": "zsh", "action": "skipped-existing", "path": str(home / ".zshrc")},
+              "_deploy_zsh reports skipped-existing when ~/.zshrc is already there")
+        check((home / ".zshrc").read_text() == sentinel,
+              "_deploy_zsh left the existing ~/.zshrc untouched")
+
+        (home / ".zshrc").unlink()
+        result = _deploy_zsh(home, dry=False)
+        check(result == {"step": "zsh", "action": "installed", "path": str(home / ".zshrc")},
+              "_deploy_zsh reports installed once ~/.zshrc is gone")
+        check((home / ".zshrc").read_text() == (CONFIGS / "zsh" / "zshrc").read_text(),
+              "deployed ~/.zshrc matches configs/zsh/zshrc")
+
+    # 9. backup() numbering, in isolation: free .bak used, taken one steps to .bak.N
     with tempfile.TemporaryDirectory() as tmp2:
         d = Path(tmp2)
         (d / "y").write_text("fresh")
@@ -631,7 +657,7 @@ def _selftest():
               and (d / "x.bak.1").read_text() == "foreign",
               "backup keeps the pristine .bak, parks the foreign config in .bak.1")
 
-    # 9. data-loss guard (FIX): a foreign config plus a pre-existing .bak must
+    # 10. data-loss guard (FIX): a foreign config plus a pre-existing .bak must
     # never be lost. deploy parks the foreign config in the next free .bak.N and
     # leaves the genuine pristine .bak alone.
     with tempfile.TemporaryDirectory() as tmp3:
@@ -641,7 +667,7 @@ def _selftest():
         (root / "ghostty.bak").mkdir()
         (root / "ghostty.bak" / "config").write_text("# PRISTINE ghostty\n")
         gh_act = next(a for a in deploy(config_root=root, apply=False)
-                      if a["item"] == "ghostty")
+                      if a.get("item") == "ghostty")
         check(gh_act["backup"] == str(root / "ghostty.bak.1"),
               "foreign ghostty with a taken .bak plans backup -> ghostty.bak.1")
         deploy(config_root=root, apply=True)
@@ -652,7 +678,7 @@ def _selftest():
         check(_is_managed(root / "ghostty"),
               "fresh managed ghostty deployed in place")
 
-    # 10. re-run guard (FIX #17): a full second install pass (deploy + neutralize)
+    # 11. re-run guard (FIX #17): a full second install pass (deploy + neutralize)
     # must not reset user-owned config. Settings-written hypridle.conf and a
     # hand-tuned monitors.lua have to survive byte-exact.
     with tempfile.TemporaryDirectory() as tmp4:
@@ -665,7 +691,7 @@ def _selftest():
         (root / "hypr" / "hypridle.conf").write_text(idle_off)
         (root / "hypr" / "modules" / "monitors.lua").write_text(mon_user)
         plan = deploy(config_root=root, apply=True)
-        hypr_act = next(a for a in plan if a["item"] == "hypr")
+        hypr_act = next(a for a in plan if a.get("item") == "hypr")
         check("hypr/hypridle.conf" in hypr_act["preserved"]
               and "hypr/modules/monitors.lua" in hypr_act["preserved"],
               "re-deploy plans to carry the user files across the replace")
@@ -676,25 +702,16 @@ def _selftest():
               "second neutralize left the user hypridle.conf alone")
         check((root / "hypr" / "modules" / "monitors.lua").read_text() == mon_user,
               "user monitors.lua survived re-deploy + neutralize")
-        fish_user = "source /usr/share/cachyos-fish-config\nalias ll 'ls -la'\n"
-        (root / "fish" / "config.fish").write_text(fish_user)
-        plan3 = deploy(config_root=root, apply=True)
-        fish_act = next(a for a in plan3 if a["item"] == "fish")
-        check("fish/config.fish" in fish_act["preserved"],
-              "re-deploy plans to carry the user fish across the replace")
-        neutralize(config_root=root, apply=True)
-        check((root / "fish" / "config.fish").read_text() == fish_user,
-              "user config.fish survived re-deploy + neutralize, cachyos line kept")
         check((root / "hypr" / "scripts" / "lock.sh").exists(),
               "non-protected code files still refreshed on re-deploy")
 
-    # 11. drift guard: PRESERVED is a hand mirror of the update engine's PROTECTED
+    # 12. drift guard: PRESERVED is a hand mirror of the update engine's PROTECTED
     # (the engine ships standalone and can't be imported at runtime). Adding a
     # protected file to one list but not the other silently splits the two update
     # paths, so the selftest holds them byte-equal.
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "_ricelin_update", REPO_ROOT / "configs" / "hypr" / "scripts" / "ricelin-update.py")
+        "_pillos_update", REPO_ROOT / "configs" / "hypr" / "scripts" / "pillos-update.py")
     engine = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(engine)
     check(PRESERVED == engine.PROTECTED,

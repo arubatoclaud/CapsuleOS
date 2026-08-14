@@ -8,7 +8,7 @@ import Quickshell.Networking
 import "Singletons"
 
 /**
- * 波 WIFI surface: kanji header, wifi enable toggle and the live network list
+ * WIFI surface: kanji header, wifi enable toggle and the live network list
  * sorted by signal strength. Security and known-profile ground truth come from
  * nmcli; clicking a secured unknown network expands an inline password row that
  * connects through `nmcli dev wifi connect`. Standalone root surface, so Escape
@@ -62,9 +62,9 @@ PillSurface {
     property string revealedPw: ""
     property bool revealResolved: false
 
-    readonly property string hsCon: "RicelinHotspot"
+    readonly property string hsCon: "PillOSHotspot"
     readonly property string hsIface: wifiDev ? (wifiDev.name || "wlan0") : "wlan0"
-    property string hsName: "Ricelin"
+    property string hsName: "PillOS"
     property string hsPw: ""
     property bool hsActive: false
     property bool hsBusy: false
@@ -354,7 +354,7 @@ PillSurface {
     }
 
     /**
-     * Persists name and password into the RicelinHotspot profile without
+     * Persists name and password into the PillOSHotspot profile without
      * bringing it up, creating the profile on first edit. A missing or short
      * password is generated here, since a WPA profile with an empty psk would
      * be broken; the field shows the generated value right away.
@@ -591,9 +591,9 @@ PillSurface {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Flags.showGlyphs
-                text: "波"
+                text: "\uf1eb"
                 color: Theme.cream
-                font.family: Theme.fontJp
+                font.family: Theme.fontIcon
                 font.weight: Font.Medium
                 font.pixelSize: 16 * root.s
             }

@@ -56,7 +56,7 @@ Item {
         visible: srow.glyph.length > 0 && srow.icon.length === 0 && Flags.showGlyphs
         text: srow.glyph
         color: Theme.iconDim
-        font.family: Theme.fontJp
+        font.family: Theme.fontIcon
         font.pixelSize: 15 * srow.s
     }
 

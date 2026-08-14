@@ -18,8 +18,8 @@ Item {
     readonly property color bgTop: Qt.rgba(43 / 255, 33 / 255, 28 / 255, 0.97)
     readonly property color bgBot: Qt.rgba(29 / 255, 18 / 255, 14 / 255, 0.97)
     readonly property color hair: Qt.rgba(150 / 255, 172 / 255, 212 / 255, 0.10)
-    readonly property color verm: "#c0442b"
-    readonly property color cream: "#e6d6cb"
+    readonly property color verm: "#e0762a"
+    readonly property color cream: "#d5dce6"
     readonly property color dim: "#7e8794"
     readonly property color dim2: "#565e6a"
 

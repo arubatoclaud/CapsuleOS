@@ -7,7 +7,7 @@ import "lib/setDeco.js" as SetDeco
 import "Singletons"
 
 /**
- * 飾 LOOK sub-surface: edits the window-decoration knobs that live in
+ * LOOK sub-surface: edits the window-decoration knobs that live in
  * decoration.lua and writes each change straight back to its source so the choice
  * survives a restart. Window gaps, rounding and border size, the two opacity
  * fields and the blur block all rewrite the Lua and reload Hyprland so the change
@@ -72,6 +72,8 @@ SettingsSurface {
             r.push({ item: appGapRow, kind: "scrub", bump: function (d) { appGapScrub.bump(d); } });
             r.push({ item: pillOpRow, kind: "scrub", bump: function (d) { pillOpScrub.bump(d); } });
             r.push({ item: pillBlurRow, kind: "toggle", get: function () { return Flags.pillBlur; }, set: function (v) { Flags.pillBlur = v; root.applyPillBlur(v); } });
+            r.push({ item: materialRow, kind: "seg", vals: ["glass", "frost", "ink"], get: function () { return Flags.material; }, set: function (v) { root.setMaterial(v); } });
+            r.push({ item: autoHideRow, kind: "toggle", get: function () { return Flags.autoHide; }, set: function (v) { Flags.autoHide = v; } });
         }
         return r;
     }
@@ -102,6 +104,12 @@ SettingsSurface {
     readonly property var layoutOptions: [
         { label: "Dwindle", value: "dwindle" },
         { label: "Master", value: "master" }
+    ]
+
+    readonly property var materialOptions: [
+        { label: "Glass", value: "glass" },
+        { label: "Frost", value: "frost" },
+        { label: "Ink", value: "ink" }
     ]
 
     property string decoText: ""
@@ -281,6 +289,18 @@ SettingsSurface {
         root.decoText = res.text;
         decoWriter.setText(res.text);
         reloadTimer.restart();
+    }
+
+    /**
+     * Picks the surface material and keeps the Hyprland side honest: glass and
+     * frost are translucent, so the pill wants the blur layer rule behind it,
+     * while ink is flat opaque and blurring behind it only costs GPU time.
+     */
+    function setMaterial(v) {
+        Flags.material = v;
+        var blur = v !== "ink";
+        Flags.pillBlur = blur;
+        root.applyPillBlur(blur);
     }
 
     FileView {
@@ -477,7 +497,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "飾"
+            glyph: "\uf1fc"
             title: "LOOK"
             showBack: true
         }
@@ -907,6 +927,29 @@ SettingsSurface {
                         Flags.pillBlur = !Flags.pillBlur;
                         root.applyPillBlur(Flags.pillBlur);
                     }
+                }
+            }
+
+            FieldRow {
+                id: materialRow
+                label: "Material"
+                caption: "Glass, frost or ink for the pill and surfaces"
+                SettingsSeg {
+                    s: root.s
+                    options: root.materialOptions
+                    value: Flags.material
+                    onPicked: v => root.setMaterial(v)
+                }
+            }
+
+            FieldRow {
+                id: autoHideRow
+                label: "Auto-hide pill"
+                caption: "Slide away at rest, reveal on the top edge"
+                LinkToggle {
+                    s: root.s
+                    on: Flags.autoHide
+                    onToggled: Flags.autoHide = !Flags.autoHide
                 }
             }
 

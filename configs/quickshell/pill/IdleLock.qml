@@ -6,7 +6,7 @@ import Quickshell.Io
 import "Singletons"
 
 /**
- * 錠 IDLE / LOCK sub-surface: the three idle timeouts that drive hypridle, each
+ * IDLE / LOCK sub-surface: the three idle timeouts that drive hypridle, each
  * held in minutes (0 = off). Auto-lock runs the lock script, screen-off blanks
  * the display through DPMS, and suspend sleeps the machine. Any pick regenerates
  * the whole hypridle.conf from the current values and restarts hypridle, so the
@@ -177,7 +177,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "錠"
+            glyph: "\uf023"
             title: "IDLE / LOCK"
             showBack: true
         }
