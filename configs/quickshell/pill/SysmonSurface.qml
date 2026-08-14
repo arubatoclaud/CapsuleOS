@@ -31,7 +31,7 @@ PillSurface {
     onActiveChanged: Sysmon.open = active
 
     /**
-     * The soul ember rests with the header kanji: the kanji is the lantern,
+     * The soul ember rests with the header kanji: the kanji is the lamp,
      * the bead its flame, hovering just above the glyph with its wick rising into
      * it. Anchored to the header rather than the dial row so the ember sits in the
      * same deliberate spot whether three dials or two are shown (the header never

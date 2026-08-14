@@ -116,7 +116,7 @@ PillSurface {
      * Ame is the focus cursor: it rings the picked day, or today when this month
      * is in view with nothing picked. Browsing another month with nothing picked
      * leaves no focus, so the bead parks as a soul ember on the header glyph
-     * (the calendar's lantern, mirroring Sysmon) rather than floating over a
+     * (the calendar's lamp, mirroring Sysmon) rather than floating over a
      * random date cell — which is what read as Ame jumping somewhere random.
      */
     readonly property bool selectedInView: selectedDate.length > 0

@@ -314,7 +314,7 @@ def _render_fastfetch(ff_dir, palette, apply):
     if not tmpl.is_file():
         return None
     repl = {
-        "__LANTERN__": str(ff_dir / "lantern.txt"),
+        "__GOLDENGATE__": str(ff_dir / "goldengate.txt"),
         "__KEYS__": _seq(palette["primary"]),
         "__SEP__": _seq(palette["dim"]),
         "__LOGO1__": _seq(palette["primary"]),

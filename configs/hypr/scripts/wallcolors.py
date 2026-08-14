@@ -82,7 +82,7 @@ def render_fastfetch(pill):
     """
     Recolour the fastfetch readout from the same pill palette. fastfetch has no
     daemon, so writing the rendered config is enough, the next run picks it up.
-    The accent drives the keys and the torii, the surface ramp the lantern body,
+    The accent drives the keys and the torii, the surface ramp the bridge body,
     and a dim text tone the section rules, so it tracks the wallpaper like the
     pill and terminal do.
     """
@@ -95,7 +95,7 @@ def render_fastfetch(pill):
         return
     seq = lambda h: "%d;%d;%d" % tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
     repl = {
-        "__LANTERN__": str(ff / "lantern.txt"),
+        "__GOLDENGATE__": str(ff / "goldengate.txt"),
         "__KEYS__": seq(pill["primary"]),
         "__SEP__": seq(pill["dim"]),
         "__LOGO1__": seq(pill["primary"]),
