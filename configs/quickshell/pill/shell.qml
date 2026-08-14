@@ -8,7 +8,7 @@ import Quickshell.Hyprland
 import "Singletons"
 
 /**
- * Washi pill top shell. Each monitor carries two layer-shell windows:
+ * Night-bridge pill top shell. Each monitor carries two layer-shell windows:
  *
  *  - `reserve` is a zero-content strip that only claims an exclusive zone the
  *    height of the rest pill, so tiled windows always sit below the pill even

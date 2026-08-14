@@ -20,16 +20,16 @@ ENGINE="$SCRIPTS/pillos-update.py"
 WATCHDOG="$SCRIPTS/watchdog.sh"
 SURFACES="pill lock"
 
-# The installer's Hanko skin: a vermilion edge marker, a quiet connector gutter
-# and the rice's ember palette. Dropped whole when stdout is not a terminal or
+# The installer's night-bridge skin: an amber edge marker, a quiet connector gutter
+# and the fog palette. Dropped whole when stdout is not a terminal or
 # NO_COLOR is set, so a pipe gets clean plain text.
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
-    verm=$(printf '\033[38;2;192;68;43m')
-    flame=$(printf '\033[38;2;255;154;100m')
-    cream=$(printf '\033[38;2;230;214;203m')
-    bright=$(printf '\033[38;2;255;246;240m')
-    dim=$(printf '\033[38;2;138;125;116m')
-    faint=$(printf '\033[38;2;111;99;91m')
+    verm=$(printf '\033[38;2;255;152;56m')
+    flame=$(printf '\033[38;2;255;180;84m')
+    cream=$(printf '\033[38;2;213;220;230m')
+    bright=$(printf '\033[38;2;242;246;251m')
+    dim=$(printf '\033[38;2;125;135;151m')
+    faint=$(printf '\033[38;2;93;101;112m')
     rst=$(printf '\033[0m')
 else
     verm=""; flame=""; cream=""; bright=""; dim=""; faint=""; rst=""

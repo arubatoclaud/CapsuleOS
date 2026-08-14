@@ -10,9 +10,9 @@ gave. The screen is never cleared. Only the one currently active prompt redraws 
 place while you move the arrows; the moment you submit it freezes into scrollback
 and the next prompt prints under it.
 
-The skin is the locked PillOS Hanko: the vermilion edge marker that echoes the
-pill's hanko stamps and the goldengate, corner-bracketed answers, square seals for
-multiselect and round dots for single choice, all in the rice's ember palette.
+The skin is the locked PillOS night-bridge: the amber edge marker that echoes the
+pill's own marks and the goldengate, corner-bracketed answers, square seals for
+multiselect and round dots for single choice, all in the fog palette.
 
 Keys come from /dev/tty, the controlling terminal, not from stdin. The real
 installer ships as `curl -fsSL ... | bash`, so the process stdin is the piped
@@ -37,12 +37,12 @@ def _rgb(r, g, b):
     return "" if _NO_COLOR else f"\033[38;2;{r};{g};{b}m"
 
 
-VERM = _rgb(192, 68, 43)
-FLAME = _rgb(255, 154, 100)
-CREAM = _rgb(230, 214, 203)
-BRIGHT = _rgb(255, 246, 240)
-DIM = _rgb(138, 125, 116)
-FAINT = _rgb(111, 99, 91)
+VERM = _rgb(255, 152, 56)
+FLAME = _rgb(255, 180, 84)
+CREAM = _rgb(213, 220, 230)
+BRIGHT = _rgb(242, 246, 251)
+DIM = _rgb(125, 135, 151)
+FAINT = _rgb(93, 101, 112)
 GREEN = _rgb(120, 180, 120)
 DEEP = _rgb(63, 69, 80)
 INK = _rgb(51, 55, 63)

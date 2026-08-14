@@ -32,12 +32,12 @@ Singleton {
     readonly property real surfScale: surfAlpha / 0.86
 
     /**
-     * Bright warm pop shared by the flame glow, charging glyphs, the recording
+     * Bright amber pop shared by the flame glow, charging glyphs, the recording
      * countdown, the unread inbox dot, the calendar's today cell and the held
      * power tile. The dynamic branch uses the wallpaper accent (Dyn.primary):
      * matugen's on-primary-container does not populate here and collapses the
      * token to black, while the accent always loads and contrasts the pill
-     * surface. Static mode keeps the fixed warm hex.
+     * surface. Static mode keeps the fixed night-bridge hex.
      */
     readonly property color onGlow: dyn ? Dyn.primary : "#ffb454"
 

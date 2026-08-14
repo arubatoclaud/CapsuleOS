@@ -21,6 +21,21 @@ set -euo pipefail
 # font, wallpaper and native paths (which make no tmpdir) still report success.
 cleanup() { local rc=$?; [ -n "${_tmpdir:-}" ] && rm -rf "$_tmpdir"; return "$rc"; }
 
+# Run a pkexec-gated native install without letting `set -euo pipefail` turn a
+# sudoless box straight into the pill's generic install-failed face. pkexec exits
+# 126 when the auth dialog is dismissed and 127 when there is no authentication
+# agent / the user isn't authorized; catch those here and die with the exact
+# command to run by hand instead, mirroring pillos-update.py's native_install_reason.
+pkexec_or_die() {
+	local manual="$1"; shift
+	"$@" && return 0
+	local rc=$?
+	case "$rc" in
+		126 | 127) die "authorization failed (sudoless system?) — run manually: $manual" ;;
+		*) die "install failed (exit $rc): $manual" ;;
+	esac
+}
+
 # Locate the first executable ELF in an extracted tree, ignoring shared-lib dirs,
 # preferring one under a bin/ dir and otherwise the largest. Empty when the tree
 # holds no binary (source-only tarballs fail honestly on that).
@@ -236,12 +251,12 @@ app_install() {
 			;;
 		*.pkg.tar.zst | *.pkg.tar.xz | *.pkg.tar.gz | *.pkg.tar.bz2)
 			command -v pacman >/dev/null 2>&1 || die "unsupported here"
-			pkexec pacman -U --noconfirm "$src"
+			pkexec_or_die "sudo pacman -U $src" pkexec pacman -U --noconfirm "$src"
 			printf 'native\t%s\t%s\n' "$(prettify "$base")" "new"
 			;;
 		*.deb)
 			if command -v apt-get >/dev/null 2>&1; then
-				pkexec apt-get install -y "$src"
+				pkexec_or_die "sudo apt-get install -y $src" pkexec apt-get install -y "$src"
 				printf 'native\t%s\t%s\n' "$(prettify "$base")" "new"
 			else
 				extract_install "$src"
@@ -249,10 +264,10 @@ app_install() {
 			;;
 		*.rpm)
 			if command -v dnf >/dev/null 2>&1; then
-				pkexec dnf install -y "$src"
+				pkexec_or_die "sudo dnf install -y $src" pkexec dnf install -y "$src"
 				printf 'native\t%s\t%s\n' "$(prettify "$base")" "new"
 			elif command -v zypper >/dev/null 2>&1; then
-				pkexec zypper --non-interactive install --allow-unsigned-rpm "$src"
+				pkexec_or_die "sudo zypper --non-interactive install --allow-unsigned-rpm $src" pkexec zypper --non-interactive install --allow-unsigned-rpm "$src"
 				printf 'native\t%s\t%s\n' "$(prettify "$base")" "new"
 			else
 				extract_install "$src"
