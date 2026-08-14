@@ -33,14 +33,19 @@ LIGHT_TEXT = [(0.20, 0.18), (0.10, 0.20), (0.36, 0.14), (0.48, 0.10),
 def analyze(wallpaper):
     out = subprocess.run(
         ["magick", wallpaper, "-alpha", "off", "-resize", "200x200", "-colors", "48",
-         "-format", "%c", "histogram:info:-"],
+         "-depth", "8", "-format", "%c", "histogram:info:-"],
         capture_output=True, text=True).stdout
     buckets, total, lum, chroma = {}, 0, 0.0, 0
     for line in out.splitlines():
-        m = re.search(r"\s*(\d+):\s*\([^)]*\)\s*#([0-9A-Fa-f]{6})", line)
+        m = re.search(r"\s*(\d+):\s*\([^)]*\)\s*#([0-9A-Fa-f]{6,16})", line)
         if not m:
             continue
         count, hex_str = int(m.group(1)), m.group(2)
+        if len(hex_str) > 6:
+            # Q16/HDRI builds print 16-bit (and alpha) components; keep the
+            # high byte of each of the first three so #RRRRGGGGBBBB -> #RRGGBB
+            step = len(hex_str) // (4 if len(hex_str) % 3 else 3)
+            hex_str = "".join(hex_str[i:i + 2] for i in range(0, 3 * step, step))
         r, g, b = (int(hex_str[i:i + 2], 16) / 255 for i in (0, 2, 4))
         h, l, s = colorsys.rgb_to_hls(r, g, b)
         total += count
