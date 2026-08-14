@@ -23,22 +23,24 @@ hl.config({
     general = {
         gaps_in     = 6,
         gaps_out    = 12,
-        border_size = 2,
+        border_size = 0,
         layout      = "dwindle",
         resize_on_border = true,
         ["col.active_border"]   = active,
         ["col.inactive_border"] = inactive,
     },
     decoration = {
-        rounding         = 12,
+        rounding         = 14,
         rounding_power   = 4,
         active_opacity   = 1.00,
         inactive_opacity = 1.00,
+        dim_inactive     = true,
+        dim_strength     = 0.12,
         shadow = {
             enabled      = true,
-            range        = 12,
+            range        = 18,
             render_power = 3,
-            color        = 0xaa14110f,
+            color        = 0xcc06080f,
         },
         blur = {
             enabled           = true,
