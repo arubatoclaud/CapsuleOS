@@ -72,6 +72,7 @@ SettingsSurface {
             r.push({ item: appGapRow, kind: "scrub", bump: function (d) { appGapScrub.bump(d); } });
             r.push({ item: pillOpRow, kind: "scrub", bump: function (d) { pillOpScrub.bump(d); } });
             r.push({ item: pillBlurRow, kind: "toggle", get: function () { return Flags.pillBlur; }, set: function (v) { Flags.pillBlur = v; root.applyPillBlur(v); } });
+            r.push({ item: materialRow, kind: "seg", vals: ["glass", "frost", "ink"], get: function () { return Flags.material; }, set: function (v) { root.setMaterial(v); } });
         }
         return r;
     }
@@ -102,6 +103,12 @@ SettingsSurface {
     readonly property var layoutOptions: [
         { label: "Dwindle", value: "dwindle" },
         { label: "Master", value: "master" }
+    ]
+
+    readonly property var materialOptions: [
+        { label: "Glass", value: "glass" },
+        { label: "Frost", value: "frost" },
+        { label: "Ink", value: "ink" }
     ]
 
     property string decoText: ""
@@ -281,6 +288,18 @@ SettingsSurface {
         root.decoText = res.text;
         decoWriter.setText(res.text);
         reloadTimer.restart();
+    }
+
+    /**
+     * Picks the surface material and keeps the Hyprland side honest: glass and
+     * frost are translucent, so the pill wants the blur layer rule behind it,
+     * while ink is flat opaque and blurring behind it only costs GPU time.
+     */
+    function setMaterial(v) {
+        Flags.material = v;
+        var blur = v !== "ink";
+        Flags.pillBlur = blur;
+        root.applyPillBlur(blur);
     }
 
     FileView {
@@ -907,6 +926,18 @@ SettingsSurface {
                         Flags.pillBlur = !Flags.pillBlur;
                         root.applyPillBlur(Flags.pillBlur);
                     }
+                }
+            }
+
+            FieldRow {
+                id: materialRow
+                label: "Material"
+                caption: "Glass, frost or ink for the pill and surfaces"
+                SettingsSeg {
+                    s: root.s
+                    options: root.materialOptions
+                    value: Flags.material
+                    onPicked: v => root.setMaterial(v)
                 }
             }
 

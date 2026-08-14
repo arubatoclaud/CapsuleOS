@@ -15,6 +15,14 @@ Singleton {
     readonly property bool dyn: Flags.paletteMode !== "static"
 
     /**
+     * Material preset: glass = bright translucent, frost = dark translucent,
+     * ink = flat opaque. Alpha rides the surface tokens so every surface
+     * follows; Flags.pillOpacity still multiplies on top at the window level.
+     */
+    readonly property string material: Flags.material
+    readonly property real surfAlpha: material === "glass" ? 0.62 : material === "ink" ? 1.0 : 0.86
+
+    /**
      * Bright warm pop shared by the flame glow, charging glyphs, the recording
      * countdown, the unread inbox dot, the calendar's today cell and the held
      * power tile. The dynamic branch uses the wallpaper accent (Dyn.primary):
@@ -30,17 +38,17 @@ Singleton {
     readonly property color cream:    dyn ? Dyn.cream : "#d5dce6"
     readonly property color bright:   dyn ? Dyn.bright : "#f2f6fb"
     readonly property color dim:      dyn ? Dyn.dim : "#7d8797"
-    readonly property color cardTop:  dyn ? Dyn.surfaceContainerHigh : "#161c28"
-    readonly property color cardBot:  dyn ? Dyn.surfaceContainerLow : "#10151f"
-    readonly property color border:   dyn ? Dyn.outlineVariant : "#263042"
+    readonly property color cardTop:  Qt.alpha(dyn ? Dyn.surfaceContainerHigh : "#161c28", surfAlpha)
+    readonly property color cardBot:  Qt.alpha(dyn ? Dyn.surfaceContainerLow : "#10151f", surfAlpha)
+    readonly property color border:   material === "ink" ? "transparent" : (dyn ? Dyn.outlineVariant : "#263042")
     readonly property color shadow:     Qt.rgba(0, 0, 0, 0.55)
-    readonly property color tileBg:   dyn ? Dyn.surface : "#0e131c"
+    readonly property color tileBg:   Qt.alpha(dyn ? Dyn.surface : "#0e131c", surfAlpha)
     readonly property color subtle:   dyn ? Dyn.subtle : "#a4aebc"
     readonly property color faint:    dyn ? Dyn.faint : "#5d6570"
     readonly property color iconDim:  dyn ? Dyn.iconDim : "#b8c2cf"
-    readonly property color hair:     Qt.alpha(cream, 0.13)
-    readonly property color hairSoft: Qt.alpha(cream, 0.08)
-    readonly property color sheen:    Qt.alpha(cream, 0.07)
+    readonly property color hair:     Qt.alpha(cream, material === "glass" ? 0.22 : 0.13)
+    readonly property color hairSoft: Qt.alpha(cream, material === "glass" ? 0.14 : 0.08)
+    readonly property color sheen:    Qt.alpha(cream, material === "glass" ? 0.16 : 0.07)
     readonly property color vermDim:   dyn ? Qt.darker(Dyn.primary, 1.5) : "#8a6a48"
     readonly property color vermDimDeep: dyn ? Qt.darker(Dyn.primary, 2.2) : "#55442e"
     readonly property color vermBurn:  dyn ? Qt.darker(Dyn.primaryContainer, 1.1) : "#8a3a0a"
