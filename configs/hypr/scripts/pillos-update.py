@@ -499,14 +499,13 @@ def manual_hint(pkg, family, fallbacks):
     return f"no native package on this system, {hint}"
 
 
-def native_install_reason(result, os_error):
+def native_install_reason(result, os_error, manual_cmd=""):
     """Why a batched repo install didn't land, kept short for the surface."""
     if os_error:
         return os_error
-    # pkexec exits 126 when the prompt is dismissed and 127 when authorisation is
-    # denied, the two cases that otherwise read as a silent success.
     if result.returncode in (126, 127):
-        return "the password prompt was cancelled"
+        hint = f" — run manually: sudo {manual_cmd}" if manual_cmd else ""
+        return "authorization failed (sudoless system?)" + hint
     tail = (result.stderr or "").strip().splitlines()
     return tail[-1] if tail else "install failed"
 
@@ -549,9 +548,11 @@ def install_missing_deps(clone, head, ids):
         except OSError as exc:
             os_error = str(exc)
         # Verify per package so a partial transaction reports only what's still missing.
+        manual_cmd = " ".join(native_install_argv(family, [n for _, n in repo]))
         for pid, name in repo:
             if not pkg_installed(name, family):
-                failures.append({"id": pid, "error": native_install_reason(result, os_error)})
+                failures.append({"id": pid,
+                                 "error": native_install_reason(result, os_error, manual_cmd=manual_cmd)})
     return failures
 
 
