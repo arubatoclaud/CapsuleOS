@@ -295,9 +295,10 @@ ShellRoot {
              * "off" delay setting restores instant in both directions.
              */
             property bool autoHidden: false
+            property bool edgeHeld: false
             readonly property bool restingHideable: Flags.autoHide && !monFullscreen
                 && !surfaceOpen && pill.mode === "rest"
-            readonly property bool pointerHeld: pill.hovered || edgePeek.hovered
+            readonly property bool pointerHeld: pill.hovered || edgeHeld
 
             onRestingHideableChanged: {
                 if (restingHideable) {
@@ -403,25 +404,33 @@ ShellRoot {
                 }
             }
 
-            /**
-             * The auto-hide reveal strip: hover only, four pixels tall, no
-             * MouseArea, so it never swallows a click meant for the window
-             * underneath. It is what keeps `autoHidden` false while the pointer
-             * rests at the screen edge.
-             */
-            Item {
-                anchors { top: parent.top; left: parent.left; right: parent.right }
-                height: 4
-                HoverHandler { id: edgePeek; enabled: Flags.autoHide }
-            }
-
             FocusScope {
                 id: focusScope
                 anchors.fill: parent
                 focus: overlay.surfaceOpen || pill.quickChoosing
 
+                /**
+                 * The one hover source for the whole overlay, split by pointer
+                 * position (a HoverHandler on a child item under this filling
+                 * FocusScope never hovers, so the split cannot live on the
+                 * strip item itself): the top 4px are the auto-hide reveal
+                 * zone and only hold `edgeHeld`, so dwelling there brings the
+                 * pill back in its resting form, while `pill.hovered` — what
+                 * grows it to the hover pill — needs the pointer on the
+                 * capsule (or its open surface) itself.
+                 */
                 HoverHandler {
-                    onHoveredChanged: pill.hovered = hovered
+                    onPointChanged: {
+                        overlay.edgeHeld = hovered && Flags.autoHide && point.position.y < 4;
+                        pill.hovered = hovered
+                            && point.position.y >= pillRegion.y
+                            && point.position.x >= pillRegion.x
+                            && point.position.x <= pillRegion.x + pillRegion.width;
+                    }
+                    onHoveredChanged: if (!hovered) {
+                        overlay.edgeHeld = false;
+                        pill.hovered = false;
+                    }
                 }
                 Keys.onEscapePressed: {
                     if (pill.quickChoosing) {
