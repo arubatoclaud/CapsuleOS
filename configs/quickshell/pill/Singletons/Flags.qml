@@ -20,6 +20,7 @@ Singleton {
     property alias showGlyphs: adapter.showGlyphs
     property alias paletteMode: adapter.paletteMode
     property alias material: adapter.material
+    property alias motion: adapter.motion
     property alias wallpaperDir: adapter.wallpaperDir
     property alias randomScope: adapter.randomScope
     property alias uiScale: adapter.uiScale
@@ -79,6 +80,8 @@ Singleton {
             property string paletteMode: "static"
             /** Surface material: "glass" bright translucent, "frost" the shipped middle, "ink" flat opaque. Rides Theme's surface alpha so every surface follows one choice. */
             property string material: "frost"
+            /** Motion character: "calm" the shipped Apple-standard settle, "spring" overshoots, "glide" stretches everything cinematic. Drives Motion's durations and curve, and the Hyprland side through the animation surface. */
+            property string motion: "calm"
             /** Explicit wallpaper folder override. Empty means autodetect: the dir wallpaper.sh last resolved (pillos-wallpaper-dir state file), then ~/PillOS/wallpapers. Lives in user state so an in-app update never clobbers a custom folder. */
             property string wallpaperDir: ""
             /** Super+B random target: "all" repaints every monitor, "cursor" only the one under the pointer. */
