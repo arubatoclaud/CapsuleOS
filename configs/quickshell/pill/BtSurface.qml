@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import Quickshell
 import Quickshell.Io
 import Quickshell.Bluetooth
 import "Singletons"
@@ -182,6 +183,18 @@ PillSurface {
         }
     }
 
+    /**
+     * Keys the device list by address so a scan tick diffs into the existing
+     * rows rather than tearing every delegate down and rebuilding it. Delegates
+     * keep their identity across scans, so an open pairing or confirm row
+     * stays put under the device the user tapped.
+     */
+    ScriptModel {
+        id: devModel
+        objectProp: "address"
+        values: root.devicesSorted
+    }
+
     Item {
         id: header
         anchors.top: parent.top
@@ -295,7 +308,7 @@ PillSurface {
                 spacing: 2 * root.s
 
                 Repeater {
-                    model: root.devicesSorted
+                    model: devModel
 
                     Column {
                         id: devItem

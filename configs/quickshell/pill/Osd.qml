@@ -230,7 +230,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: 32 * root.s
             horizontalAlignment: Text.AlignRight
-            text: Math.round(root.volume * 100) + "%"
+            text: root.muted ? "Muted" : Math.round(root.volume * 100) + "%"
             color: root.muted ? Theme.dim : Theme.cream
             font.family: Theme.font
             font.pixelSize: 11 * root.s

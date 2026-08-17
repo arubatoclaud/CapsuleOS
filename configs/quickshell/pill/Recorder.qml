@@ -648,7 +648,7 @@ PillSurface {
                                 { label: "Med", value: "medium" },
                                 { label: "High", value: "high" },
                                 { label: "Ultra", value: "ultra" },
-                                { label: "Loss", value: "lossless" }
+                                { label: "Lossless", value: "lossless" }
                             ]
                             value: ScreenRec.quality
                             onPicked: (v) => ScreenRec.quality = v

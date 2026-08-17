@@ -1313,7 +1313,7 @@ Item {
                 font.family: Theme.font
                 font.pixelSize: 16 * pill.s
                 font.weight: Font.DemiBold
-                font.features: { "tnum": 1 }
+                font.features: ({ "tnum": 1 })
             }
             Text {
                 visible: pill.specialView !== ""
@@ -1332,7 +1332,7 @@ Item {
         anchors.fill: parent
         opacity: pill.mode === "hover" ? Math.pow(pill.morphCloseness, 1.2) : 0
         visible: true
-        Behavior on opacity { NumberAnimation { duration: pill.mode === "hover" ? Motion.fast : 40 } }
+        Behavior on opacity { NumberAnimation { duration: pill.mode === "hover" ? Motion.fast : Math.round(40 * Motion.mult) } }
 
         readonly property bool live: pill.mode === "hover"
 
@@ -1378,7 +1378,7 @@ Item {
                         font.family: Theme.font
                         font.pixelSize: 18 * pill.s
                         font.weight: Font.DemiBold
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                     }
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -1445,7 +1445,7 @@ Item {
                         font.family: Theme.font
                         font.pixelSize: 12.5 * pill.s
                         font.weight: Font.Medium
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                     }
                 }
 
@@ -1620,7 +1620,7 @@ Item {
                             font.family: Theme.font
                             font.pixelSize: 13 * pill.s
                             font.weight: Battery.charging ? Font.DemiBold : Font.Medium
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                         }
 
                         MouseArea {
@@ -2335,7 +2335,7 @@ Item {
                         color: Theme.subtle
                         font.family: Theme.font
                         font.pixelSize: 9.5 * pill.s
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                     }
                 }
 
@@ -2405,7 +2405,7 @@ Item {
                 font.family: Theme.font
                 font.pixelSize: 28 * pill.s
                 font.weight: Font.ExtraBold
-                font.features: { "tnum": 1 }
+                font.features: ({ "tnum": 1 })
             }
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter

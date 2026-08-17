@@ -27,11 +27,17 @@ Singleton {
      */
     property var ddcMonitors: []
 
-    /** True once an internal backlight has been found under /sys/class/backlight. */
-    property bool backlightPresent: false
+    /** True once an internal backlight has been found under /sys/class/backlight, per Backlight's poller. */
+    readonly property bool backlightPresent: Backlight.present
 
-    /** Current internal-backlight level, 0..100. */
-    property int backlightPct: 75
+    /**
+     * Current internal-backlight level, 0..100, derived from Backlight's 1s
+     * poller (single source of truth). Left assignable (not readonly) so the
+     * mixer fader can still echo the drag position instantly; setBacklight()
+     * writes through to Backlight.brightness on commit, which re-derives this
+     * once the poller confirms.
+     */
+    property int backlightPct: Math.round(Backlight.brightness * 100)
 
     /**
      * Loads the persisted vibrance percent and applies it once, so the saved
@@ -69,7 +75,6 @@ Singleton {
 
     function detect() {
         ddcDetect.running = true;
-        blDetect.running = true;
     }
 
     function setBrightness(bus, pct) {
@@ -81,10 +86,13 @@ Singleton {
      * Sets the internal laptop backlight to `pct` percent via brightnessctl.
      * No-op effect on machines without /sys/class/backlight (brightnessctl
      * simply finds no device), and inert when brightnessctl is absent.
+     * Optimistically writes through to Backlight.brightness so backlightPct
+     * updates immediately; Backlight's 1s poller confirms the real value shortly after.
      */
     function setBacklight(pct) {
-        root.backlightPct = Math.round(Math.max(1, Math.min(100, pct)));
-        Quickshell.execDetached(["brightnessctl", "set", root.backlightPct + "%"]);
+        var clamped = Math.round(Math.max(1, Math.min(100, pct)));
+        Backlight.brightness = clamped / 100.0;
+        Quickshell.execDetached(["brightnessctl", "set", clamped + "%"]);
     }
 
     /**
@@ -111,21 +119,6 @@ Singleton {
                         mons.push({ bus: bus[1], label: conn ? conn[1] : "BUS " + bus[1] });
                 }
                 root.ddcMonitors = mons;
-            }
-        }
-    }
-
-    Process {
-        id: blDetect
-        command: ["sh", "-c", "dev=$(ls /sys/class/backlight 2>/dev/null | head -n1); [ -n \"$dev\" ] || exit 0; max=$(cat /sys/class/backlight/$dev/max_brightness); cur=$(cat /sys/class/backlight/$dev/brightness); echo \"$(( cur * 100 / max ))\""]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var v = parseInt(this.text.trim(), 10);
-                if (!isNaN(v)) {
-                    root.backlightPct = Math.max(1, Math.min(100, v));
-                    root.backlightPresent = true;
-                }
             }
         }
     }
