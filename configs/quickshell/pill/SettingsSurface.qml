@@ -92,10 +92,10 @@ PillSurface {
     }
 
     /**
-     * A click anywhere on a row drives its control: toggles flip, nav rows open
-     * their surface, and segmented rows step to the next value (wrapping). The
-     * control's own hit areas stay on top, so clicking a specific segment still
-     * picks it directly.
+     * A click anywhere on a row drives its control: toggles flip and nav rows
+     * open their surface. Segmented rows are focus-only on a row-wide click —
+     * their own hit areas (the individual segments) remain the way to change
+     * the value, so a click on the row's label can't silently step the value.
      */
     function activateRow(item) {
         var idx = rowIndexOf(item);
@@ -108,8 +108,6 @@ PillSurface {
             r.set(!r.get());
         else if (r.kind === "nav")
             root.requestSurface(r.surface);
-        else if (r.kind === "seg")
-            segCycle(r, 1);
     }
 
     readonly property bool rowFocused: focusRowItem !== null && active

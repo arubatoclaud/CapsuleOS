@@ -40,7 +40,6 @@ SettingsSurface {
         SettingsRow {
             id: appearanceRow
             surface: root
-            captionOnFocus: true
             icon: "sparkles"
             name: "Appearance"
             sub: "Clock, accent palette, scale"
@@ -57,7 +56,6 @@ SettingsSurface {
         SettingsRow {
             id: lookRow
             surface: root
-            captionOnFocus: true
             icon: "app-window"
             name: "Look"
             sub: "Gaps, rounding, blur, opacity"
@@ -74,7 +72,6 @@ SettingsSurface {
         SettingsRow {
             id: displayRow
             surface: root
-            captionOnFocus: true
             icon: "monitor"
             name: "Display"
             sub: "Resolution, refresh, scale"
@@ -91,7 +88,6 @@ SettingsSurface {
         SettingsRow {
             id: inputRow
             surface: root
-            captionOnFocus: true
             icon: "mouse"
             name: "Input"
             sub: "Pointer, keyboard, cursor"
@@ -108,7 +104,6 @@ SettingsSurface {
         SettingsRow {
             id: animationRow
             surface: root
-            captionOnFocus: true
             icon: "waves"
             name: "Animation"
             sub: "Speed, motion curve, enable"
@@ -125,7 +120,6 @@ SettingsSurface {
         SettingsRow {
             id: keybindsRow
             surface: root
-            captionOnFocus: true
             icon: "keyboard"
             name: "Keybinds"
             sub: "Rebind, add, set commands"
@@ -142,7 +136,6 @@ SettingsSurface {
         SettingsRow {
             id: workspacesRow
             surface: root
-            captionOnFocus: true
             icon: "layers"
             name: "Workspaces"
             sub: "Special spaces and their keys"
@@ -159,7 +152,6 @@ SettingsSurface {
         SettingsRow {
             id: idleRow
             surface: root
-            captionOnFocus: true
             icon: "lock"
             name: "Idle / Lock"
             sub: "Auto-lock, screen off, suspend"
