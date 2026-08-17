@@ -11,7 +11,9 @@ import "Singletons"
  * decoration.lua and writes each change straight back to its source so the choice
  * survives a restart. Window gaps, rounding and border size, the two opacity
  * fields and the blur block all rewrite the Lua and reload Hyprland so the change
- * lands at once. Blur fields are rewritten scoped to the `blur` block, since
+ * lands at once. The terminal-background row is the odd one out: it edits
+ * background-opacity in ghostty's config, since only the app itself can fade its
+ * background while leaving glyphs solid. Blur fields are rewritten scoped to the `blur` block, since
  * `enabled` is shared with the sibling `shadow` block. The border colours are
  * sourced from the palette pipeline and never touched here. Reached from the
  * settings index; morphs back on the back chevron.
@@ -66,6 +68,7 @@ SettingsSurface {
         if (opGrp.open) {
             r.push({ item: opActRow, kind: "scrub", bump: function (d) { opActScrub.bump(d); } });
             r.push({ item: opInactRow, kind: "scrub", bump: function (d) { opInactScrub.bump(d); } });
+            r.push({ item: opTermRow, kind: "scrub", bump: function (d) { opTermScrub.bump(d); } });
         }
         if (pillGrp.open) {
             r.push({ item: pillGapRow, kind: "scrub", bump: function (d) { pillGapScrub.bump(d); } });
@@ -83,6 +86,7 @@ SettingsSurface {
     property string note: ""
 
     readonly property string decoPath: Quickshell.env("HOME") + "/.config/hypr/modules/decoration.lua"
+    readonly property string ghosttyPath: Quickshell.env("HOME") + "/.config/ghostty/config"
     readonly property string pillBlurRule: 'hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })\n'
 
     property int gapsIn: 6
@@ -102,6 +106,8 @@ SettingsSurface {
     property int shadowRenderPower: 3
     property real activeOpacity: 1.0
     property real inactiveOpacity: 1.0
+    property real termBgOpacity: 1.0
+    property string ghosttyText: ""
 
     readonly property var layoutOptions: [
         { label: "Dwindle", value: "dwindle" },
@@ -129,6 +135,7 @@ SettingsSurface {
     onActiveChanged: {
         if (active) {
             decoFile.reload();
+            ghosttyFile.reload();
             seed();
         } else {
             focusRowItem = null;
@@ -181,6 +188,11 @@ SettingsSurface {
         var io = parseFloat(SetDeco.getField(t, "inactive_opacity"));
         root.inactiveOpacity = isNaN(io) ? 1.0 : io;
 
+        root.ghosttyText = ghosttyFile.text();
+        var tm = root.ghosttyText.match(/^\s*background-opacity\s*=\s*([0-9.]+)/m);
+        var tb = tm ? parseFloat(tm[1]) : NaN;
+        root.termBgOpacity = isNaN(tb) ? 1.0 : tb;
+
         Flags.pillBlur = SetDeco.hasNamedRule(t, "pill-blur");
 
         root.base = {
@@ -197,6 +209,7 @@ SettingsSurface {
             shadowRenderPower: root.shadowRenderPower,
             activeOpacity: root.activeOpacity,
             inactiveOpacity: root.inactiveOpacity,
+            termBgOpacity: root.termBgOpacity,
             pillOpacity: Flags.pillOpacity,
             topGap: Flags.topGap,
             appGap: Flags.appGap,
@@ -247,6 +260,27 @@ SettingsSurface {
             "hl.config({ decoration = { active_opacity = " + root.activeOpacity.toFixed(2)
             + ", inactive_opacity = " + root.inactiveOpacity.toFixed(2) + " } })"];
         opacityRefresh.running = true;
+    }
+
+    /**
+     * Rewrites background-opacity in ghostty's config and pokes running
+     * instances with SIGUSR2, which reloads the config into every open window
+     * at once. Compositor opacity fades the whole surface, text included, so
+     * background-only transparency has to be this app-side knob. The signal is
+     * debounced like the Hyprland reload so a scrub drag lands once; a failed
+     * pkill just means no ghostty is running and the value waits for the next
+     * launch.
+     */
+    function writeTermBg(v) {
+        var line = "background-opacity = " + v.toFixed(2);
+        var t = root.ghosttyText;
+        if (/^\s*background-opacity\s*=.*$/m.test(t))
+            t = t.replace(/^\s*background-opacity\s*=.*$/m, line);
+        else
+            t += (t.length > 0 && !t.endsWith("\n") ? "\n" : "") + line + "\n";
+        root.ghosttyText = t;
+        ghosttyWriter.setText(t);
+        ghosttySignalTimer.restart();
     }
 
     /**
@@ -326,6 +360,20 @@ SettingsSurface {
         printErrors: false
     }
 
+    FileView {
+        id: ghosttyFile
+        path: root.ghosttyPath
+        blockLoading: true
+        printErrors: false
+    }
+
+    FileView {
+        id: ghosttyWriter
+        path: root.ghosttyPath
+        atomicWrites: true
+        printErrors: false
+    }
+
     /**
      * Reload is debounced so a scrub drag writes the file per step but reloads
      * Hyprland once, and captured so a failed reload surfaces as the inline note
@@ -349,6 +397,18 @@ SettingsSurface {
     Process {
         id: opacityRefresh
         command: []
+    }
+
+    Timer {
+        id: ghosttySignalTimer
+        interval: 250
+        repeat: false
+        onTriggered: ghosttyReload.running = true
+    }
+
+    Process {
+        id: ghosttyReload
+        command: ["pkill", "-USR2", "-x", "ghostty"]
     }
 
     component GroupLabel: Text {
@@ -875,6 +935,23 @@ SettingsSurface {
                     onEdited: v => {
                         root.inactiveOpacity = v;
                         root.writeOpacity("inactive_opacity", v.toFixed(2));
+                    }
+                }
+            }
+
+            FieldRow {
+                id: opTermRow
+                label: "Terminal background"
+                caption: "Ghostty background only. Text stays solid."
+                ScrubValue {
+                    id: opTermScrub
+                    s: root.s
+                    value: root.termBgOpacity
+                    openValue: root.base.termBgOpacity
+                    from: 0.5; to: 1.0; step: 0.05; decimals: 2
+                    onEdited: v => {
+                        root.termBgOpacity = v;
+                        root.writeTermBg(v);
                     }
                 }
             }
