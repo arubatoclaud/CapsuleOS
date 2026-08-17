@@ -132,6 +132,38 @@ def clamp_dark(hue, sat, l_max, target, surface_hex):
     return lo, tint(hue, sat, lo)
 
 
+def clamp_light(hex_color, target, bg_hex):
+    """
+    Smallest lightness >= the input's whose tint meets `target` WCAG contrast
+    against `bg_hex`; hue/sat are held fixed so only lightness moves, and the
+    result is never darker than the input (a lift, never a floor). Mirror of
+    clamp_dark for the always-dark terminal palette.
+    """
+    if contrast_ratio(hex_color, bg_hex) >= target:
+        return hex_color
+    r, g, b = (int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    if contrast_ratio(tint(h, s, 1.0), bg_hex) < target:
+        return tint(h, s, 1.0)  # best effort: even white falls short of target
+    lo, hi = l, 1.0
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        if contrast_ratio(tint(h, s, mid), bg_hex) >= target:
+            hi = mid
+        else:
+            lo = mid
+    return tint(h, s, hi)
+
+
+# Minimum WCAG contrast for each terminal palette slot against the terminal
+# background. base16 maps 1-6 to a bg->fg ramp, but terminal programs use
+# those slots as *foreground* text (ANSI 31-36), so the low steps must stay
+# legible; the graduated targets keep the ramp monotone instead of bunching
+# every step at one floor. Accents (8-15) just get a readability floor.
+ANSI_CONTRAST_FLOOR = {1: 3.0, 2: 3.4, 3: 3.8, 4: 4.3, 5: 4.9, 6: 5.6}
+ANSI_CONTRAST_FLOOR.update({i: 3.0 for i in range(8, 16)})
+
+
 def render_fastfetch(pill):
     """
     Recolour the fastfetch readout from the same pill palette. fastfetch has no
@@ -262,8 +294,13 @@ def main():
         f'selection-background = {b["base02"]}',
         f'selection-foreground = {b["base07"]}',
     ]
+    # Contrast-floor the foreground-role slots only; the background /
+    # selection lines above keep the untouched darks so the theme stays dark.
     for i in range(16):
-        lines.append(f'palette = {i}={b["base%02x" % i]}')
+        color = b["base%02x" % i]
+        if i in ANSI_CONTRAST_FLOOR:
+            color = clamp_light(color, ANSI_CONTRAST_FLOOR[i], b["base00"])
+        lines.append(f'palette = {i}={color}')
     (CACHE / "ghostty-colors").write_text("\n".join(lines) + "\n")
     return 0
 
