@@ -554,7 +554,7 @@ PillSurface {
                 focused: root.focusIndex === brRep.count
                 value: Devices.backlightPct / 100
                 valueLabel: Devices.backlightPct + "%"
-                onMoved: (v) => Devices.backlightPct = Math.max(1, Math.min(100, Math.round(v * 100)))
+                onMoved: (v) => Devices.previewBacklight(Math.max(1, Math.min(100, Math.round(v * 100))))
                 onCommitted: (v) => { root.pendingBacklight = Math.max(1, Math.min(100, Math.round(v * 100))); blDebounce.restart(); }
             }
         }

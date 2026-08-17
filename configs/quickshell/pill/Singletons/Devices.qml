@@ -32,12 +32,15 @@ Singleton {
 
     /**
      * Current internal-backlight level, 0..100, derived from Backlight's 1s
-     * poller (single source of truth). Left assignable (not readonly) so the
-     * mixer fader can still echo the drag position instantly; setBacklight()
-     * writes through to Backlight.brightness on commit, which re-derives this
-     * once the poller confirms.
+     * poller (single source of truth). Readonly: a plain JS assignment to a
+     * property carrying a declarative binding would permanently sever it
+     * from Backlight.brightness for the life of this singleton, not just for
+     * the duration of the assignment. Live fader feedback goes through
+     * previewBacklight()/setBacklight(), which write Backlight.brightness
+     * itself so this recomputes in the same turn instead of being assigned
+     * directly.
      */
-    property int backlightPct: Math.round(Backlight.brightness * 100)
+    readonly property int backlightPct: Math.round(Backlight.brightness * 100)
 
     /**
      * Loads the persisted vibrance percent and applies it once, so the saved
@@ -80,6 +83,17 @@ Singleton {
     function setBrightness(bus, pct) {
         Quickshell.execDetached(["timeout", "3", "ddcutil", "setvcp", "10",
             String(pct), "--bus", bus, "--noverify"]);
+    }
+
+    /**
+     * Live drag feedback for the internal-backlight fader: writes through to
+     * Backlight.brightness (so the readonly, derived backlightPct updates in
+     * the same event-loop turn and the fader thumb tracks the cursor) without
+     * spawning brightnessctl on every drag pixel. The caller is expected to
+     * debounce the real hardware write via setBacklight() on release.
+     */
+    function previewBacklight(pct) {
+        Backlight.brightness = Math.max(1, Math.min(100, Math.round(pct))) / 100.0;
     }
 
     /**
