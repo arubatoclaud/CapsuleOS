@@ -123,7 +123,7 @@ Singleton {
             property bool recordDesktop: true
             property real recordClearedBefore: 0
             property int idleLockMin: 5
-            property int idleScreenOffMin: 6
+            property int idleScreenOffMin: 10
             property int idleSuspendMin: 0
             property string weatherCity: ""
             property bool musicViz: true
