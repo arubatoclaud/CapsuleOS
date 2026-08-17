@@ -20,7 +20,9 @@ Singleton {
      * follows; Flags.pillOpacity still multiplies on top at the window level.
      */
     readonly property string material: Flags.material
-    readonly property real surfAlpha: material === "glass" ? 0.62 : material === "ink" ? 1.0 : 0.86
+    readonly property real baseAlpha: material === "glass" ? 0.62 : material === "ink" ? 1.0 : 0.86
+    /** Translucent light surfaces darken over the wallpaper and break text contrast, so light mode floors the alpha at 0.85 regardless of material. */
+    readonly property real surfAlpha: (dyn && Dyn.light) ? Math.max(baseAlpha, 0.85) : baseAlpha
 
     /**
      * Conversion factor for the handful of sites that hard-pin their own alpha
@@ -49,7 +51,8 @@ Singleton {
     readonly property color dim:      dyn ? Dyn.dim : "#7d8797"
     readonly property color cardTop:  Qt.alpha(dyn ? Dyn.surfaceContainerHigh : "#161c28", surfAlpha)
     readonly property color cardBot:  Qt.alpha(dyn ? Dyn.surfaceContainerLow : "#10151f", surfAlpha)
-    readonly property color border:   material === "ink" ? "transparent" : (dyn ? Dyn.outlineVariant : "#263042")
+    /** Light mode thins the border to 0.6 alpha over Dyn.outlineVariant so a same-lightness wallpaper still separates from the pill edge; dark mode is unchanged. */
+    readonly property color border:   material === "ink" ? "transparent" : (dyn ? (Dyn.light ? Qt.alpha(Dyn.outlineVariant, 0.6) : Dyn.outlineVariant) : "#263042")
     readonly property color shadow:     Qt.rgba(0, 0, 0, 0.55)
     readonly property color tileBg:   Qt.alpha(dyn ? Dyn.surface : "#0e131c", surfAlpha)
     readonly property color subtle:   dyn ? Dyn.subtle : "#a4aebc"

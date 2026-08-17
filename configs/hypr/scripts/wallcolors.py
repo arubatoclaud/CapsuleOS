@@ -83,6 +83,55 @@ def lerp(x, x0, x1, y0, y1):
     return y0 + t * (y1 - y0)
 
 
+def _linearize(c8):
+    c = c8 / 255.0
+    return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def rel_luminance(hex_color):
+    r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+    return 0.2126 * _linearize(r) + 0.7152 * _linearize(g) + 0.0722 * _linearize(b)
+
+
+def contrast_ratio(hex_a, hex_b):
+    la, lb = rel_luminance(hex_a), rel_luminance(hex_b)
+    lighter, darker = max(la, lb), min(la, lb)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def alpha_composite(fg_hex, bg_hex, alpha):
+    fr, fgc, fb = (int(fg_hex[i:i + 2], 16) for i in (1, 3, 5))
+    br, bgc, bb = (int(bg_hex[i:i + 2], 16) for i in (1, 3, 5))
+    return "#%02x%02x%02x" % (
+        round(fr * alpha + br * (1 - alpha)),
+        round(fgc * alpha + bgc * (1 - alpha)),
+        round(fb * alpha + bb * (1 - alpha)),
+    )
+
+
+def clamp_dark(hue, sat, l_max, target, surface_hex):
+    """
+    Largest lightness <= l_max whose tint still meets `target` WCAG contrast
+    against `surface_hex`; hue/sat are held fixed so only lightness moves, and
+    the result is never lighter than the input (a floor, never a lift).
+    """
+    color = tint(hue, sat, l_max)
+    if contrast_ratio(color, surface_hex) >= target:
+        return l_max, color
+    lo, hi = 0.0, l_max
+    color = tint(hue, sat, lo)
+    if contrast_ratio(color, surface_hex) < target:
+        return lo, color  # best effort: even black falls short of target
+    for _ in range(40):
+        mid = (lo + hi) / 2
+        c = tint(hue, sat, mid)
+        if contrast_ratio(c, surface_hex) >= target:
+            lo = mid
+        else:
+            hi = mid
+    return lo, tint(hue, sat, lo)
+
+
 def render_fastfetch(pill):
     """
     Recolour the fastfetch readout from the same pill palette. fastfetch has no
@@ -154,6 +203,45 @@ def main():
     pill["outline"] = tint(hue, surf_sat, base + (-0.35 if light else 0.35))
     for key, (lit, st) in zip(TEXT_KEYS, text):
         pill[key] = tint(hue, st, lit)
+    pill["light"] = light
+
+    if light:
+        # The pill body renders translucent (surfAlpha floors at 0.85 in
+        # light mode, see Theme.qml), so text/accent tiers are clamped
+        # against the surface as it actually composites over the wallpaper,
+        # not the flat surface swatch, or contrast collapses on mid-tone walls.
+        wall_mean = tint(hue, sat, mean_l)
+        eff_surface = alpha_composite(pill["surface_container_high"], wall_mean, 0.85)
+
+        order = ["bright", "cream", "icon_dim", "subtle", "tick_rest", "dim", "faint"]
+        targets = {"bright": 9.0, "cream": 7.0, "icon_dim": 5.0, "subtle": 4.5,
+                   "tick_rest": 4.0, "dim": 3.5, "faint": 2.5}
+        tier_lit = dict(zip(TEXT_KEYS, (lit for lit, st in text)))
+        tier_sat = dict(zip(TEXT_KEYS, (st for lit, st in text)))
+
+        clamped_l = {}
+        for key in order:
+            l, color = clamp_dark(hue, tier_sat[key], tier_lit[key], targets[key], eff_surface)
+            clamped_l[key] = l
+            pill[key] = color
+
+        # Restore the darkest-to-lightest tier ordering (bright..faint) if
+        # clamping inverted it: sweep back-to-front, capping each earlier
+        # tier at the darkest lightness seen so far. Only ever darkens
+        # further, so an already-met contrast floor can't be undercut.
+        running_min = None
+        for key in reversed(order):
+            l = clamped_l[key]
+            if running_min is not None and l > running_min:
+                l = running_min
+                pill[key] = tint(hue, tier_sat[key], l)
+                clamped_l[key] = l
+            running_min = l
+
+        _, pill["primary"] = clamp_dark(hue, acc_sat, acc_l, 4.5, eff_surface)
+        # on_primary_container is only used as a fill colour (flame gradient
+        # stop), never as text-on-fill, so it is left out of the clamp.
+
     (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
     render_fastfetch(pill)
 
