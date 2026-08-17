@@ -1,3 +1,94 @@
-# PillOS zsh config — deliberately stock. Add your own flavor on top.
+# ~/.zshrc
+
+# --- PATH ---
+export PATH="$HOME/.local/bin:$PATH"
+
+# --- History ---
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_REDUCE_BLANKS
+
+# --- General options ---
+setopt AUTO_CD
+setopt CORRECT
+setopt INTERACTIVE_COMMENTS
+
+# --- Completion ---
+# /usr/share/zsh/site-functions is in fpath by default on Arch;
+# zsh-completions installs there so nothing extra is needed.
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+
+# --- Keybindings ---
+bindkey -e
+
+# --- fzf ---
+[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
+[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+
+# --- zoxide ---
 eval "$(zoxide init zsh)"
+
+# --- Aliases ---
+alias ls='eza --icons=always --group-directories-first'
+alias ll='eza -lah --icons=always --group-directories-first --git'
+alias la='eza -a --icons=always --group-directories-first'
+alias lt='eza --tree --level=2 --icons=always'
+alias cat='bat'
 alias ff='fastfetch'
+alias grep='grep --color=auto'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# --- Plugins (autosuggestions before syntax-highlighting; syntax-highlighting last) ---
+[ -f /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ] && source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+[ -f /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# --- Greeting (interactive top-level shells only; pure zsh, no forks) ---
+if [[ -o interactive ]] && (( SHLVL == 1 )); then
+  () {
+    zmodload zsh/datetime
+    local hour date_str
+    strftime -s hour '%H' $EPOCHSECONDS
+    strftime -s date_str '%a %d %b' $EPOCHSECONDS
+    date_str=${(L)date_str}
+
+    # bright-* slots only: wallpaper picker may fill normal slots 1-6 with a mono ramp
+    local icon word color
+    case $hour in
+      (0[5-9]|1[01]) icon='☀' word='good morning'   color=11 ;;
+      (1[2-7])       icon='☼' word='good afternoon' color=13 ;;
+      (1[89]|2[0-2]) icon='☾' word='good evening'   color=9  ;;
+      (*)            icon='✦' word='late night'     color=12 ;;
+    esac
+
+    local up _rest upsec updays uph upm uptime_str
+    read -r up _rest < /proc/uptime
+    upsec=${up%.*}
+    updays=$(( upsec / 86400 ))
+    uph=$(( upsec % 86400 / 3600 ))
+    upm=$(( upsec % 3600 / 60 ))
+    if (( updays > 0 )); then
+      uptime_str="${updays}d ${uph}h"
+    elif (( uph > 0 )); then
+      uptime_str="${uph}h ${upm}m"
+    else
+      uptime_str="${upm}m"
+    fi
+
+    print -P "%F{$color}$icon $word%f, $USER"
+    print -P "  $date_str · up $uptime_str"
+    print
+  }
+fi
+
+# --- Starship prompt (must be last) ---
+eval "$(starship init zsh)"
