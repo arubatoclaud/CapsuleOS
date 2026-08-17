@@ -153,6 +153,9 @@
     { "id": "python3", "group": "core", "required": true, "desc": "Runs the palette generator and search helper scripts", "aur": false,
       "names": { "arch": "python", "debian": "python3", "fedora": "python3", "suse": "python3" }, "fallback": null },
 
+    { "id": "qt6ct", "group": "core", "required": true, "desc": "Qt theming bridge so Qt apps follow the wallpaper palette", "aur": false,
+      "names": { "arch": "qt6ct", "debian": "qt6ct", "fedora": "qt6ct", "suse": "qt6ct" }, "fallback": null },
+
     { "id": "dolphin", "group": "full", "required": false, "desc": "KDE file manager", "aur": false,
       "names": { "arch": "dolphin", "debian": "dolphin", "fedora": "dolphin", "suse": "dolphin" }, "fallback": null },
 

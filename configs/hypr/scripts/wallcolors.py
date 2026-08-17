@@ -11,13 +11,51 @@ a neutral grey ramp. matugen still builds the dark base16 the always-dark termin
 reads; the pill JSON carries surfaces, accent and the contrast-matched text.
 """
 import colorsys
+import configparser
 import json
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 CACHE = Path.home() / ".cache" / "pillos"
+GTK_THEMES_DIR = Path("/usr/share/themes")
+ICON_THEMES_DIR = Path("/usr/share/icons")
+# Adwaita / Adwaita-dark ship compiled into GTK itself (no directory under
+# /usr/share/themes since GTK 3.20), so they're always available and don't
+# need the on-disk probe third-party themes do.
+BUILTIN_GTK_THEMES = {"Adwaita", "Adwaita-dark"}
+QT_CONFIG_HOMES = {"qt6ct": Path.home() / ".config" / "qt6ct",
+                    "qt5ct": Path.home() / ".config" / "qt5ct"}
+# QPalette::ColorRole declaration order (Qt6, pre-6.6 Accent role) used by
+# qt6ct/qt5ct's [ColorScheme] active_colors/inactive_colors/disabled_colors
+# lists: 21 comma-separated #AARRGGBB values in enum order. Window/Base come
+# from the surface ramp, WindowText/Text/ButtonText from the text ramp,
+# Highlight/Link from the accent.
+QT_ROLE_KEYS = [
+    "cream",                     # 0  WindowText
+    "surface_container_high",    # 1  Button
+    "surface",                   # 2  Light
+    "surface_container_low",     # 3  Midlight
+    "surface_container_highest", # 4  Dark
+    "surface_container",         # 5  Mid
+    "cream",                     # 6  Text
+    "bright",                    # 7  BrightText
+    "cream",                     # 8  ButtonText
+    "surface",                   # 9  Base
+    "surface_container",         # 10 Window
+    "outline",                   # 11 Shadow
+    "primary",                   # 12 Highlight
+    "surface",                   # 13 HighlightedText
+    "primary",                   # 14 Link
+    "primary_container",         # 15 LinkVisited
+    "surface_container_low",     # 16 AlternateBase
+    "surface_container",         # 17 NoRole (reserved, unused by Qt itself)
+    "surface_container_high",    # 18 ToolTipBase
+    "cream",                     # 19 ToolTipText
+    "faint",                     # 20 PlaceholderText
+]
 
 SURF_NAMES = ["surface", "surface_container_low", "surface_container",
               "surface_container_high", "surface_container_highest", "outline_variant"]
@@ -198,6 +236,116 @@ def render_fastfetch(pill):
     (ff / "config.jsonc").write_text(out)
 
 
+def _gtk_theme_exists(name):
+    return name in BUILTIN_GTK_THEMES or (GTK_THEMES_DIR / name).is_dir()
+
+
+def _icon_theme_exists(name):
+    return (ICON_THEMES_DIR / name).is_dir()
+
+
+def write_gtk(pill):
+    """
+    Fan the palette out to GTK3/GTK4 settings.ini plus live gsettings, so
+    GTK apps (and libadwaita ones, which ignore settings.ini) flip dark/light
+    with the wallpaper. Only themes actually present on disk are referenced,
+    a probe miss just drops that line instead of pointing GTK at a name that
+    won't resolve, and each gsettings call is independent so a missing
+    schema on one key never blocks the rest.
+    """
+    dark = not pill.get("light", True)
+
+    gtk_theme = "Adwaita-dark" if dark else "Adwaita"
+    if not _gtk_theme_exists(gtk_theme):
+        gtk_theme = None
+
+    icon_theme = "Papirus-Dark" if dark else "Papirus"
+    if not _icon_theme_exists(icon_theme):
+        icon_theme = "Papirus" if _icon_theme_exists("Papirus") else None
+
+    cursor_theme = "Bibata-Modern-Ice" if _icon_theme_exists("Bibata-Modern-Ice") else None
+
+    lines = ["[Settings]", "gtk-application-prefer-dark-theme=%d" % (1 if dark else 0)]
+    if gtk_theme:
+        lines.append(f"gtk-theme-name={gtk_theme}")
+    if icon_theme:
+        lines.append(f"gtk-icon-theme-name={icon_theme}")
+    if cursor_theme:
+        lines.append(f"gtk-cursor-theme-name={cursor_theme}")
+    settings_ini = "\n".join(lines) + "\n"
+
+    for ver in ("gtk-3.0", "gtk-4.0"):
+        target_dir = Path.home() / ".config" / ver
+        target_dir.mkdir(parents=True, exist_ok=True)
+        (target_dir / "settings.ini").write_text(settings_ini)
+
+    def _gset(key, value):
+        try:
+            subprocess.run(["gsettings", "set", "org.gnome.desktop.interface", key, value],
+                            capture_output=True, check=True)
+        except (OSError, subprocess.SubprocessError):
+            pass
+
+    if gtk_theme:
+        _gset("gtk-theme", gtk_theme)
+    if icon_theme:
+        _gset("icon-theme", icon_theme)
+    if cursor_theme:
+        _gset("cursor-theme", cursor_theme)
+    _gset("color-scheme", "prefer-dark" if dark else "default")
+
+
+def _argb(hex6):
+    """#RRGGBB -> #AARRGGBB (opaque) for qt6ct/qt5ct's ARGB scheme format."""
+    return "#ff" + hex6[1:]
+
+
+def _qt_color_list(pill, dim_text=False):
+    keys = QT_ROLE_KEYS
+    if dim_text:
+        # Disabled state: mute the text-bearing roles a step so widgets read
+        # as inactive without hand-deriving a whole second palette.
+        dim_map = {"cream": "dim", "bright": "subtle"}
+        keys = [dim_map.get(k, k) for k in keys]
+    return ", ".join(_argb(pill[k]) for k in keys)
+
+
+def write_qtct(pill):
+    """
+    Point qt6ct/qt5ct at a generated color scheme so Qt apps (dolphin,
+    kdialog, ...) pick up the palette too. Only runs for a *ct tool that's
+    actually installed, since QT_QPA_PLATFORMTHEME only takes effect when
+    its target config tool is present; generating for an absent one would be
+    dead weight nobody reads.
+    """
+    for name, home in QT_CONFIG_HOMES.items():
+        if shutil.which(name) is None:
+            continue
+        colors_dir = home / "colors"
+        colors_dir.mkdir(parents=True, exist_ok=True)
+        scheme_path = colors_dir / "pillos.conf"
+        active = _qt_color_list(pill)
+        disabled = _qt_color_list(pill, dim_text=True)
+        scheme_path.write_text(
+            "[ColorScheme]\n"
+            f"active_colors={active}\n"
+            f"inactive_colors={active}\n"
+            f"disabled_colors={disabled}\n"
+        )
+
+        conf_path = home / f"{name}.conf"
+        cfg = configparser.ConfigParser()
+        cfg.optionxform = str
+        if conf_path.is_file():
+            cfg.read(conf_path)
+        if not cfg.has_section("Appearance"):
+            cfg.add_section("Appearance")
+        cfg.set("Appearance", "custom_palette", "true")
+        cfg.set("Appearance", "color_scheme_path", str(scheme_path))
+        with conf_path.open("w") as f:
+            cfg.write(f)
+
+
 def main():
     if len(sys.argv) < 2:
         return 1
@@ -276,6 +424,16 @@ def main():
 
     (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
     render_fastfetch(pill)
+
+    try:
+        write_gtk(pill)
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as exc:
+        print(f"wallcolors: GTK theme fan-out failed ({exc}), skipping", file=sys.stderr)
+
+    try:
+        write_qtct(pill)
+    except (OSError, ValueError, KeyError, configparser.Error) as exc:
+        print(f"wallcolors: Qt theme fan-out failed ({exc}), skipping", file=sys.stderr)
 
     try:
         b = {k: v["dark"]["color"] for k, v in
