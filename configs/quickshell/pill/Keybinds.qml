@@ -433,11 +433,15 @@ PillSurface {
 
         Item { width: 1; height: 8 * root.s }
 
+        Item {
+            id: listFrame
+            width: parent.width
+            height: visible ? Math.min(list.contentHeight, 250 * root.s) : 0
+            visible: !root.formOpen
+
         ListView {
             id: list
-            width: parent.width
-            height: visible ? Math.min(contentHeight, 250 * root.s) : 0
-            visible: !root.formOpen
+            anchors.fill: parent
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             model: root.filtered
@@ -538,6 +542,13 @@ PillSurface {
                         root.openEdit(brow.modelData);
                     }
                 }
+            }
+        }
+
+            WheelScroller {
+                anchors.fill: parent
+                s: root.s
+                flick: list
             }
         }
 
