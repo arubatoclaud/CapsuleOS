@@ -142,6 +142,17 @@
       "note": "off Arch there is no native package; the Flathub build com.dec05eba.gpu_screen_recorder is the fallback",
       "fallback": "flatpak", "flatpak_id": "com.dec05eba.gpu_screen_recorder" },
 
+    { "id": "ffmpeg", "group": "core", "required": true, "desc": "Encodes wallpaper thumbnails and screen recordings", "aur": false,
+      "names": { "arch": "ffmpeg", "debian": "ffmpeg", "fedora": "ffmpeg", "suse": "ffmpeg" }, "fallback": null },
+
+    { "id": "libarchive", "group": "core", "required": true, "desc": "Archive extraction behind the AppImage installer", "aur": false,
+      "names": { "arch": "libarchive", "debian": "libarchive-tools", "fedora": "bsdtar", "suse": "bsdtar" },
+      "note": "the rice scripts call the bsdtar binary directly; Debian ships it inside libarchive-tools while Fedora and SUSE package it under the bsdtar name itself",
+      "fallback": null },
+
+    { "id": "python3", "group": "core", "required": true, "desc": "Runs the palette generator and search helper scripts", "aur": false,
+      "names": { "arch": "python", "debian": "python3", "fedora": "python3", "suse": "python3" }, "fallback": null },
+
     { "id": "dolphin", "group": "full", "required": false, "desc": "KDE file manager", "aur": false,
       "names": { "arch": "dolphin", "debian": "dolphin", "fedora": "dolphin", "suse": "dolphin" }, "fallback": null },
 
