@@ -44,7 +44,7 @@ apply)
             hyprctl eval "$(cat "$old")" >/dev/null 2>&1
             rm -f "$pending" "$old"
         fi
-    ' sh "$pending_file" "$old_file" "$token" >/dev/null 2>&1 || true
+    ' sh "$pending_file" "$old_file" "$token" >/dev/null 2>&1
     ;;
 keep)
     rm -f "$pending_file" "$old_file"
