@@ -17,7 +17,8 @@ Singleton {
     property alias keepAwake: adapter.keepAwake
     property alias time12h: adapter.time12h
     property alias clockSeconds: adapter.clockSeconds
-    property alias showGlyphs: adapter.showGlyphs
+    /** The decorative Japanese-glyph layer is retired; constant false keeps every gated fallback active. */
+    readonly property bool showGlyphs: false
     property alias paletteMode: adapter.paletteMode
     property alias material: adapter.material
     property alias motion: adapter.motion
@@ -88,7 +89,6 @@ Singleton {
             property bool keepAwake: false
             property bool time12h: false
             property bool clockSeconds: false
-            property bool showGlyphs: true
             property string paletteMode: "static"
             /** Surface material: "glass" bright translucent, "frost" the shipped middle, "ink" flat opaque. Rides Theme's surface alpha so every surface follows one choice. */
             property string material: "frost"

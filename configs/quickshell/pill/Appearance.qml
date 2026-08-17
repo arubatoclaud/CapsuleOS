@@ -6,10 +6,9 @@ import Quickshell.Io
 import "Singletons"
 
 /**
- * APPEARANCE sub-surface: the clock format and seconds, the Japanese-glyph
- * toggle that gates every surface header, the palette mode (static flame, dynamic
- * per-wallpaper, or a manually chosen hue), the UI scale and a reduce-motion
- * switch. Reached from the settings index and morphs back to it on an empty click
+ * APPEARANCE sub-surface: the clock format and seconds, the palette mode
+ * (static flame, dynamic per-wallpaper, or a manually chosen hue), the UI scale
+ * and a reduce-motion switch. Reached from the settings index and morphs back to it on an empty click
  * or the back chevron.
  *
  * Manual palette mode reveals a rainbow hue strip and a dark/light choice; moving
@@ -84,7 +83,6 @@ SettingsSurface {
     rows: [
         { item: timeRow, kind: "seg", vals: [false, true], get: function () { return Flags.time12h; }, set: function (v) { Flags.time12h = v; } },
         { item: secRow, kind: "toggle", get: function () { return Flags.clockSeconds; }, set: function (v) { Flags.clockSeconds = v; } },
-        { item: glyphRow, kind: "toggle", get: function () { return Flags.showGlyphs; }, set: function (v) { Flags.showGlyphs = v; } },
         { item: vizRow, kind: "toggle", get: function () { return Flags.musicViz; }, set: function (v) { Flags.musicViz = v; } },
         { item: paletteRow, kind: "seg", vals: ["static", "dynamic", "manual"], get: function () { return Flags.paletteMode; }, set: function (v) { root.applyMode(v); } },
         { item: randomRow, kind: "seg", vals: ["all", "cursor"], get: function () { return Flags.randomScope; }, set: function (v) { Flags.randomScope = v; } },
@@ -133,19 +131,6 @@ SettingsSurface {
                 s: root.s
                 on: Flags.clockSeconds
                 onToggled: Flags.clockSeconds = !Flags.clockSeconds
-            }
-        }
-
-        SettingsRow {
-            id: glyphRow
-            surface: root
-            name: "Japanese glyphs"
-            icon: "language"
-
-            LinkToggle {
-                s: root.s
-                on: Flags.showGlyphs
-                onToggled: Flags.showGlyphs = !Flags.showGlyphs
             }
         }
 
