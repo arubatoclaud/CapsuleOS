@@ -152,13 +152,11 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             name: "undo"
             height: 14 * root.s
-            width: root.dirty ? 14 * root.s : 0
+            width: 14 * root.s
             opacity: root.dirty ? 1 : 0
-            clip: true
             stroke: 1.9
             color: undoMA.containsMouse ? Theme.bright : Qt.alpha(Theme.onGlow, 0.55)
-            Behavior on width { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
-            Behavior on opacity { NumberAnimation { duration: Motion.fast } }
+            Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
 
             MouseArea {
                 id: undoMA
@@ -175,15 +173,13 @@ Item {
             id: minusG
             anchors.verticalCenter: parent.verticalCenter
             text: "−"
-            width: root.hovered ? implicitWidth : 0
+            width: implicitWidth
             opacity: root.hovered ? 1 : 0
-            clip: true
             color: root.overMinus ? Theme.bright : Qt.alpha(Theme.onGlow, 0.6)
             font.family: Theme.font
             font.pixelSize: 15 * root.s
             font.weight: Font.Medium
-            Behavior on width { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
-            Behavior on opacity { NumberAnimation { duration: Motion.fast } }
+            Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         }
 
         Item {
@@ -222,15 +218,13 @@ Item {
             id: plusG
             anchors.verticalCenter: parent.verticalCenter
             text: "+"
-            width: root.hovered ? implicitWidth : 0
+            width: implicitWidth
             opacity: root.hovered ? 1 : 0
-            clip: true
             color: root.overPlus ? Theme.bright : Qt.alpha(Theme.onGlow, 0.6)
             font.family: Theme.font
             font.pixelSize: 15 * root.s
             font.weight: Font.Medium
-            Behavior on width { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
-            Behavior on opacity { NumberAnimation { duration: Motion.fast } }
+            Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         }
     }
 }

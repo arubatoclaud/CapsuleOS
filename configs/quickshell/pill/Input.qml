@@ -282,7 +282,7 @@ SettingsSurface {
         readonly property real capH: 14 * root.s
 
         width: parent ? parent.width : 0
-        height: frow.rowH + (frow.expanded ? frow.capH : 0)
+        height: frow.rowH + (frow.caption.length > 0 ? frow.capH : 0)
         clip: true
         Behavior on height { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
 
@@ -334,12 +334,14 @@ SettingsSurface {
             }
 
             Text {
-                visible: frow.expanded && frow.caption.length > 0
+                visible: frow.caption.length > 0
+                opacity: frow.expanded ? 1 : 0
                 text: frow.caption
                 color: Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9 * root.s
                 font.weight: Font.Medium
+                Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
             }
         }
 

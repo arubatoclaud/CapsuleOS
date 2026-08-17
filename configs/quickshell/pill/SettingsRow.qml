@@ -91,13 +91,15 @@ Item {
         }
         Text {
             width: parent.width
-            visible: srow.sub.length > 0 && (!srow.captionOnFocus || srow.focused || srowHover.hovered)
+            visible: srow.sub.length > 0
+            opacity: !srow.captionOnFocus || srow.focused || srowHover.hovered ? 1 : 0
             text: srow.sub
             color: Theme.faint
             font.family: Theme.font
             font.pixelSize: 10.5 * srow.s
             wrapMode: Text.WordWrap
             lineHeight: 1.2
+            Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         }
     }
 
