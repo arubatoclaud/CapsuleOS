@@ -188,6 +188,13 @@ sync_videos() {
     done <<< "$desired"
 }
 
+# Surface wallcolors failures instead of swallowing them silently: the pill
+# implements the notification daemon, so a critical toast gets the user to
+# the log without wallpaper setting itself ever failing on a notify hiccup.
+wallcolors_failed() {
+    command -v notify-send >/dev/null 2>&1 && notify-send -u critical "PillOS" "Wallpaper color pipeline failed — see ~/.local/state/pillos/wallcolors.log" || true
+}
+
 # The palette follows the focused monitor: whatever hangs there drives matugen,
 # the global state file and the global still, so the Settings dynamic re-run
 # and the strip's current marker stay coherent with what the user looks at.
@@ -209,9 +216,9 @@ palette_update() {
     if [ "$pmode" = "manual" ]; then
         mh=$(jq -r '.manualHue // 30' "$flags_file" 2>/dev/null || echo 30)
         md=$(jq -r 'if .manualDark == false then "light" else "dark" end' "$flags_file" 2>/dev/null || echo dark)
-        python3 "$(dirname "$0")/wallcolors.py" --hue "$mh" "$md" >>"$WLOG" 2>&1 || true
+        python3 "$(dirname "$0")/wallcolors.py" --hue "$mh" "$md" >>"$WLOG" 2>&1 || wallcolors_failed
     else
-        python3 "$(dirname "$0")/wallcolors.py" "$show" >>"$WLOG" 2>&1 || true
+        python3 "$(dirname "$0")/wallcolors.py" "$show" >>"$WLOG" 2>&1 || wallcolors_failed
     fi
     hyprctl reload >/dev/null 2>&1 || true
     busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions \
