@@ -127,6 +127,35 @@ SettingsSurface {
         reloadTimer.restart();
     }
 
+    /**
+     * Snaps the handle coordinates to a preset's exact values when a released
+     * handle position lands within epsilon of all four of that preset's
+     * coordinates, so nudging a handle and letting go near calm, spring,
+     * glide, Smooth, Snappy or Linear persists the exact preset instead of a
+     * decimal's worth of drag drift. A curve outside epsilon on any of the
+     * four values is left untouched.
+     */
+    function snapToPreset() {
+        var eps = 0.03;
+        var candidates = [
+            { x1: 0.32, y1: 0.72, x2: 0.0,  y2: 1.0 },  // calm
+            { x1: 0.34, y1: 1.56, x2: 0.64, y2: 1.0 },  // spring
+            { x1: 0.45, y1: 0.05, x2: 0.15, y2: 1.0 },  // glide
+            { x1: 0.23, y1: 1.0,  x2: 0.32, y2: 1.0 },  // Smooth
+            { x1: 0.15, y1: 0.0,  x2: 0.1,  y2: 1.0 },  // Snappy
+            { x1: 0.33, y1: 0.33, x2: 0.66, y2: 0.66 }  // Linear
+        ];
+        for (var i = 0; i < candidates.length; i++) {
+            var p = candidates[i];
+            if (Math.abs(root.cx1 - p.x1) <= eps && Math.abs(root.cy1 - p.y1) <= eps
+                && Math.abs(root.cx2 - p.x2) <= eps && Math.abs(root.cy2 - p.y2) <= eps) {
+                root.cx1 = p.x1; root.cy1 = p.y1; root.cx2 = p.x2; root.cy2 = p.y2;
+                editor.syncHandles();
+                return;
+            }
+        }
+    }
+
     function writeCurve() {
         var r = SetAnim.setCurvePoints(root.animText, root.mainCurve,
             root.cx1.toFixed(2), root.cy1.toFixed(2), root.cx2.toFixed(2), root.cy2.toFixed(2));
@@ -380,7 +409,7 @@ SettingsSurface {
                         xAxis.maximum: editor.es - editor.r
                         yAxis.minimum: -editor.r - 0.35 * editor.es
                         yAxis.maximum: editor.es - editor.r + 0.35 * editor.es
-                        onActiveChanged: if (!active) root.writeCurve()
+                        onActiveChanged: if (!active) { root.snapToPreset(); root.writeCurve(); }
                     }
                     onXChanged: if (h1drag.active) editor.commitFromHandles()
                     onYChanged: if (h1drag.active) editor.commitFromHandles()
@@ -402,7 +431,7 @@ SettingsSurface {
                         xAxis.maximum: editor.es - editor.r
                         yAxis.minimum: -editor.r - 0.35 * editor.es
                         yAxis.maximum: editor.es - editor.r + 0.35 * editor.es
-                        onActiveChanged: if (!active) root.writeCurve()
+                        onActiveChanged: if (!active) { root.snapToPreset(); root.writeCurve(); }
                     }
                     onXChanged: if (h2drag.active) editor.commitFromHandles()
                     onYChanged: if (h2drag.active) editor.commitFromHandles()
