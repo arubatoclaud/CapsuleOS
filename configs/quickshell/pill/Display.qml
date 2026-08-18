@@ -85,19 +85,6 @@ SettingsSurface {
 
     onSelMonChanged: if (selMon) card.syncToCurrent()
 
-    rows: {
-        void root.selMon;
-        void root.mainName;
-        var e = [
-            { item: resRow, kind: "scrub", bump: function (d) { card.bumpRes(d); } },
-            { item: rateRow, kind: "scrub", bump: function (d) { card.bumpRate(d); } },
-            { item: scaleRow, kind: "seg", vals: root.scaleOptions.map(function (o) { return o.value; }), get: function () { return card.pickScale; }, set: function (v) { card.pickScale = v; } }
-        ];
-        if (root.selMon && !root.selIsMain)
-            e.push({ item: mainRow, kind: "toggle", get: function () { return card.pendingMain; }, set: function (v) { card.pendingMain = v; } });
-        return e;
-    }
-
     /**
      * Reduces a monitor's parsed modes to the list of distinct WxH, each carrying
      * the descending list of whole-number Hz offered for that resolution. The
@@ -452,11 +439,16 @@ SettingsSurface {
     }
 
     /**
-     * One registry row inside the monitor card: a leading line icon (or a text
+     * One navigable row inside the monitor card: a leading line icon (or a text
      * glyph for the star), the shared hover/focus treatment, and hover and
      * clicks routed through reportRowHover/activateRow so the soul seam and
      * keyboard focus track these rows like SettingsRow lines. The highlight
      * hugs only the head line, so an open dropdown grows past it.
+     *
+     * These are the one page whose lines are not SettingsRow — the card's
+     * pickers are too bespoke — so each usage drops its own SettingsNav claim
+     * instead of inheriting one, and the card going invisible with no monitor
+     * selected withdraws all four at once.
      */
     component CardRow: Item {
         id: crow
@@ -775,6 +767,13 @@ SettingsSurface {
                         id: resRow
                         icon: "monitor"
 
+                        SettingsNav {
+                            item: resRow
+                            surface: root
+                            navKind: "scrub"
+                            navBump: (d) => card.bumpRes(d)
+                        }
+
                         DisplayPicker {
                             width: parent.width
                             s: root.s
@@ -795,6 +794,13 @@ SettingsSurface {
                         id: rateRow
                         icon: "reboot"
 
+                        SettingsNav {
+                            item: rateRow
+                            surface: root
+                            navKind: "scrub"
+                            navBump: (d) => card.bumpRate(d)
+                        }
+
                         DisplayPicker {
                             width: parent.width
                             s: root.s
@@ -813,6 +819,15 @@ SettingsSurface {
                     CardRow {
                         id: scaleRow
                         icon: "scaling"
+
+                        SettingsNav {
+                            item: scaleRow
+                            surface: root
+                            navKind: "seg"
+                            navVals: root.scaleOptions.map(function (o) { return o.value; })
+                            navGet: () => card.pickScale
+                            navSet: (v) => card.pickScale = v
+                        }
 
                         Row {
                             width: parent.width
@@ -842,6 +857,14 @@ SettingsSurface {
                         id: mainRow
                         glyphText: "★"
                         visible: root.selMon !== null && !root.selIsMain
+
+                        SettingsNav {
+                            item: mainRow
+                            surface: root
+                            navKind: "toggle"
+                            navGet: () => card.pendingMain
+                            navSet: (v) => card.pendingMain = v
+                        }
 
                         Item {
                             width: parent.width

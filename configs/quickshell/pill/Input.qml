@@ -29,23 +29,6 @@ SettingsSurface {
     readonly property var numlockEntry: Schema.settings.numlock
     readonly property var sizeEntry: Schema.settings.cursorSize
 
-    /**
-     * Row registry; scrub rows expose a bump that steps their ScrubValue one
-     * increment. The layout row's vals gain the current layout at the end when
-     * it is not in the curated list, so an exotic layout shows as-is and a
-     * click wraps around to the start of the list.
-     */
-    rows: [
-        { item: sensRow, kind: "scrub", bump: function (d) { sensScrub.bump(d); } },
-        { item: accelRow, kind: "seg", vals: root.accelEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("accelProfile"); }, set: function (v) { Store.set("accelProfile", v); } },
-        { item: layoutRow, kind: "seg", vals: root.kbLayoutVals, get: function () { return Store.get("kbLayout"); }, set: function (v) { Store.set("kbLayout", v); } },
-        { item: rateRow, kind: "scrub", bump: function (d) { rateScrub.bump(d); } },
-        { item: delayRow, kind: "scrub", bump: function (d) { delayScrub.bump(d); } },
-        { item: numlockRow, kind: "toggle", get: function () { return Store.get("numlock"); }, set: function (v) { Store.set("numlock", v); } },
-        { item: sizeRow, kind: "scrub", bump: function (d) { sizeScrub.bump(d); } },
-        { item: themeRow, kind: "toggle", get: function () { return root.themeOpen; }, set: function (v) { root.themeOpen = v; } }
-    ]
-
     property bool themeOpen: false
     property var cursorThemes: []
 
@@ -126,6 +109,7 @@ SettingsSurface {
             SettingsRow {
                 id: sensRow
                 surface: root
+                settingId: "sensitivity"
                 name: root.sensEntry.label
                 sub: root.sensEntry.caption
                 captionOnFocus: true
@@ -143,6 +127,7 @@ SettingsSurface {
             SettingsRow {
                 id: accelRow
                 surface: root
+                settingId: "accelProfile"
                 name: root.accelEntry.label
                 sub: root.accelEntry.caption
                 captionOnFocus: true
@@ -161,6 +146,8 @@ SettingsSurface {
             SettingsRow {
                 id: layoutRow
                 surface: root
+                settingId: "kbLayout"
+                navVals: root.kbLayoutVals
                 name: root.kbLayoutEntry.label
                 sub: root.kbLayoutEntry.caption
                 captionOnFocus: true
@@ -189,6 +176,7 @@ SettingsSurface {
             SettingsRow {
                 id: rateRow
                 surface: root
+                settingId: "repeatRate"
                 name: root.rateEntry.label
                 sub: root.rateEntry.caption
                 captionOnFocus: true
@@ -206,6 +194,7 @@ SettingsSurface {
             SettingsRow {
                 id: delayRow
                 surface: root
+                settingId: "repeatDelay"
                 name: root.delayEntry.label
                 sub: root.delayEntry.caption
                 captionOnFocus: true
@@ -223,6 +212,7 @@ SettingsSurface {
             SettingsRow {
                 id: numlockRow
                 surface: root
+                settingId: "numlock"
                 name: root.numlockEntry.label
                 sub: root.numlockEntry.caption
                 captionOnFocus: true
@@ -240,6 +230,7 @@ SettingsSurface {
             SettingsRow {
                 id: sizeRow
                 surface: root
+                settingId: "cursorSize"
                 name: root.sizeEntry.label
                 sub: root.sizeEntry.caption
                 captionOnFocus: true
@@ -259,13 +250,22 @@ SettingsSurface {
 
             /**
              * DisplayPicker draws its own chip and dropdown, so the wrapper only
-             * adds what the registry needs: hover for the soul seam and a
+             * adds what keyboard navigation needs: the nav claim standing in for
+             * the SettingsRow this line isn't, hover for the soul seam, and a
              * fall-through click that toggles the picker like the chip does.
              */
             Item {
                 id: themeRow
                 width: parent ? parent.width : 0
                 height: themePick.implicitHeight
+
+                SettingsNav {
+                    item: themeRow
+                    surface: root
+                    navKind: "toggle"
+                    navGet: () => root.themeOpen
+                    navSet: (v) => root.themeOpen = v
+                }
 
                 HoverHandler {
                     onHoveredChanged: root.reportRowHover(themeRow, hovered)

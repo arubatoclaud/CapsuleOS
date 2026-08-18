@@ -26,12 +26,6 @@ SettingsSurface {
     readonly property var screenEntry: Schema.settings.idleScreenOffMin
     readonly property var suspendEntry: Schema.settings.idleSuspendMin
 
-    rows: [
-        { item: lockRow, kind: "seg", vals: root.lockEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("idleLockMin"); }, set: function (v) { Store.set("idleLockMin", v); } },
-        { item: screenRow, kind: "seg", vals: root.screenEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("idleScreenOffMin"); }, set: function (v) { Store.set("idleScreenOffMin", v); } },
-        { item: suspendRow, kind: "seg", vals: root.suspendEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("idleSuspendMin"); }, set: function (v) { Store.set("idleSuspendMin", v); } }
-    ]
-
     Column {
         id: content
         anchors.top: parent.top
@@ -51,6 +45,7 @@ SettingsSurface {
         SettingsRow {
             id: lockRow
             surface: root
+            settingId: "idleLockMin"
             name: root.lockEntry.label
             sub: root.lockEntry.caption
             captionOnFocus: true
@@ -66,6 +61,7 @@ SettingsSurface {
         SettingsRow {
             id: screenRow
             surface: root
+            settingId: "idleScreenOffMin"
             name: root.screenEntry.label
             sub: root.screenEntry.caption
             captionOnFocus: true
@@ -81,6 +77,7 @@ SettingsSurface {
         SettingsRow {
             id: suspendRow
             surface: root
+            settingId: "idleSuspendMin"
             name: root.suspendEntry.label
             sub: root.suspendEntry.caption
             captionOnFocus: true

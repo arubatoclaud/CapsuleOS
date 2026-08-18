@@ -9,6 +9,15 @@ import "Singletons"
  * hairline. `control` is the default slot for the toggle, segmented control or
  * chevron. `surface` wires hover and activation back to the owning settings
  * surface so the soul seam tracks the focused row; scale derives from it.
+ *
+ * A row also claims its own place in the surface's keyboard navigation: name the
+ * `settingId` it edits and Schema supplies the control kind and the segments to
+ * cycle while Store does the reading and writing, so the page no longer restates
+ * any of it in a hand-written registry. The claim lasts exactly as long as the
+ * row is visible, which folds a collapsed group's lines out of the arrow keys on
+ * its own. The `nav*` overrides cover the rest: a row that opens a sub-surface
+ * (`navTarget`), a row Schema does not describe (`navKind`), and the handful
+ * whose writes need more than a bare `Store.set` (`navSet`).
  */
 Item {
     id: srow
@@ -21,6 +30,27 @@ Item {
     property bool last: false
     property bool captionOnFocus: false
     default property alias control: controlSlot.data
+
+    property string settingId: ""
+    property string navKind: ""
+    property string navTarget: ""
+    property var navVals: undefined
+    property var navGet: null
+    property var navSet: null
+    property var navBump: null
+
+    property QtObject nav: SettingsNav {
+        item: srow
+        surface: srow.surface
+        settingId: srow.settingId
+        navKind: srow.navKind
+        navTarget: srow.navTarget
+        navVals: srow.navVals
+        navGet: srow.navGet
+        navSet: srow.navSet
+        navBump: srow.navBump
+        bumpHost: controlSlot
+    }
 
     readonly property real s: srow.surface ? srow.surface.s : 1
     readonly property bool focused: srow.surface ? srow.surface.focusRowItem === srow : false

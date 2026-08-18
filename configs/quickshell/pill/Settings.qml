@@ -13,17 +13,6 @@ SettingsSurface {
 
     implicitHeight: content.implicitHeight
 
-    rows: [
-        { item: appearanceRow, kind: "nav", surface: "appearance" },
-        { item: lookRow, kind: "nav", surface: "look" },
-        { item: displayRow, kind: "nav", surface: "display" },
-        { item: inputRow, kind: "nav", surface: "input" },
-        { item: animationRow, kind: "nav", surface: "animation" },
-        { item: keybindsRow, kind: "nav", surface: "keybinds" },
-        { item: workspacesRow, kind: "nav", surface: "workspaces" },
-        { item: idleRow, kind: "nav", surface: "idlelock" }
-    ]
-
     Column {
         id: content
         anchors.top: parent.top
@@ -40,6 +29,7 @@ SettingsSurface {
         SettingsRow {
             id: appearanceRow
             surface: root
+            navTarget: "appearance"
             icon: "sparkles"
             name: "Appearance"
             sub: "Clock, accent palette, scale"
@@ -56,6 +46,7 @@ SettingsSurface {
         SettingsRow {
             id: lookRow
             surface: root
+            navTarget: "look"
             icon: "app-window"
             name: "Look"
             sub: "Gaps, rounding, blur, opacity"
@@ -72,6 +63,7 @@ SettingsSurface {
         SettingsRow {
             id: displayRow
             surface: root
+            navTarget: "display"
             icon: "monitor"
             name: "Display"
             sub: "Resolution, refresh, scale"
@@ -88,6 +80,7 @@ SettingsSurface {
         SettingsRow {
             id: inputRow
             surface: root
+            navTarget: "input"
             icon: "mouse"
             name: "Input"
             sub: "Pointer, keyboard, cursor"
@@ -104,6 +97,7 @@ SettingsSurface {
         SettingsRow {
             id: animationRow
             surface: root
+            navTarget: "animation"
             icon: "waves"
             name: "Animation"
             sub: "Speed, motion curve, enable"
@@ -120,6 +114,7 @@ SettingsSurface {
         SettingsRow {
             id: keybindsRow
             surface: root
+            navTarget: "keybinds"
             icon: "keyboard"
             name: "Keybinds"
             sub: "Rebind, add, set commands"
@@ -136,6 +131,7 @@ SettingsSurface {
         SettingsRow {
             id: workspacesRow
             surface: root
+            navTarget: "workspaces"
             icon: "layers"
             name: "Workspaces"
             sub: "Special spaces and their keys"
@@ -152,6 +148,7 @@ SettingsSurface {
         SettingsRow {
             id: idleRow
             surface: root
+            navTarget: "idlelock"
             icon: "lock"
             name: "Idle / Lock"
             sub: "Auto-lock, screen off, suspend"

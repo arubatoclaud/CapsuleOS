@@ -98,17 +98,6 @@ SettingsSurface {
         }
     }
 
-    rows: [
-        { item: timeRow, kind: "seg", vals: root.timeEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("time12h"); }, set: function (v) { Store.set("time12h", v); } },
-        { item: secRow, kind: "toggle", get: function () { return Store.get("clockSeconds"); }, set: function (v) { Store.set("clockSeconds", v); } },
-        { item: vizRow, kind: "toggle", get: function () { return Store.get("musicViz"); }, set: function (v) { Store.set("musicViz", v); } },
-        { item: paletteRow, kind: "seg", vals: root.paletteEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("paletteMode"); }, set: function (v) { root.applyMode(v); } },
-        { item: randomRow, kind: "seg", vals: root.randomEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("randomScope"); }, set: function (v) { Store.set("randomScope", v); } },
-        { item: scaleRow, kind: "seg", vals: root.scaleEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("uiScale"); }, set: function (v) { Store.set("uiScale", v); } },
-        { item: motionRow, kind: "toggle", get: function () { return Store.get("reduceMotion"); }, set: function (v) { Store.set("reduceMotion", v); } },
-        { item: fontRow, kind: "nav", surface: "fontpicker" }
-    ]
-
     Column {
         id: content
         anchors.top: parent.top
@@ -128,6 +117,7 @@ SettingsSurface {
         SettingsRow {
             id: timeRow
             surface: root
+            settingId: "time12h"
             name: root.timeEntry.label
             icon: "clock"
 
@@ -142,6 +132,7 @@ SettingsSurface {
         SettingsRow {
             id: secRow
             surface: root
+            settingId: "clockSeconds"
             name: root.secEntry.label
             icon: "stopwatch"
 
@@ -155,6 +146,7 @@ SettingsSurface {
         SettingsRow {
             id: vizRow
             surface: root
+            settingId: "musicViz"
             name: root.vizEntry.label
             icon: "music"
 
@@ -168,6 +160,8 @@ SettingsSurface {
         SettingsRow {
             id: paletteRow
             surface: root
+            settingId: "paletteMode"
+            navSet: (v) => root.applyMode(v)
             name: root.paletteEntry.label
             icon: "palette"
 
@@ -377,6 +371,7 @@ SettingsSurface {
         SettingsRow {
             id: randomRow
             surface: root
+            settingId: "randomScope"
             name: root.randomEntry.label
             icon: "monitor"
 
@@ -391,6 +386,7 @@ SettingsSurface {
         SettingsRow {
             id: scaleRow
             surface: root
+            settingId: "uiScale"
             name: root.scaleEntry.label
             icon: "scaling"
 
@@ -405,6 +401,7 @@ SettingsSurface {
         SettingsRow {
             id: motionRow
             surface: root
+            settingId: "reduceMotion"
             name: root.motionEntry.label
             icon: "waves"
 
@@ -418,6 +415,8 @@ SettingsSurface {
         SettingsRow {
             id: fontRow
             surface: root
+            settingId: "uiFont"
+            navTarget: "fontpicker"
             name: root.fontEntry.label
             icon: "type"
             sub: Store.get("uiFont").length > 0 ? Store.get("uiFont") : "Inter"

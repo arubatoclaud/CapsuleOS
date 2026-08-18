@@ -47,9 +47,17 @@ Column {
         }
     }
 
+    /**
+     * Going invisible once the fold has finished closing is what drops the
+     * group's rows out of keyboard navigation: `visible` composes down the
+     * parent chain, so a SettingsRow inside a shut group stops claiming its nav
+     * slot without the page mirroring `open` in a registry. Tied to the
+     * animated height rather than `open` so the collapse still plays in full.
+     */
     Item {
         width: parent.width
         height: grp.open ? body.implicitHeight : 0
+        visible: height > 0
         clip: true
         Behavior on height { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
 

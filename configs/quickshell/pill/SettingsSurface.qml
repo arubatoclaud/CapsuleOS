@@ -7,10 +7,17 @@ import "Singletons"
  * Shared base for the morphing settings surfaces: the category index and each
  * sub-surface. Carries the keyboard-navigable row registry and the glowing
  * row-soul seam, and morphs back to the parent index when empty space is clicked
- * on a sub-surface. The deriving surface sets `rows`, optionally `backSurface`,
- * and lays out its own content column (header, section labels, SettingsRow lines).
+ * on a sub-surface. The deriving surface optionally sets `backSurface` and lays
+ * out its own content column (header, section labels, SettingsRow lines).
  *
- * Each `rows` entry pairs a row item with its control kind and the backing getter
+ * `rows` is derived, not written: each row lodges a SettingsNav claim while it
+ * is on screen, and this surface orders the live claims by where they sit on
+ * the page. Pages used to hand-write the same list a second time — kinds,
+ * getters, setters and a mirror of every visibility condition — and keep it in
+ * sync with `Connections` and conditional sub-arrays (audit P1-7); a row that
+ * folds away now simply stops claiming its slot.
+ *
+ * Each entry pairs a row item with its control kind and the backing getter
  * and setter: `seg` cycles a segmented choice (wrapping), `toggle` flips a
  * boolean, `scrub` bumps a numeric scrub through its `bump(dir)`, `nav` morphs
  * to another surface. The host routes arrow keys through `kbMove`,
@@ -35,7 +42,73 @@ PillSurface {
 
     property Item focusRowItem: null
     property int kbIndex: -1
+
+    /** Live SettingsNav claims in the order they lodged, i.e. creation order. */
+    property var navClaims: []
+    /** The claims that are on screen, ordered down the page. Derived; never assigned by a page. */
     property var rows: []
+    /** Set when the claim set changes; the list re-sorts on next use, once layout has settled. */
+    property bool navStale: true
+
+    function registerNav(n) {
+        if (root.navClaims.indexOf(n) < 0) {
+            root.navClaims.push(n);
+            root.navStale = true;
+        }
+    }
+
+    function unregisterNav(n) {
+        var i = root.navClaims.indexOf(n);
+        if (i >= 0) {
+            root.navClaims.splice(i, 1);
+            root.navStale = true;
+        }
+    }
+
+    /**
+     * Rebuilds `rows` from the visible claims, ordered by where each row lands
+     * in surface coordinates — so the arrow keys walk the page exactly as the
+     * eye does, whatever order the rows happened to be constructed in. Rows
+     * sitting at the same height (none today) fall back to creation order.
+     *
+     * The sort is deliberately lazy: a group folding open changes the claim set
+     * long before the positioner has settled, and every consumer below reaches
+     * for the list only on a real hover or key press, by which time `mapToItem`
+     * tells the truth.
+     */
+    function rebuildNav() {
+        var live = [];
+        for (var i = 0; i < root.navClaims.length; i++) {
+            var n = root.navClaims[i];
+            if (n && n.item && n.item.visible)
+                live.push({ claim: n, y: n.item.mapToItem(root, 0, 0).y, born: i });
+        }
+        live.sort(function (a, b) {
+            return a.y !== b.y ? a.y - b.y : a.born - b.born;
+        });
+
+        var out = [];
+        for (var j = 0; j < live.length; j++)
+            out.push(live[j].claim);
+        root.rows = out;
+        root.navStale = false;
+
+        // Keep the seam on the row it was already on; if that row just folded
+        // away, stay in range rather than leaving kbIndex pointing past the end.
+        var idx = -1;
+        for (var k = 0; k < out.length; k++)
+            if (out[k].item === root.focusRowItem) {
+                idx = k;
+                break;
+            }
+        root.kbIndex = idx >= 0 ? idx : Math.min(root.kbIndex, out.length - 1);
+    }
+
+    function navRows() {
+        if (root.navStale)
+            root.rebuildNav();
+        return root.rows;
+    }
 
     function reportRowHover(item, hovered) {
         if (hovered) {
@@ -49,8 +122,9 @@ PillSurface {
     }
 
     function rowIndexOf(item) {
-        for (var i = 0; i < rows.length; i++)
-            if (rows[i].item === item)
+        var list = root.navRows();
+        for (var i = 0; i < list.length; i++)
+            if (list[i].item === item)
                 return i;
         return -1;
     }
@@ -63,20 +137,22 @@ PillSurface {
     }
 
     function kbMove(dir) {
-        if (!rows.length)
+        var list = root.navRows();
+        if (!list.length)
             return;
-        kbIndex = Math.max(0, Math.min(rows.length - 1, (kbIndex < 0 ? 0 : kbIndex + dir)));
-        focusRowItem = rows[kbIndex].item;
+        kbIndex = Math.max(0, Math.min(list.length - 1, (kbIndex < 0 ? 0 : kbIndex + dir)));
+        focusRowItem = list[kbIndex].item;
     }
 
     function kbAdjust(dir) {
-        if (!rows.length)
+        var list = root.navRows();
+        if (!list.length)
             return;
         if (kbIndex < 0) {
             kbIndex = 0;
-            focusRowItem = rows[0].item;
+            focusRowItem = list[0].item;
         }
-        var r = rows[kbIndex];
+        var r = list[kbIndex];
         if (r.kind === "seg")
             segCycle(r, dir);
         else if (r.kind === "toggle")
@@ -86,13 +162,14 @@ PillSurface {
     }
 
     function kbActivate() {
-        if (kbIndex < 0)
+        var list = root.navRows();
+        if (kbIndex < 0 || kbIndex >= list.length)
             return;
-        var r = rows[kbIndex];
+        var r = list[kbIndex];
         if (r.kind === "toggle")
             r.set(!r.get());
         else if (r.kind === "nav")
-            root.requestSurface(r.surface);
+            root.requestSurface(r.navTarget);
         else if (r.kind === "seg")
             segCycle(r, 1);
     }
@@ -109,11 +186,11 @@ PillSurface {
             return;
         kbIndex = idx;
         focusRowItem = item;
-        var r = rows[idx];
+        var r = root.rows[idx];
         if (r.kind === "toggle")
             r.set(!r.get());
         else if (r.kind === "nav")
-            root.requestSurface(r.surface);
+            root.requestSurface(r.navTarget);
     }
 
     readonly property bool rowFocused: focusRowItem !== null && active

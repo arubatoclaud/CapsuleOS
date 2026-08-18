@@ -33,21 +33,6 @@ SettingsSurface {
     backSurface: "settings"
     implicitHeight: content.implicitHeight
 
-    /**
-     * Keyboard row registry: the enabled toggle always, the speed scrub only
-     * while animations are on (its row is folded away otherwise). The curve
-     * editor and preset strip stay mouse-only — a 2D handle drag has no single
-     * bump axis.
-     */
-    rows: {
-        var r = [{ item: enabledRow, kind: "toggle", get: function () { return root.animOn; }, set: function (v) { root.writeEnabled(v); } }];
-        if (root.animOn) {
-            r.push({ item: motionRow, kind: "seg", vals: ["calm", "spring", "glide"], get: function () { return Store.get("motion"); }, set: function (v) { root.applyMotion(v); } });
-            r.push({ item: speedRow, kind: "scrub", bump: function (d) { speedScrub.bump(d); } });
-        }
-        return r;
-    }
-
     readonly property bool animOn: Store.get("animEnabled")
     property real speed: 3
     property var base: ({})
@@ -198,6 +183,8 @@ SettingsSurface {
         SettingsRow {
             id: enabledRow
             surface: root
+            settingId: "animEnabled"
+            navSet: (v) => root.writeEnabled(v)
             name: "Enabled"
             sub: "Animate windows, workspaces and fades"
             captionOnFocus: true
@@ -213,6 +200,8 @@ SettingsSurface {
         SettingsRow {
             id: motionRow
             surface: root
+            settingId: "motion"
+            navSet: (v) => root.applyMotion(v)
             name: "Motion"
             sub: "Calm settles, spring overshoots, glide stretches"
             captionOnFocus: true
@@ -229,6 +218,7 @@ SettingsSurface {
         SettingsRow {
             id: speedRow
             surface: root
+            settingId: "animSpeed"
             name: "Speed"
             sub: "Duration in deciseconds — lower is snappier"
             captionOnFocus: true
@@ -436,6 +426,11 @@ SettingsSurface {
             }
         }
 
+        /**
+         * Preset and the curve editor above it stay mouse-only, and so claim no
+         * nav slot: a 2D handle drag has no single bump axis, and the preset
+         * strip is a one-shot stamp rather than a value to cycle.
+         */
         SettingsRow {
             surface: root
             name: "Preset"

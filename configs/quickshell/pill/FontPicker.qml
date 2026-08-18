@@ -18,7 +18,6 @@ SettingsSurface {
 
     backSurface: "appearance"
     implicitHeight: content.implicitHeight
-    rows: []
 
     property string query: ""
     property int focusIndex: 0

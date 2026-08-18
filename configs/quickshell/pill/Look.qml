@@ -68,65 +68,6 @@ SettingsSurface {
     readonly property var autoHideEntry: Schema.settings.autoHide
     readonly property var autoHideDelayEntry: Schema.settings.autoHideDelay
 
-    /**
-     * Row registry, rebound whenever a group folds or a dependent toggle flips so
-     * keyboard navigation never lands on a hidden line. Scrub rows expose a bump
-     * that steps their ScrubValue one increment.
-     */
-    rows: {
-        var r = [];
-        if (winGrp.open) {
-            r.push({ item: gapsInRow, kind: "scrub", bump: function (d) { gapsInScrub.bump(d); } });
-            r.push({ item: gapsOutRow, kind: "scrub", bump: function (d) { gapsOutScrub.bump(d); } });
-            r.push({ item: roundRow, kind: "scrub", bump: function (d) { roundScrub.bump(d); } });
-            r.push({ item: roundPowRow, kind: "scrub", bump: function (d) { roundPowScrub.bump(d); } });
-            r.push({ item: borderRow, kind: "scrub", bump: function (d) { borderScrub.bump(d); } });
-            r.push({ item: resizeRow, kind: "toggle", get: function () { return Store.get("resizeOnBorder"); }, set: function (v) { Store.set("resizeOnBorder", v); } });
-            r.push({ item: layoutRow, kind: "seg", vals: root.layoutEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("layout"); }, set: function (v) { Store.set("layout", v); } });
-        }
-        if (nightGrp.open) {
-            r.push({ item: nlModeRow, kind: "seg", vals: root.nightLightModeEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("nightLightMode"); }, set: function (v) { Store.set("nightLightMode", v); } });
-            if (Store.get("nightLightMode") !== "off")
-                r.push({ item: nlTempRow, kind: "scrub", bump: function (d) { nlTempScrub.bump(d); } });
-            if (Store.get("nightLightMode") === "scheduled") {
-                r.push({ item: nlOnRow, kind: "scrub", bump: function (d) { nlOnScrub.bump(d); } });
-                r.push({ item: nlOffRow, kind: "scrub", bump: function (d) { nlOffScrub.bump(d); } });
-            }
-        }
-        if (shadowGrp.open) {
-            r.push({ item: shEnRow, kind: "toggle", get: function () { return Store.get("shadowEnabled"); }, set: function (v) { Store.set("shadowEnabled", v); } });
-            if (Store.get("shadowEnabled")) {
-                r.push({ item: shRangeRow, kind: "scrub", bump: function (d) { shRangeScrub.bump(d); } });
-                r.push({ item: shPowRow, kind: "scrub", bump: function (d) { shPowScrub.bump(d); } });
-            }
-        }
-        if (blurGrp.open) {
-            r.push({ item: blEnRow, kind: "toggle", get: function () { return Store.get("blurEnabled"); }, set: function (v) { Store.set("blurEnabled", v); } });
-            if (Store.get("blurEnabled")) {
-                r.push({ item: blSizeRow, kind: "scrub", bump: function (d) { blSizeScrub.bump(d); } });
-                r.push({ item: blPassRow, kind: "scrub", bump: function (d) { blPassScrub.bump(d); } });
-                r.push({ item: blVibRow, kind: "scrub", bump: function (d) { blVibScrub.bump(d); } });
-                r.push({ item: blNoiseRow, kind: "scrub", bump: function (d) { blNoiseScrub.bump(d); } });
-            }
-        }
-        if (opGrp.open) {
-            r.push({ item: opActRow, kind: "scrub", bump: function (d) { opActScrub.bump(d); } });
-            r.push({ item: opInactRow, kind: "scrub", bump: function (d) { opInactScrub.bump(d); } });
-            r.push({ item: opTermRow, kind: "scrub", bump: function (d) { opTermScrub.bump(d); } });
-        }
-        if (pillGrp.open) {
-            r.push({ item: pillGapRow, kind: "scrub", bump: function (d) { pillGapScrub.bump(d); } });
-            r.push({ item: appGapRow, kind: "scrub", bump: function (d) { appGapScrub.bump(d); } });
-            r.push({ item: pillOpRow, kind: "scrub", bump: function (d) { pillOpScrub.bump(d); } });
-            r.push({ item: pillBlurRow, kind: "toggle", get: function () { return Store.get("pillBlur"); }, set: function (v) { root.setPillBlur(v); } });
-            r.push({ item: materialRow, kind: "seg", vals: root.materialEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("material"); }, set: function (v) { root.setMaterial(v); } });
-            r.push({ item: autoHideRow, kind: "toggle", get: function () { return Store.get("autoHide"); }, set: function (v) { Store.set("autoHide", v); } });
-            if (Store.get("autoHide"))
-                r.push({ item: hideDelayRow, kind: "seg", vals: root.autoHideDelayEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("autoHideDelay"); }, set: function (v) { Store.set("autoHideDelay", v); } });
-        }
-        return r;
-    }
-
     readonly property string pillBlurRule: 'hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })\n'
 
     /** Per-field values captured on each open; the ScrubValue undo glyphs revert to these. */
@@ -327,6 +268,7 @@ SettingsSurface {
             SettingsRow {
                 id: gapsInRow
                 surface: root
+                settingId: "gapsIn"
                 name: root.gapsInEntry.label
                 sub: root.gapsInEntry.caption
                 captionOnFocus: true
@@ -343,6 +285,7 @@ SettingsSurface {
             SettingsRow {
                 id: gapsOutRow
                 surface: root
+                settingId: "gapsOut"
                 name: root.gapsOutEntry.label
                 sub: root.gapsOutEntry.caption
                 captionOnFocus: true
@@ -359,6 +302,7 @@ SettingsSurface {
             SettingsRow {
                 id: roundRow
                 surface: root
+                settingId: "rounding"
                 name: root.roundingEntry.label
                 sub: root.roundingEntry.caption
                 captionOnFocus: true
@@ -375,6 +319,7 @@ SettingsSurface {
             SettingsRow {
                 id: roundPowRow
                 surface: root
+                settingId: "roundingPower"
                 name: root.roundingPowerEntry.label
                 sub: root.roundingPowerEntry.caption
                 captionOnFocus: true
@@ -391,6 +336,7 @@ SettingsSurface {
             SettingsRow {
                 id: borderRow
                 surface: root
+                settingId: "borderSize"
                 name: root.borderSizeEntry.label
                 sub: root.borderSizeEntry.caption
                 captionOnFocus: true
@@ -407,6 +353,7 @@ SettingsSurface {
             SettingsRow {
                 id: resizeRow
                 surface: root
+                settingId: "resizeOnBorder"
                 name: root.resizeOnBorderEntry.label
                 sub: root.resizeOnBorderEntry.caption
                 captionOnFocus: true
@@ -420,6 +367,7 @@ SettingsSurface {
             SettingsRow {
                 id: layoutRow
                 surface: root
+                settingId: "layout"
                 name: root.layoutEntry.label
                 sub: root.layoutEntry.caption
                 captionOnFocus: true
@@ -439,6 +387,7 @@ SettingsSurface {
             SettingsRow {
                 id: nlModeRow
                 surface: root
+                settingId: "nightLightMode"
                 name: root.nightLightModeEntry.label
                 sub: root.nightLightModeEntry.caption
                 captionOnFocus: true
@@ -454,6 +403,7 @@ SettingsSurface {
             SettingsRow {
                 id: nlTempRow
                 surface: root
+                settingId: "nightLightTemp"
                 name: root.nightLightTempEntry.label
                 sub: root.nightLightTempEntry.caption
                 captionOnFocus: true
@@ -472,6 +422,7 @@ SettingsSurface {
             SettingsRow {
                 id: nlOnRow
                 surface: root
+                settingId: "nightLightOnMin"
                 name: root.nightLightOnMinEntry.label
                 sub: root.nightLightOnMinEntry.caption
                 captionOnFocus: true
@@ -490,6 +441,7 @@ SettingsSurface {
             SettingsRow {
                 id: nlOffRow
                 surface: root
+                settingId: "nightLightOffMin"
                 name: root.nightLightOffMinEntry.label
                 sub: root.nightLightOffMinEntry.caption
                 captionOnFocus: true
@@ -513,6 +465,7 @@ SettingsSurface {
             SettingsRow {
                 id: shEnRow
                 surface: root
+                settingId: "shadowEnabled"
                 name: root.shadowEnabledEntry.label
                 sub: root.shadowEnabledEntry.caption
                 captionOnFocus: true
@@ -527,6 +480,7 @@ SettingsSurface {
             SettingsRow {
                 id: shRangeRow
                 surface: root
+                settingId: "shadowRange"
                 name: root.shadowRangeEntry.label
                 sub: root.shadowRangeEntry.caption
                 captionOnFocus: true
@@ -544,6 +498,7 @@ SettingsSurface {
             SettingsRow {
                 id: shPowRow
                 surface: root
+                settingId: "shadowRenderPower"
                 name: root.shadowRenderPowerEntry.label
                 sub: root.shadowRenderPowerEntry.caption
                 captionOnFocus: true
@@ -566,6 +521,7 @@ SettingsSurface {
             SettingsRow {
                 id: blEnRow
                 surface: root
+                settingId: "blurEnabled"
                 name: root.blurEnabledEntry.label
                 sub: root.blurEnabledEntry.caption
                 captionOnFocus: true
@@ -580,6 +536,7 @@ SettingsSurface {
             SettingsRow {
                 id: blSizeRow
                 surface: root
+                settingId: "blurSize"
                 name: root.blurSizeEntry.label
                 sub: root.blurSizeEntry.caption
                 captionOnFocus: true
@@ -597,6 +554,7 @@ SettingsSurface {
             SettingsRow {
                 id: blPassRow
                 surface: root
+                settingId: "blurPasses"
                 name: root.blurPassesEntry.label
                 sub: root.blurPassesEntry.caption
                 captionOnFocus: true
@@ -614,6 +572,7 @@ SettingsSurface {
             SettingsRow {
                 id: blVibRow
                 surface: root
+                settingId: "blurVibrancy"
                 name: root.blurVibrancyEntry.label
                 sub: root.blurVibrancyEntry.caption
                 captionOnFocus: true
@@ -631,6 +590,7 @@ SettingsSurface {
             SettingsRow {
                 id: blNoiseRow
                 surface: root
+                settingId: "blurNoise"
                 name: root.blurNoiseEntry.label
                 sub: root.blurNoiseEntry.caption
                 captionOnFocus: true
@@ -653,6 +613,7 @@ SettingsSurface {
             SettingsRow {
                 id: opActRow
                 surface: root
+                settingId: "activeOpacity"
                 name: root.activeOpacityEntry.label
                 sub: root.activeOpacityEntry.caption
                 captionOnFocus: true
@@ -669,6 +630,7 @@ SettingsSurface {
             SettingsRow {
                 id: opInactRow
                 surface: root
+                settingId: "inactiveOpacity"
                 name: root.inactiveOpacityEntry.label
                 sub: root.inactiveOpacityEntry.caption
                 captionOnFocus: true
@@ -685,6 +647,7 @@ SettingsSurface {
             SettingsRow {
                 id: opTermRow
                 surface: root
+                settingId: "termBgOpacity"
                 name: root.termBgOpacityEntry.label
                 sub: root.termBgOpacityEntry.caption
                 captionOnFocus: true
@@ -706,6 +669,7 @@ SettingsSurface {
             SettingsRow {
                 id: pillGapRow
                 surface: root
+                settingId: "topGap"
                 name: root.topGapEntry.label
                 sub: root.topGapEntry.caption
                 captionOnFocus: true
@@ -722,6 +686,7 @@ SettingsSurface {
             SettingsRow {
                 id: appGapRow
                 surface: root
+                settingId: "appGap"
                 name: root.appGapEntry.label
                 sub: root.appGapEntry.caption
                 captionOnFocus: true
@@ -738,6 +703,7 @@ SettingsSurface {
             SettingsRow {
                 id: pillOpRow
                 surface: root
+                settingId: "pillOpacity"
                 name: root.pillOpacityEntry.label
                 sub: root.pillOpacityEntry.caption
                 captionOnFocus: true
@@ -754,6 +720,8 @@ SettingsSurface {
             SettingsRow {
                 id: pillBlurRow
                 surface: root
+                settingId: "pillBlur"
+                                navSet: (v) => root.setPillBlur(v)
                 name: root.pillBlurEntry.label
                 sub: root.pillBlurEntry.caption
                 captionOnFocus: true
@@ -767,6 +735,8 @@ SettingsSurface {
             SettingsRow {
                 id: materialRow
                 surface: root
+                settingId: "material"
+                                navSet: (v) => root.setMaterial(v)
                 name: root.materialEntry.label
                 sub: root.materialEntry.caption
                 captionOnFocus: true
@@ -781,6 +751,7 @@ SettingsSurface {
             SettingsRow {
                 id: autoHideRow
                 surface: root
+                settingId: "autoHide"
                 name: root.autoHideEntry.label
                 sub: root.autoHideEntry.caption
                 captionOnFocus: true
@@ -795,6 +766,7 @@ SettingsSurface {
             SettingsRow {
                 id: hideDelayRow
                 surface: root
+                settingId: "autoHideDelay"
                 name: root.autoHideDelayEntry.label
                 sub: root.autoHideDelayEntry.caption
                 captionOnFocus: true
