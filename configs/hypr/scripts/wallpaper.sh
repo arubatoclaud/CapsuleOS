@@ -192,7 +192,7 @@ sync_videos() {
 # implements the notification daemon, so a critical toast gets the user to
 # the log without wallpaper setting itself ever failing on a notify hiccup.
 wallcolors_failed() {
-    command -v notify-send >/dev/null 2>&1 && notify-send -u critical "PillOS" "Wallpaper color pipeline failed — see ~/.local/state/pillos/wallcolors.log" || true
+    command -v notify-send >/dev/null 2>&1 && notify-send -u critical "PillOS" "Wallpaper color pipeline failed — see $WLOG" || true
 }
 
 # The palette follows the focused monitor: whatever hangs there drives matugen,

@@ -224,7 +224,7 @@ SettingsSurface {
             surface: root
             settingId: "motion"
             navSet: (v) => root.applyMotion(v)
-            name: "Feel"
+            name: Schema.settings.motion.label
             sub: "Sets curve and speed together — calm settles, spring overshoots, glide stretches"
             captionOnFocus: true
             icon: "waves"
@@ -241,7 +241,7 @@ SettingsSurface {
             id: speedRow
             surface: root
             settingId: "animSpeed"
-            name: "Speed"
+            name: Schema.settings.animSpeed.label
             sub: "Duration in deciseconds — lower is snappier"
             captionOnFocus: true
             icon: "bolt"

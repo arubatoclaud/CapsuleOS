@@ -98,6 +98,6 @@ Item {
         font.family: Theme.font
         font.pixelSize: 10 * root.s
         font.weight: Font.DemiBold
-        font.features: { "tnum": 1 }
+        font.features: ({ "tnum": 1 })
     }
 }

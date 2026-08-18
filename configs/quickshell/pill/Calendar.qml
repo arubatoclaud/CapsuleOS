@@ -263,7 +263,7 @@ PillSurface {
                         font.family: Theme.font
                         font.pixelSize: 26 * root.s
                         font.weight: Font.DemiBold
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                     }
                     Text {
                         text: Weather.labelFor(Weather.codeNow)
@@ -373,7 +373,7 @@ PillSurface {
                         font.family: Theme.font
                         font.pixelSize: 9.5 * root.s
                         font.weight: Font.Medium
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                     }
                 }
             }
@@ -421,7 +421,7 @@ PillSurface {
                             font.family: Theme.font
                             font.pixelSize: 11 * root.s
                             font.weight: Font.Medium
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                         }
                         Row {
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -442,7 +442,7 @@ PillSurface {
                                 font.family: Theme.font
                                 font.pixelSize: 8.5 * root.s
                                 font.weight: Font.Medium
-                                font.features: { "tnum": 1 }
+                                font.features: ({ "tnum": 1 })
                             }
                         }
                     }
@@ -651,7 +651,7 @@ PillSurface {
                         font.family: Theme.font
                         font.pixelSize: 11 * root.s
                         font.weight: cell.current || cell.hasEvent ? Font.DemiBold : Font.Normal
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                     }
 
                     Rectangle {
@@ -909,7 +909,7 @@ PillSurface {
                                         font.family: Theme.font
                                         font.pixelSize: 9 * root.s
                                         font.weight: Font.DemiBold
-                                        font.features: { "tnum": 1 }
+                                        font.features: ({ "tnum": 1 })
                                         wrapMode: Text.Wrap
                                         elide: Text.ElideRight
                                     }
@@ -1057,7 +1057,7 @@ PillSurface {
                         color: Theme.cream
                         font.family: Theme.font
                         font.pixelSize: 13 * root.s
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                         placeholderText: "09:00"
                         placeholderTextColor: Theme.faint
                         inputMethodHints: Qt.ImhPreferNumbers
@@ -1091,7 +1091,7 @@ PillSurface {
                         color: Theme.cream
                         font.family: Theme.font
                         font.pixelSize: 13 * root.s
-                        font.features: { "tnum": 1 }
+                        font.features: ({ "tnum": 1 })
                         placeholderText: "until"
                         placeholderTextColor: Theme.faint
                         inputMethodHints: Qt.ImhPreferNumbers
@@ -1171,7 +1171,7 @@ PillSurface {
                             font.family: Theme.font
                             font.pixelSize: 11 * root.s
                             font.weight: Font.Medium
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                         }
                     }
                 }

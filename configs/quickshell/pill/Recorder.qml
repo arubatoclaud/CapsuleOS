@@ -433,7 +433,7 @@ PillSurface {
                     font.weight: Font.Bold
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1.2 * root.s
-                    font.features: { "tnum": 1 }
+                    font.features: ({ "tnum": 1 })
                 }
             }
         }
@@ -539,7 +539,7 @@ PillSurface {
                             color: Theme.subtle
                             font.family: Theme.font
                             font.pixelSize: 10.5 * root.s
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                             elide: Text.ElideRight
                         }
                     }
@@ -753,7 +753,7 @@ PillSurface {
                     font.family: Theme.font
                     font.pixelSize: 24 * root.s
                     font.weight: Font.ExtraBold
-                    font.features: { "tnum": 1 }
+                    font.features: ({ "tnum": 1 })
                 }
 
                 Text {
@@ -911,7 +911,7 @@ PillSurface {
                                 color: Theme.subtle
                                 font.family: Theme.font
                                 font.pixelSize: 9.5 * root.s
-                                font.features: { "tnum": 1 }
+                                font.features: ({ "tnum": 1 })
                             }
                         }
 
@@ -1329,7 +1329,7 @@ PillSurface {
                             font.family: Theme.font
                             font.pixelSize: 9 * root.s
                             font.weight: Font.DemiBold
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                             elide: Text.ElideRight
                             maximumLineCount: 1
                         }
@@ -1343,7 +1343,7 @@ PillSurface {
                             font.family: Theme.font
                             font.pixelSize: 8.5 * root.s
                             font.weight: Font.DemiBold
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                         }
                     }
 

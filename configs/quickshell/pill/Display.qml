@@ -650,7 +650,7 @@ SettingsSurface {
                                 font.family: Theme.font
                                 font.pixelSize: 8.5 * root.s
                                 font.weight: Font.Medium
-                                font.features: { "tnum": 1 }
+                                font.features: ({ "tnum": 1 })
                             }
                         }
 

@@ -25,7 +25,7 @@ Row {
         font.family: Theme.font
         font.pixelSize: 10.5 * lbl.s
         font.weight: lbl.weight
-        font.features: { "tnum": 1 }
+        font.features: ({ "tnum": 1 })
     }
 
     Text {
@@ -46,6 +46,6 @@ Row {
         font.family: Theme.font
         font.pixelSize: 10.5 * lbl.s
         font.weight: lbl.weight
-        font.features: { "tnum": 1 }
+        font.features: ({ "tnum": 1 })
     }
 }

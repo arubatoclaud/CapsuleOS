@@ -228,14 +228,14 @@ Item {
             id: volPct
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            width: 32 * root.s
+            width: 40 * root.s
             horizontalAlignment: Text.AlignRight
             text: root.muted ? "Muted" : Math.round(root.volume * 100) + "%"
             color: root.muted ? Theme.dim : Theme.cream
             font.family: Theme.font
             font.pixelSize: 11 * root.s
             font.weight: Font.DemiBold
-            font.features: { "tnum": 1 }
+            font.features: ({ "tnum": 1 })
         }
 
         Rectangle {
@@ -399,7 +399,7 @@ Item {
             font.family: Theme.font
             font.pixelSize: 11 * root.s
             font.weight: Font.DemiBold
-            font.features: { "tnum": 1 }
+            font.features: ({ "tnum": 1 })
         }
 
         Rectangle {
@@ -453,7 +453,7 @@ Item {
             font.family: Theme.font
             font.pixelSize: 11 * root.s
             font.weight: Font.DemiBold
-            font.features: { "tnum": 1 }
+            font.features: ({ "tnum": 1 })
         }
 
         Rectangle {

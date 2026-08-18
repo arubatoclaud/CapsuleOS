@@ -317,7 +317,7 @@ PillSurface {
                     color: Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 10.5 * root.s
-                    font.features: { "tnum": 1 }
+                    font.features: ({ "tnum": 1 })
                 }
 
                 Item {

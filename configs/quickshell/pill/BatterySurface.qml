@@ -103,7 +103,7 @@ PillSurface {
                 font.pixelSize: 46 * root.s
                 font.weight: Font.Bold
                 font.letterSpacing: -1 * root.s
-                font.features: { "tnum": 1 }
+                font.features: ({ "tnum": 1 })
             }
 
             Text {
@@ -175,7 +175,7 @@ PillSurface {
                     font.family: Theme.font
                     font.pixelSize: 12.5 * root.s
                     font.weight: Font.DemiBold
-                    font.features: { "tnum": 1 }
+                    font.features: ({ "tnum": 1 })
                 }
             }
 

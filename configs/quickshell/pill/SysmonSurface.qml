@@ -126,7 +126,7 @@ PillSurface {
                 font.pixelSize: (dial.shrink ? 16 : 20) * root.s
                 font.weight: Font.ExtraBold
                 font.letterSpacing: -0.5 * root.s
-                font.features: { "tnum": 1 }
+                font.features: ({ "tnum": 1 })
             }
             Text {
                 anchors.baseline: bigText.baseline
@@ -163,7 +163,7 @@ PillSurface {
                 font.family: Theme.font
                 font.pixelSize: 10.5 * root.s
                 font.weight: Font.Bold
-                font.features: { "tnum": 1 }
+                font.features: ({ "tnum": 1 })
             }
         }
     }
@@ -217,7 +217,7 @@ PillSurface {
                 font.weight: Font.Bold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.1 * root.s
-                font.features: { "tnum": 1 }
+                font.features: ({ "tnum": 1 })
             }
         }
 
@@ -319,7 +319,7 @@ PillSurface {
                                 font.family: Theme.font
                                 font.pixelSize: 13 * root.s
                                 font.weight: Font.ExtraBold
-                                font.features: { "tnum": 1 }
+                                font.features: ({ "tnum": 1 })
                             }
                             Text {
                                 text: "↑" + Sysmon.netUp.toFixed(1)
@@ -327,7 +327,7 @@ PillSurface {
                                 font.family: Theme.font
                                 font.pixelSize: 13 * root.s
                                 font.weight: Font.ExtraBold
-                                font.features: { "tnum": 1 }
+                                font.features: ({ "tnum": 1 })
                             }
                         }
 
@@ -341,7 +341,7 @@ PillSurface {
                             font.family: Theme.font
                             font.pixelSize: 13 * root.s
                             font.weight: Font.ExtraBold
-                            font.features: { "tnum": 1 }
+                            font.features: ({ "tnum": 1 })
                         }
                     }
                 }
