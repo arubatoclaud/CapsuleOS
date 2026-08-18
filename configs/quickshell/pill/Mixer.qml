@@ -202,7 +202,7 @@ PillSurface {
             width: 15 * root.s
             height: 15 * root.s
             name: chip.glyph
-            color: chip.on ? Theme.vermLit : Theme.iconDim
+            color: chip.on ? Theme.markLit : Theme.iconDim
             stroke: 1.7
         }
         HoverHandler {
@@ -238,10 +238,10 @@ PillSurface {
         width: 26 * root.s
         height: 26 * root.s
         radius: 8 * root.s
-        color: dchip.open ? Qt.alpha(Theme.onGlow, 0.14)
+        color: dchip.open ? Qt.alpha(Theme.markGlow, 0.14)
             : (dchipHover.hovered ? Theme.frameBg : "transparent")
         border.width: 1
-        border.color: dchip.open ? Qt.alpha(Theme.onGlow, 0.5) : Theme.border
+        border.color: dchip.open ? Qt.alpha(Theme.markGlow, 0.5) : Theme.border
         Behavior on color { ColorAnimation { duration: Motion.fast } }
 
         GlyphIcon {
@@ -249,7 +249,7 @@ PillSurface {
             width: 15 * root.s
             height: 15 * root.s
             name: dchip.glyph
-            color: dchip.open ? Theme.vermLit : Theme.iconDim
+            color: dchip.open ? Theme.markLit : Theme.iconDim
             stroke: 1.7
         }
         HoverHandler {
@@ -447,7 +447,7 @@ PillSurface {
                     height: 24 * root.s
                     radius: 7 * root.s
                     color: devRowHover.hovered ? Theme.frameBg
-                        : (devRow.current ? Qt.alpha(Theme.onGlow, 0.16) : "transparent")
+                        : (devRow.current ? Qt.alpha(Theme.markGlow, 0.16) : "transparent")
 
                     HoverHandler { id: devRowHover }
 

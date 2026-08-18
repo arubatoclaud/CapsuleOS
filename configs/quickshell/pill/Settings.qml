@@ -153,7 +153,7 @@ SettingsSurface {
                 placeholderText: "search settings"
                 placeholderTextColor: Theme.faint
                 selectByMouse: true
-                selectionColor: Theme.verm
+                selectionColor: Theme.markDeep
                 onTextChanged: root.query = text
                 Keys.onPressed: (e) => {
                     if (e.key === Qt.Key_Down) {

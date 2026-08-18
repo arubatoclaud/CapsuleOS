@@ -146,7 +146,7 @@ Column {
             anchors.fill: parent
             anchors.topMargin: 4 * picker.s
             anchors.bottomMargin: 4 * picker.s
-            property color stroke: Qt.alpha(Theme.vermLit, addArea.containsMouse ? 0.7 : 0.36)
+            property color stroke: Qt.alpha(Theme.markLit, addArea.containsMouse ? 0.7 : 0.36)
             onStrokeChanged: requestPaint()
             onWidthChanged: requestPaint()
             onHeightChanged: requestPaint()
@@ -181,7 +181,7 @@ Column {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "+"
-                color: Theme.vermLit
+                color: Theme.markLit
                 font.family: Theme.font
                 font.pixelSize: 14 * picker.s
                 font.weight: Font.Bold
@@ -189,7 +189,7 @@ Column {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Add app"
-                color: Theme.vermLit
+                color: Theme.markLit
                 font.family: Theme.font
                 font.pixelSize: 11 * picker.s
                 font.weight: Font.DemiBold

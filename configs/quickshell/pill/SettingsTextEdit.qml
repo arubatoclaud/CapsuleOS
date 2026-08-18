@@ -96,7 +96,7 @@ Item {
         placeholderText: edit.placeholder
         placeholderTextColor: Theme.faint
         selectByMouse: true
-        selectionColor: Theme.verm
+        selectionColor: Theme.markDeep
 
         onAccepted: edit.commit()
         Keys.onEscapePressed: edit.cancel()

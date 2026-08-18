@@ -314,7 +314,7 @@ PillSurface {
                     width: 26 * root.s
                     height: 26 * root.s
                     radius: 7 * root.s
-                    color: removeArea.containsMouse ? Qt.alpha(Theme.verm, 0.16) : "transparent"
+                    color: removeArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.16) : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     GlyphIcon {
@@ -322,7 +322,7 @@ PillSurface {
                         width: 13 * root.s
                         height: 13 * root.s
                         name: "close"
-                        color: removeArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                        color: removeArea.containsMouse ? Theme.markLit : Theme.iconDim
                         stroke: 2
                     }
 

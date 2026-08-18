@@ -240,7 +240,7 @@ PillSurface {
             font.pixelSize: 12.5 * root.s
             font.weight: Font.DemiBold
             selectByMouse: true
-            selectionColor: Theme.verm
+            selectionColor: Theme.markDeep
             text: root.editName
             onTextEdited: root.editName = text
             Keys.onPressed: (e) => {
@@ -263,9 +263,9 @@ PillSurface {
                     width: 22 * root.s
                     height: 22 * root.s
                     radius: 6 * root.s
-                    color: gchip.on ? Qt.alpha(Theme.vermLit, 0.12) : (gArea.containsMouse ? Theme.frameBg : "transparent")
+                    color: gchip.on ? Qt.alpha(Theme.markLit, 0.12) : (gArea.containsMouse ? Theme.frameBg : "transparent")
                     border.width: 1
-                    border.color: gchip.on ? Qt.alpha(Theme.vermLit, 0.55) : "transparent"
+                    border.color: gchip.on ? Qt.alpha(Theme.markLit, 0.55) : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     GlyphIcon {
@@ -273,7 +273,7 @@ PillSurface {
                         width: 13 * root.s
                         height: 13 * root.s
                         name: gchip.modelData
-                        color: gchip.on ? Theme.vermLit : Theme.iconDim
+                        color: gchip.on ? Theme.markLit : Theme.iconDim
                         stroke: 1.8
                     }
 
@@ -505,7 +505,7 @@ PillSurface {
                             width: 24 * root.s
                             height: 24 * root.s
                             radius: 7 * root.s
-                            color: wSaveArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : "transparent"
+                            color: wSaveArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : "transparent"
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                             GlyphIcon {
@@ -513,7 +513,7 @@ PillSurface {
                                 width: 13 * root.s
                                 height: 13 * root.s
                                 name: "check"
-                                color: wSaveArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                                color: wSaveArea.containsMouse ? Theme.markLit : Theme.iconDim
                                 stroke: 2
                             }
 
@@ -645,7 +645,7 @@ PillSurface {
                                 width: parent.width
                                 visible: crow.keyHint
                                 text: root.conflict.length > 0 ? root.conflict : "press a letter…  esc cancels"
-                                color: root.conflict.length > 0 ? Theme.vermLit : Theme.flameGlow
+                                color: root.conflict.length > 0 ? Theme.markLit : Theme.markGlow
                                 font.family: Theme.font
                                 font.pixelSize: 10.5 * root.s
                                 elide: Text.ElideRight
@@ -674,7 +674,7 @@ PillSurface {
                             height: 24 * root.s
                             radius: 7 * root.s
                             opacity: cHover.hovered ? 1 : 0
-                            color: cRemoveArea.containsMouse ? Qt.alpha(Theme.verm, 0.16) : "transparent"
+                            color: cRemoveArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.16) : "transparent"
                             Behavior on opacity { NumberAnimation { duration: Motion.fast } }
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -683,7 +683,7 @@ PillSurface {
                                 width: 12 * root.s
                                 height: 12 * root.s
                                 name: "close"
-                                color: cRemoveArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                                color: cRemoveArea.containsMouse ? Theme.markLit : Theme.iconDim
                                 stroke: 2
                             }
 
@@ -704,16 +704,16 @@ PillSurface {
                             width: cKeyText.implicitWidth + 16 * root.s
                             height: cKeyText.implicitHeight + 8 * root.s
                             radius: 7 * root.s
-                            color: crow.rebinding ? Qt.alpha(Theme.vermLit, 0.12) : Theme.frameBg
+                            color: crow.rebinding ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                             border.width: 1
-                            border.color: crow.rebinding ? Qt.alpha(Theme.vermLit, 0.55) : Theme.hairSoft
+                            border.color: crow.rebinding ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                             Text {
                                 id: cKeyText
                                 anchors.centerIn: parent
                                 text: crow.rebinding ? "…" : "Super + " + crow.modelData.key
-                                color: crow.rebinding ? Theme.flameGlow : Theme.subtle
+                                color: crow.rebinding ? Theme.markGlow : Theme.subtle
                                 font.family: Theme.font
                                 font.pixelSize: 11 * root.s
                                 font.weight: Font.Bold
@@ -734,7 +734,7 @@ PillSurface {
                             width: 24 * root.s
                             height: 24 * root.s
                             radius: 7 * root.s
-                            color: cSaveArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : "transparent"
+                            color: cSaveArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : "transparent"
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                             GlyphIcon {
@@ -742,7 +742,7 @@ PillSurface {
                                 width: 13 * root.s
                                 height: 13 * root.s
                                 name: "check"
-                                color: cSaveArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                                color: cSaveArea.containsMouse ? Theme.markLit : Theme.iconDim
                                 stroke: 2
                             }
 
@@ -788,7 +788,7 @@ PillSurface {
                     anchors.fill: parent
                     anchors.topMargin: 4 * root.s
                     anchors.bottomMargin: 4 * root.s
-                    property color stroke: Qt.alpha(Theme.vermLit, addArea.containsMouse ? 0.7 : 0.36)
+                    property color stroke: Qt.alpha(Theme.markLit, addArea.containsMouse ? 0.7 : 0.36)
                     onStrokeChanged: requestPaint()
                     onWidthChanged: requestPaint()
                     onHeightChanged: requestPaint()
@@ -823,7 +823,7 @@ PillSurface {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "+"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 14 * root.s
                         font.weight: Font.Bold
@@ -831,7 +831,7 @@ PillSurface {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "Add Workspace"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 11 * root.s
                         font.weight: Font.DemiBold
@@ -925,7 +925,7 @@ PillSurface {
                     radius: 8 * root.s
                     color: Theme.frameBg
                     border.width: 1
-                    border.color: nameField.activeFocus ? Qt.alpha(Theme.vermLit, 0.45) : Theme.hairSoft
+                    border.color: nameField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
 
                     TextField {
                         id: nameField
@@ -942,7 +942,7 @@ PillSurface {
                         placeholderText: "Discord"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         text: root.formName
                         onTextEdited: root.formName = text
                         Keys.onPressed: (e) => {
@@ -977,7 +977,7 @@ PillSurface {
                     radius: 8 * root.s
                     color: Theme.frameBg
                     border.width: 1
-                    border.color: descField.activeFocus ? Qt.alpha(Theme.vermLit, 0.45) : Theme.hairSoft
+                    border.color: descField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
 
                     TextField {
                         id: descField
@@ -994,7 +994,7 @@ PillSurface {
                         placeholderText: "Chat (optional)"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         text: root.formDesc
                         onTextEdited: root.formDesc = text
                         Keys.onPressed: (e) => {
@@ -1027,9 +1027,9 @@ PillSurface {
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
                     radius: 8 * root.s
-                    color: root.listening ? Qt.alpha(Theme.vermLit, 0.12) : Theme.frameBg
+                    color: root.listening ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                     border.width: 1
-                    border.color: root.listening ? Qt.alpha(Theme.vermLit, 0.55) : Theme.hairSoft
+                    border.color: root.listening ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     Text {
@@ -1038,7 +1038,7 @@ PillSurface {
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.listening ? "press a letter…  esc cancels"
                             : (root.formKey.length ? "Super + " + root.formKey : "tap to set a key")
-                        color: root.listening ? Theme.flameGlow
+                        color: root.listening ? Theme.markGlow
                             : (root.formKey.length ? Theme.cream : Theme.faint)
                         font.family: Theme.font
                         font.pixelSize: 11.5 * root.s
@@ -1061,7 +1061,7 @@ PillSurface {
                 width: parent.width
                 visible: root.conflict.length > 0
                 text: root.conflict
-                color: Theme.vermLit
+                color: Theme.markLit
                 font.family: Theme.font
                 font.pixelSize: 10 * root.s
                 font.weight: Font.DemiBold
@@ -1108,7 +1108,7 @@ PillSurface {
                     width: createLabel.implicitWidth + 30 * root.s
                     height: 28 * root.s
                     radius: 8 * root.s
-                    color: createArea.containsMouse ? Theme.vermLit : Theme.verm
+                    color: createArea.containsMouse ? Theme.markLit : Theme.markDeep
 
                     Text {
                         id: createLabel

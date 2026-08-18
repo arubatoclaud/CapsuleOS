@@ -115,7 +115,7 @@ Item {
                     width: parent.width
                     height: workspaces.dotW
                     radius: height / 2
-                    color: slot.isActive ? Theme.vermLit : Theme.cream
+                    color: slot.isActive ? Theme.markLit : Theme.cream
                     opacity: slot.isActive ? 1.0 : (area.containsMouse ? 0.7 : 0.3)
                     Behavior on opacity { NumberAnimation { duration: Motion.fast } }
                 }

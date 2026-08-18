@@ -365,7 +365,7 @@ SettingsSurface {
                         anchors.fill: parent
                         preferredRendererType: Shape.CurveRenderer
                         ShapePath {
-                            strokeColor: Qt.alpha(Theme.onGlow, 0.35)
+                            strokeColor: Qt.alpha(Theme.markGlow, 0.35)
                             strokeWidth: 1.2
                             fillColor: "transparent"
                             startX: 0; startY: editor.es
@@ -376,7 +376,7 @@ SettingsSurface {
                         anchors.fill: parent
                         preferredRendererType: Shape.CurveRenderer
                         ShapePath {
-                            strokeColor: Qt.alpha(Theme.onGlow, 0.35)
+                            strokeColor: Qt.alpha(Theme.markGlow, 0.35)
                             strokeWidth: 1.2
                             fillColor: "transparent"
                             startX: editor.es; startY: 0
@@ -388,7 +388,7 @@ SettingsSurface {
                         anchors.fill: parent
                         preferredRendererType: Shape.CurveRenderer
                         ShapePath {
-                            strokeColor: Theme.onGlow
+                            strokeColor: Theme.markGlow
                             strokeWidth: 2.4 * root.s
                             fillColor: "transparent"
                             capStyle: ShapePath.RoundCap
@@ -408,7 +408,7 @@ SettingsSurface {
                         radius: editor.r
                         color: h1drag.active ? Theme.bright : Theme.cream
                         border.width: 2
-                        border.color: Theme.onGlow
+                        border.color: Theme.markGlow
 
                         DragHandler {
                             id: h1drag
@@ -430,7 +430,7 @@ SettingsSurface {
                         radius: editor.r
                         color: h2drag.active ? Theme.bright : Theme.cream
                         border.width: 2
-                        border.color: Theme.onGlow
+                        border.color: Theme.markGlow
 
                         DragHandler {
                             id: h2drag
@@ -455,7 +455,7 @@ SettingsSurface {
                     width: 15 * root.s
                     height: 15 * root.s
                     name: "undo"
-                    color: revertArea.containsMouse ? Theme.bright : Qt.alpha(Theme.onGlow, 0.6)
+                    color: revertArea.containsMouse ? Theme.bright : Qt.alpha(Theme.markGlow, 0.6)
                     stroke: 1.9
 
                     MouseArea {

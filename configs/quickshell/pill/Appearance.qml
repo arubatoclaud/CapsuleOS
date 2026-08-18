@@ -366,7 +366,7 @@ SettingsSurface {
                         placeholderText: root.currentHex
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         maximumLength: 7
 
                         onActiveFocusChanged: if (!activeFocus) text = "";

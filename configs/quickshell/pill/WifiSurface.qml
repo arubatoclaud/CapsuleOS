@@ -611,7 +611,7 @@ PillSurface {
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "· " + root.statusText
-                color: root.activeNet ? Theme.vermLit : Theme.faint
+                color: root.activeNet ? Theme.markLit : Theme.faint
                 font.family: Theme.font
                 font.pixelSize: 9.5 * root.s
                 font.weight: Font.Medium
@@ -634,7 +634,7 @@ PillSurface {
                     id: reloadGlyph
                     anchors.fill: parent
                     name: "reboot"
-                    color: root.scanning ? Theme.flameGlow : (reloadArea.containsMouse ? Theme.cream : Theme.iconDim)
+                    color: root.scanning ? Theme.markGlow : (reloadArea.containsMouse ? Theme.cream : Theme.iconDim)
                     stroke: 1.8
 
                     RotationAnimator {
@@ -738,7 +738,7 @@ PillSurface {
                             width: parent.width
                             height: 30 * root.s
                             radius: 9 * root.s
-                            color: netItem.isActive ? Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.14)
+                            color: netItem.isActive ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.14)
                                 : (rowHover.hovered ? Theme.frameBg : "transparent")
 
                             HoverHandler { id: rowHover }
@@ -756,7 +756,7 @@ PillSurface {
                                 anchors.rightMargin: 8 * root.s
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: netItem.ssid.length ? netItem.ssid : "Hidden"
-                                color: netItem.isActive ? Theme.vermLit : Theme.subtle
+                                color: netItem.isActive ? Theme.markLit : Theme.subtle
                                 font.family: Theme.font
                                 font.pixelSize: 11.5 * root.s
                                 font.weight: netItem.isActive ? Font.DemiBold : Font.Medium
@@ -776,7 +776,7 @@ PillSurface {
                                     width: 4 * root.s
                                     height: 4 * root.s
                                     radius: width / 2
-                                    color: Theme.flameGlow
+                                    color: Theme.markGlow
 
                                     SequentialAnimation on opacity {
                                         running: root.connecting && root.attemptSsid === netItem.ssid
@@ -796,7 +796,7 @@ PillSurface {
                                     GlyphIcon {
                                         anchors.fill: parent
                                         name: "lock-outline"
-                                        color: netItem.isActive ? Theme.vermLit : Theme.iconDim
+                                        color: netItem.isActive ? Theme.markLit : Theme.iconDim
                                         stroke: 1.9
                                     }
                                 }
@@ -860,7 +860,7 @@ PillSurface {
                                     radius: 7 * root.s
                                     color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
                                     border.width: 1
-                                    border.color: primaryArea.containsMouse ? Theme.vermDim : Theme.border
+                                    border.color: primaryArea.containsMouse ? Theme.markDim : Theme.border
 
                                     Text {
                                         id: primaryLabel
@@ -895,8 +895,8 @@ PillSurface {
                                     color: revealArea.containsMouse ? Theme.tileBg : "transparent"
                                     border.width: 1
                                     border.color: revealBtn.shown
-                                        ? Theme.vermDim
-                                        : (revealArea.containsMouse ? Theme.vermDim : Theme.border)
+                                        ? Theme.markDim
+                                        : (revealArea.containsMouse ? Theme.markDim : Theme.border)
 
                                     Text {
                                         id: revealLabel
@@ -925,16 +925,16 @@ PillSurface {
                                     height: 22 * root.s
                                     radius: 7 * root.s
                                     color: forgetArea.containsMouse
-                                        ? Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.2)
-                                        : Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.12)
+                                        ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.2)
+                                        : Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.12)
                                     border.width: 1
-                                    border.color: Qt.rgba(Theme.vermLit.r, Theme.vermLit.g, Theme.vermLit.b, 0.45)
+                                    border.color: Qt.rgba(Theme.markLit.r, Theme.markLit.g, Theme.markLit.b, 0.45)
 
                                     Text {
                                         id: forgetLabel
                                         anchors.centerIn: parent
                                         text: "Forget"
-                                        color: Theme.vermLit
+                                        color: Theme.markLit
                                         font.family: Theme.font
                                         font.pixelSize: 10 * root.s
                                         font.weight: Font.DemiBold
@@ -994,11 +994,11 @@ PillSurface {
                                 horizontalAlignment: TextEdit.AlignRight
                                 readOnly: true
                                 selectByMouse: true
-                                selectionColor: Theme.verm
+                                selectionColor: Theme.markDeep
                                 wrapMode: TextEdit.NoWrap
                                 clip: true
                                 text: root.revealedSsid === netItem.ssid ? root.revealedPw : ""
-                                color: Theme.flameCore
+                                color: Theme.markLift
                                 font.family: Theme.font
                                 font.pixelSize: 11.5 * root.s
                                 font.weight: Font.Medium
@@ -1026,7 +1026,7 @@ PillSurface {
                                 placeholderText: "Password"
                                 placeholderTextColor: Theme.faint
                                 selectByMouse: true
-                                selectionColor: Theme.verm
+                                selectionColor: Theme.markDeep
                                 onTextEdited: root.pwDraft = text
                                 onAccepted: root.connectWithPassword(netItem.ssid, text)
                             }
@@ -1044,7 +1044,7 @@ PillSurface {
                                     width: 4 * root.s
                                     height: 4 * root.s
                                     radius: width / 2
-                                    color: Theme.flameGlow
+                                    color: Theme.markGlow
 
                                     SequentialAnimation on opacity {
                                         running: root.connecting && netItem.asking
@@ -1059,7 +1059,7 @@ PillSurface {
                                     width: 14 * root.s
                                     height: 14 * root.s
                                     name: "return"
-                                    color: enterArea.containsMouse ? Theme.cream : Theme.vermLit
+                                    color: enterArea.containsMouse ? Theme.cream : Theme.markLit
                                     stroke: 1.8
 
                                     MouseArea {
@@ -1078,7 +1078,7 @@ PillSurface {
                             visible: netItem.asking && root.connectFailed
                             width: parent.width
                             text: "Connection failed" + (root.connFailReason.length ? " · " + root.connFailReason : "")
-                            color: Theme.vermLit
+                            color: Theme.markLit
                             font.family: Theme.font
                             font.pixelSize: 9.5 * root.s
                             leftPadding: 10 * root.s
@@ -1153,7 +1153,7 @@ PillSurface {
                     anchors.rightMargin: 8 * root.s
                     anchors.verticalCenter: parent.verticalCenter
                     text: cr.value.length ? cr.value : "tap to set"
-                    color: cr.value.length ? (cr.secret ? Theme.flameCore : Theme.cream) : Theme.faint
+                    color: cr.value.length ? (cr.secret ? Theme.markLift : Theme.cream) : Theme.faint
                     font.family: Theme.font
                     font.pixelSize: 12 * root.s
                     font.weight: Font.Medium
@@ -1187,7 +1187,7 @@ PillSurface {
                     placeholderText: cr.field === "pw" ? "8+ characters" : "Name"
                     placeholderTextColor: Theme.faint
                     selectByMouse: true
-                    selectionColor: Theme.verm
+                    selectionColor: Theme.markDeep
                     text: cr.editing ? root.hsDraft : ""
                     onTextEdited: root.hsDraft = text
                     onAccepted: root.commitHotspotEdit()
@@ -1208,7 +1208,7 @@ PillSurface {
                     width: 17 * root.s
                     height: 17 * root.s
                     name: "hotspot"
-                    color: root.hsActive ? Theme.flameGlow : Theme.iconDim
+                    color: root.hsActive ? Theme.markGlow : Theme.iconDim
                     stroke: 1.7
                 }
 
@@ -1227,7 +1227,7 @@ PillSurface {
                     }
                     Text {
                         text: root.hsBusy ? "…" : (root.hsActive ? "Active" : "Off")
-                        color: root.hsActive ? Theme.flameGlow : Theme.dim
+                        color: root.hsActive ? Theme.markGlow : Theme.dim
                         font.family: Theme.font
                         font.pixelSize: 9.5 * root.s
                         font.weight: Font.Medium

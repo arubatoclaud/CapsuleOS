@@ -87,7 +87,7 @@ PillSurface {
             width: parent.width
             height: parent.height
             radius: width / 2
-            color: Theme.flameGlow
+            color: Theme.markGlow
             opacity: 0.22
         }
 
@@ -96,7 +96,7 @@ PillSurface {
             width: ember.size
             height: ember.size
             radius: width / 2
-            color: Theme.flameGlow
+            color: Theme.markGlow
         }
     }
 
@@ -139,7 +139,7 @@ PillSurface {
             width: 2 * root.s
             height: parent.height - 10 * root.s
             radius: 999
-            color: Theme.verm
+            color: Theme.markDeep
         }
 
         Rectangle {
@@ -173,7 +173,7 @@ PillSurface {
                 height: 5 * root.s
                 radius: 1.5 * root.s
                 rotation: 45
-                color: nrow.critical ? Theme.vermLit : Theme.verm
+                color: nrow.critical ? Theme.markLit : Theme.markDeep
             }
         }
 
@@ -204,7 +204,7 @@ PillSurface {
                 visible: nrow.entry.count > 1
                 anchors.verticalCenter: parent.verticalCenter
                 text: "×" + nrow.entry.count
-                color: nrow.critical ? Theme.vermLit : Theme.vermDim
+                color: nrow.critical ? Theme.markLit : Theme.markDim
                 font.family: Theme.font
                 font.pixelSize: 9 * root.s
                 font.weight: Font.Bold
@@ -338,7 +338,7 @@ PillSurface {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: Flags.showGlyphs
                             text: "\uf12d"
-                            color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
+                            color: clearArea.containsMouse ? Theme.markLit : Theme.markDim
                             font.family: Theme.fontIcon
                             font.pixelSize: 9 * root.s
                             font.weight: Font.Bold
@@ -349,13 +349,13 @@ PillSurface {
                             width: 11 * root.s
                             height: 11 * root.s
                             name: "trash"
-                            color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
+                            color: clearArea.containsMouse ? Theme.markLit : Theme.markDim
                             stroke: 1.8
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "CLEAR"
-                            color: clearArea.containsMouse ? Theme.vermLit : Theme.vermDim
+                            color: clearArea.containsMouse ? Theme.markLit : Theme.markDim
                             font.family: Theme.font
                             font.pixelSize: 9 * root.s
                             font.weight: Font.Bold
@@ -468,7 +468,7 @@ PillSurface {
                                         height: 6 * root.s
                                         radius: 2 * root.s
                                         rotation: 45
-                                        color: Theme.verm
+                                        color: Theme.markDeep
                                     }
                                 }
 

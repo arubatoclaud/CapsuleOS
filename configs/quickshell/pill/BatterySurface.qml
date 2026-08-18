@@ -80,7 +80,7 @@ PillSurface {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 text: Battery.stateLabel
-                color: Battery.charging ? Theme.flameGlow : Theme.dim
+                color: Battery.charging ? Theme.markGlow : Theme.dim
                 font.family: Theme.font
                 font.pixelSize: 9.5 * root.s
                 font.weight: Font.Bold
@@ -98,7 +98,7 @@ PillSurface {
             Text {
                 id: pctText
                 text: Battery.pct + "%"
-                color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.cream)
+                color: Battery.low ? Theme.markLit : (Battery.charging ? Theme.markGlow : Theme.cream)
                 font.family: Theme.font
                 font.pixelSize: 46 * root.s
                 font.weight: Font.Bold
@@ -114,7 +114,7 @@ PillSurface {
                         : "")
                 visible: body.length > 0
                 text: body
-                color: Battery.charging ? Theme.flameCore : Theme.subtle
+                color: Battery.charging ? Theme.markLift : Theme.subtle
                 font.family: Theme.font
                 font.pixelSize: 11 * root.s
                 font.weight: Font.DemiBold
@@ -136,8 +136,8 @@ PillSurface {
                 radius: parent.radius
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: Battery.charging ? Theme.vermLit : Theme.vermDeep }
-                    GradientStop { position: 1.0; color: Battery.charging ? Theme.flameGlow : Theme.vermLit }
+                    GradientStop { position: 0.0; color: Battery.charging ? Theme.markLit : Theme.glowDeep }
+                    GradientStop { position: 1.0; color: Battery.charging ? Theme.markGlow : Theme.markLit }
                 }
             }
         }
@@ -171,7 +171,7 @@ PillSurface {
                     id: vText
                     anchors.right: parent.right
                     text: stat.value
-                    color: stat.warm ? Theme.flameGlow : Theme.cream
+                    color: stat.warm ? Theme.markGlow : Theme.cream
                     font.family: Theme.font
                     font.pixelSize: 12.5 * root.s
                     font.weight: Font.DemiBold

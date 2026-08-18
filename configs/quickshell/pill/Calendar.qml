@@ -251,7 +251,7 @@ PillSurface {
                     width: 32 * root.s
                     height: 32 * root.s
                     name: Weather.glyphFor(Weather.codeNow, Weather.isDay)
-                    color: Theme.todayWarm
+                    color: Theme.markWarm
                     stroke: 1.9
                 }
                 Column {
@@ -344,7 +344,7 @@ PillSurface {
                         placeholderText: "town"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         onAccepted: {
                             Store.set("weatherCity", text.trim());
                             cityBox.editing = false;
@@ -633,18 +633,18 @@ PillSurface {
                         height: 24 * root.s
                         radius: Motion.rSmall * root.s
                         visible: cell.current || cell.sel
-                        color: cell.sel && !cell.current ? Qt.alpha(Theme.vermLit, 0.12) : Theme.frameBg
+                        color: cell.sel && !cell.current ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                         border.width: 1
-                        border.color: cell.selEdge ? Qt.alpha(Theme.vermLit, 0.55)
-                            : (cell.sel ? Qt.alpha(Theme.vermLit, 0.22) : Theme.frameBorder)
+                        border.color: cell.selEdge ? Qt.alpha(Theme.markLit, 0.55)
+                            : (cell.sel ? Qt.alpha(Theme.markLit, 0.22) : Theme.frameBorder)
                     }
 
                     Text {
                         anchors.centerIn: parent
                         text: cell.inMonth ? cell.dayNum : cell.ghostNum
                         color: cell.inMonth
-                            ? (cell.current ? Theme.todayWarm
-                                : (cell.hasEvent ? Theme.flameGlow
+                            ? (cell.current ? Theme.markWarm
+                                : (cell.hasEvent ? Theme.markGlow
                                     : (cell.weekend ? Theme.subtle : Theme.cream)))
                             : Theme.ghost
                         opacity: cell.inMonth && !cell.current && !cell.weekend && !cell.hasEvent ? 0.85 : 1.0
@@ -662,7 +662,7 @@ PillSurface {
                         width: 3 * root.s
                         height: 3 * root.s
                         radius: width / 2
-                        color: Theme.flameGlow
+                        color: Theme.markGlow
                     }
 
                     MouseArea {
@@ -685,7 +685,7 @@ PillSurface {
             anchors.topMargin: 6 * root.s
             visible: root.pickingEnd
             text: "click the end day"
-            color: Theme.flameGlow
+            color: Theme.markGlow
             font.family: Theme.font
             font.pixelSize: 9 * root.s
             font.weight: Font.DemiBold
@@ -905,7 +905,7 @@ PillSurface {
                                     Text {
                                         text: evRow.meta
                                         width: parent.width
-                                        color: Theme.flameGlow
+                                        color: Theme.markGlow
                                         font.family: Theme.font
                                         font.pixelSize: 9 * root.s
                                         font.weight: Font.DemiBold
@@ -929,7 +929,7 @@ PillSurface {
                                     GlyphIcon {
                                         anchors.fill: parent
                                         name: "close"
-                                        color: delArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                                        color: delArea.containsMouse ? Theme.markLit : Theme.iconDim
                                         stroke: 1.6
                                     }
 
@@ -981,7 +981,7 @@ PillSurface {
                         placeholderText: "what's on"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         onTextChanged: { editor.titleVal = text; editor.autoRecur(); }
                         Keys.onReturnPressed: editor.commit()
                     }
@@ -1003,16 +1003,16 @@ PillSurface {
                     height: 28 * root.s
                     radius: Motion.rSmall * root.s
                     readonly property bool armed: editor.titleVal.trim().length > 0
-                    color: addArea.containsMouse && armed ? Qt.alpha(Theme.vermLit, 0.22)
-                        : (armed ? Qt.alpha(Theme.vermLit, 0.12) : Theme.frameBg)
+                    color: addArea.containsMouse && armed ? Qt.alpha(Theme.markLit, 0.22)
+                        : (armed ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg)
                     border.width: 1
-                    border.color: armed ? Qt.alpha(Theme.vermLit, 0.5) : Theme.frameBorder
+                    border.color: armed ? Qt.alpha(Theme.markLit, 0.5) : Theme.frameBorder
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     Text {
                         anchors.centerIn: parent
                         text: "+"
-                        color: addBtn.armed ? Theme.vermLit : Theme.iconDim
+                        color: addBtn.armed ? Theme.markLit : Theme.iconDim
                         font.family: Theme.font
                         font.pixelSize: 18 * root.s
                         font.weight: Font.Medium
@@ -1062,7 +1062,7 @@ PillSurface {
                         placeholderTextColor: Theme.faint
                         inputMethodHints: Qt.ImhPreferNumbers
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         onTextChanged: editor.startVal = text
                         Keys.onReturnPressed: editor.commit()
                     }
@@ -1096,7 +1096,7 @@ PillSurface {
                         placeholderTextColor: Theme.faint
                         inputMethodHints: Qt.ImhPreferNumbers
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         onTextChanged: editor.endVal = text
                         Keys.onReturnPressed: editor.commit()
                     }
@@ -1162,7 +1162,7 @@ PillSurface {
                             width: 9 * root.s
                             height: 9 * root.s
                             radius: 3 * root.s
-                            color: Theme.flameGlow
+                            color: Theme.markGlow
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -1183,16 +1183,16 @@ PillSurface {
                     width: extendLabel.implicitWidth + 18 * root.s
                     height: 28 * root.s
                     radius: Motion.rSmall * root.s
-                    color: armed ? Qt.alpha(Theme.vermLit, 0.14) : Theme.frameBg
+                    color: armed ? Qt.alpha(Theme.markLit, 0.14) : Theme.frameBg
                     border.width: 1
-                    border.color: armed ? Qt.alpha(Theme.vermLit, 0.5) : Theme.frameBorder
+                    border.color: armed ? Qt.alpha(Theme.markLit, 0.5) : Theme.frameBorder
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     Text {
                         id: extendLabel
                         anchors.centerIn: parent
                         text: root.pickingEnd ? "pick…" : (root.selEndDate.length > 0 ? "edit" : "+ days")
-                        color: extendBtn.armed ? Theme.vermLit : Theme.dim
+                        color: extendBtn.armed ? Theme.markLit : Theme.dim
                         font.family: Theme.font
                         font.pixelSize: 10.5 * root.s
                         font.weight: Font.Bold
@@ -1224,7 +1224,7 @@ PillSurface {
                     GlyphIcon {
                         anchors.fill: parent
                         name: "close"
-                        color: clearArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                        color: clearArea.containsMouse ? Theme.markLit : Theme.iconDim
                         stroke: 1.6
                     }
                     MouseArea {

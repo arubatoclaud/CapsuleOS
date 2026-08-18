@@ -177,7 +177,7 @@ PillSurface {
                     readonly property bool isHover: root.hovered === cell.modelData.key || tile.kbFocus
                     readonly property bool holding: heat.holding
                     readonly property bool lit: isHover || tile.holding
-                    readonly property color accent: cell.modelData.confirm ? Theme.vermLit : Theme.cream
+                    readonly property color accent: cell.modelData.confirm ? Theme.markLit : Theme.cream
 
                     onKbFocusChanged: {
                         if (!tile.kbFocus)
@@ -243,8 +243,8 @@ PillSurface {
                             height: tile.height * tile.hold
                             visible: tile.holding
                             gradient: Gradient {
-                                GradientStop { position: 0.0; color: Qt.alpha(Theme.verm, 0.7) }
-                                GradientStop { position: 1.0; color: Qt.alpha(Theme.vermLit, 0.15) }
+                                GradientStop { position: 0.0; color: Qt.alpha(Theme.markDeep, 0.7) }
+                                GradientStop { position: 1.0; color: Qt.alpha(Theme.markLit, 0.15) }
                             }
                         }
                     }
@@ -254,7 +254,7 @@ PillSurface {
                         width: 22 * root.s
                         height: 22 * root.s
                         name: cell.modelData.glyph
-                        color: tile.holding ? Theme.flameCore : (tile.lit ? tile.accent : Theme.iconDim)
+                        color: tile.holding ? Theme.markLift : (tile.lit ? tile.accent : Theme.iconDim)
                         stroke: 1.9
                     }
 
@@ -306,7 +306,7 @@ PillSurface {
             return null;
         }
         text: act ? (act.confirm ? act.label + " — hold" : act.label) : ""
-        color: act && act.confirm ? Theme.vermLit : Theme.subtle
+        color: act && act.confirm ? Theme.markLit : Theme.subtle
         font.family: Theme.font
         font.pixelSize: 11 * root.s
         font.weight: Font.Medium

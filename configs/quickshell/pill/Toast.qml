@@ -77,7 +77,7 @@ Item {
             height: 7 * root.s
             radius: 2 * root.s
             rotation: 45
-            color: root.critical ? Theme.vermLit : Theme.verm
+            color: root.critical ? Theme.markLit : Theme.markDeep
         }
     }
 
@@ -140,7 +140,7 @@ Item {
                     width: 8 * root.s
                     height: 8 * root.s
                     radius: 999
-                    color: Theme.flameGlow
+                    color: Theme.markGlow
                     opacity: 0.3
                 }
                 Rectangle {
@@ -148,7 +148,7 @@ Item {
                     width: 4 * root.s
                     height: 4 * root.s
                     radius: 999
-                    color: Theme.flameGlow
+                    color: Theme.markGlow
                 }
             }
 
@@ -201,7 +201,7 @@ Item {
                         id: actText
                         anchors.centerIn: parent
                         text: actPill.modelData.text
-                        color: actPill.index === 0 ? Theme.vermLit : Theme.dim
+                        color: actPill.index === 0 ? Theme.markLit : Theme.dim
                         font.family: Theme.font
                         font.pixelSize: 9.5 * root.s
                         font.weight: Font.DemiBold

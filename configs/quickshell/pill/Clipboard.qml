@@ -127,7 +127,7 @@ PillSurface {
 
             readonly property real hold: wipeHeat.hold
             readonly property bool holding: wipeHeat.holding
-            readonly property color tone: holding ? Theme.vermLit : (wipeArea.containsMouse ? Theme.cream : Theme.faint)
+            readonly property color tone: holding ? Theme.markLit : (wipeArea.containsMouse ? Theme.cream : Theme.faint)
 
             Tooltip {
                 s: root.s
@@ -191,8 +191,8 @@ PillSurface {
             visible: wipeBtn.holding
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Qt.alpha(Theme.vermLit, 0.15) }
-                GradientStop { position: 1.0; color: Theme.vermLit }
+                GradientStop { position: 0.0; color: Qt.alpha(Theme.markLit, 0.15) }
+                GradientStop { position: 1.0; color: Theme.markLit }
             }
         }
     }
@@ -333,7 +333,7 @@ PillSurface {
                         anchors.verticalCenter: parent.verticalCenter
                         opacity: row.selected && !rowHover.hovered ? 1 : 0
                         text: "↵"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 12 * root.s
                         Behavior on opacity { NumberAnimation { duration: Motion.fast } }

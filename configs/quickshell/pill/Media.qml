@@ -327,9 +327,9 @@ PillSurface {
                 height: 18 * root.s
                 width: bubbleRow.width + 14 * root.s
                 radius: height / 2
-                color: Qt.alpha(Theme.verm, 0.16)
+                color: Qt.alpha(Theme.markDeep, 0.16)
                 border.width: 1
-                border.color: Qt.alpha(Theme.vermLit, 0.45 + 0.35 * glow)
+                border.color: Qt.alpha(Theme.markLit, 0.45 + 0.35 * glow)
 
                 property real glow: 0
                 SequentialAnimation on glow {
@@ -360,7 +360,7 @@ PillSurface {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "▾"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.pixelSize: 8 * root.s
                     }
                 }
@@ -424,9 +424,9 @@ PillSurface {
                         height: 32 * root.s
                         width: bubInner.width + 18 * root.s
                         radius: 11 * root.s
-                        color: isActive ? Qt.alpha(Theme.verm, 0.2) : Qt.alpha(Theme.cream, 0.045)
+                        color: isActive ? Qt.alpha(Theme.markDeep, 0.2) : Qt.alpha(Theme.cream, 0.045)
                         border.width: 1
-                        border.color: isActive ? Theme.vermLit : Qt.alpha(Theme.cream, 0.12)
+                        border.color: isActive ? Theme.markLit : Qt.alpha(Theme.cream, 0.12)
 
                         Row {
                             id: bubInner
@@ -508,10 +508,10 @@ PillSurface {
             Behavior on opacity { NumberAnimation { duration: Motion.fast } }
 
             border.width: 1
-            border.color: Qt.alpha(Theme.vermLit, 0.4 + 0.4 * root.sealPulse)
+            border.color: Qt.alpha(Theme.markLit, 0.4 + 0.4 * root.sealPulse)
             gradient: Gradient {
-                GradientStop { position: 0.0; color: root.mix(Theme.verm, Theme.tileBg, 0.55 - 0.27 * seal.sat) }
-                GradientStop { position: 1.0; color: root.mix(Theme.vermDeep, Theme.tileBg, 0.55 - 0.27 * seal.sat) }
+                GradientStop { position: 0.0; color: root.mix(Theme.markDeep, Theme.tileBg, 0.55 - 0.27 * seal.sat) }
+                GradientStop { position: 1.0; color: root.mix(Theme.glowDeep, Theme.tileBg, 0.55 - 0.27 * seal.sat) }
             }
 
             Text {
@@ -605,7 +605,7 @@ PillSurface {
             const hTail = 2.5 * root.s;
             const hHead = 1.75 * root.s;
             const m = Math.max(2, Math.ceil(n * drawF));
-            ctx.fillStyle = Theme.verm;
+            ctx.fillStyle = Theme.markDeep;
             ctx.beginPath();
             ctx.arc(inset, waveY(0), hTail, Math.PI / 2, 3 * Math.PI / 2);
             for (let i = 0; i <= m; i++) {

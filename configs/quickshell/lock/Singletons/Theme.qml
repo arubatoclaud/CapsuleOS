@@ -12,7 +12,7 @@ import Quickshell
 Singleton {
     readonly property bool dyn: Flags.paletteMode !== "static"
 
-    readonly property color verm:   dyn ? Qt.darker(Dyn.primary, 1.18) : "#e0762a"
+    readonly property color mark:   dyn ? Qt.darker(Dyn.mark, 1.18) : "#e0762a"
     readonly property color cream:  dyn ? Dyn.cream : "#d5dce6"
     readonly property color bright: dyn ? Dyn.bright : "#f2f6fb"
     readonly property color dim:    dyn ? Dyn.dim : "#7d8797"

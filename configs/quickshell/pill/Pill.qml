@@ -707,10 +707,10 @@ Item {
                 const c = width / 2;
                 const R = (budArea.containsMouse ? 5.2 : 4) * pill.s;
                 const hg = ctx.createRadialGradient(c - R * 0.32, c - R * 0.38, 0, c, c, R);
-                hg.addColorStop(0, Theme.flameInk);
-                hg.addColorStop(0.55, Theme.vermLit);
-                hg.addColorStop(0.92, Theme.verm);
-                hg.addColorStop(1, Theme.flameEmber);
+                hg.addColorStop(0, Theme.markInk);
+                hg.addColorStop(0.55, Theme.markLit);
+                hg.addColorStop(0.92, Theme.markDeep);
+                hg.addColorStop(1, Theme.glowEmber);
                 ctx.beginPath();
                 ctx.arc(c, c, R, 0, 7);
                 ctx.fillStyle = hg;
@@ -1076,7 +1076,7 @@ Item {
 
         Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
 
-        readonly property color accent: (pill.dragStage === "bad" || pill.dragStage === "fail") ? "#e0533f" : Theme.vermLit
+        readonly property color accent: (pill.dragStage === "bad" || pill.dragStage === "fail") ? "#e0533f" : Theme.markLit
         readonly property real brLen: 15 * pill.s
         readonly property real brThick: 2 * pill.s
 
@@ -1285,7 +1285,7 @@ Item {
                     anchors.bottom: parent.bottom
                     width: parent.width * (osd.kind === "brightness" ? osd.brightness : osd.volume)
                     radius: parent.radius
-                    color: osd.kind === "volume" && osd.muted ? Theme.vermDim : Theme.vermLit
+                    color: osd.kind === "volume" && osd.muted ? Theme.markDim : Theme.markLit
                     Behavior on width { NumberAnimation { duration: Motion.fast } }
                 }
             }
@@ -1330,7 +1330,7 @@ Item {
                     color: "transparent"
                     font: kanjiFill.font
                     style: Text.Outline
-                    styleColor: Qt.alpha(Theme.vermLit,
+                    styleColor: Qt.alpha(Theme.markLit,
                         Math.min(1, (pill.mode === "rest" || !pill.hoverSoulGate ? 0.5 : 0) + pill.kanjiFlash))
                     Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
                 }
@@ -1560,7 +1560,7 @@ Item {
                         preferredRendererType: Shape.CurveRenderer
 
                         ShapePath {
-                            strokeColor: Theme.vermLit
+                            strokeColor: Theme.markLit
                             strokeWidth: 1.5
                             fillColor: "transparent"
                             capStyle: ShapePath.RoundCap
@@ -1575,7 +1575,7 @@ Item {
                             }
                         }
                         ShapePath {
-                            strokeColor: Theme.vermLit
+                            strokeColor: Theme.markLit
                             strokeWidth: 1.5
                             fillColor: "transparent"
                             capStyle: ShapePath.RoundCap
@@ -1583,7 +1583,7 @@ Item {
                             PathLine { x: 9.2; y: 13.6 }
                         }
                         ShapePath {
-                            strokeColor: Theme.vermLit
+                            strokeColor: Theme.markLit
                             strokeWidth: 1.6
                             fillColor: "transparent"
                             capStyle: ShapePath.RoundCap
@@ -1679,7 +1679,7 @@ Item {
                             id: battPct
                             anchors.centerIn: parent
                             text: Battery.pct + "%"
-                            color: Battery.low ? Theme.vermLit : (Battery.charging ? Theme.flameGlow : Theme.subtle)
+                            color: Battery.low ? Theme.markLit : (Battery.charging ? Theme.markGlow : Theme.subtle)
                             font.family: Theme.font
                             font.pixelSize: 13 * pill.s
                             font.weight: Battery.charging ? Font.DemiBold : Font.Medium
@@ -1721,7 +1721,7 @@ Item {
                         width: 5 * pill.s
                         height: 5 * pill.s
                         radius: width / 2
-                        color: Theme.flameGlow
+                        color: Theme.markGlow
                     }
 
                     MouseArea {
@@ -1806,7 +1806,7 @@ Item {
                         width: 12 * pill.s
                         height: 12 * pill.s
                         radius: width / 2
-                        color: Theme.verm
+                        color: Theme.markDeep
                         SequentialAnimation on opacity {
                             running: ScreenRec.recording
                             loops: Animation.Infinite
@@ -2346,9 +2346,9 @@ Item {
                     width: (quickSources.width - 6 * pill.s) / 2
                     height: parent.height
                     radius: 11 * pill.s
-                    color: qSrcArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : Theme.tileBg
+                    color: qSrcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                     border.width: 1
-                    border.color: qSrcArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.5) : Theme.border
+                    border.color: qSrcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     Row {
@@ -2359,7 +2359,7 @@ Item {
                             width: 16 * pill.s
                             height: 16 * pill.s
                             name: qSrcTile.modelData.glyph
-                            color: qSrcArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                            color: qSrcArea.containsMouse ? Theme.markLit : Theme.iconDim
                             stroke: 1.7
                         }
                         Text {
@@ -2401,9 +2401,9 @@ Item {
                 width: 152 * pill.s
                 height: quickScreens.height
                 radius: 11 * pill.s
-                color: qMonArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : Theme.tileBg
+                color: qMonArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                 border.width: 1
-                border.color: qMonArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.5) : Theme.border
+                border.color: qMonArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                 Column {
@@ -2490,7 +2490,7 @@ Item {
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: ScreenRec.countdown
-                color: Theme.flameGlow
+                color: Theme.markGlow
                 font.family: Theme.font
                 font.pixelSize: 28 * pill.s
                 font.weight: Font.ExtraBold

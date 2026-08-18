@@ -68,7 +68,7 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: Motion.rSmall * root.s
-        color: Qt.alpha(Theme.onGlow, root.hovered ? 0.14 : 0)
+        color: Qt.alpha(Theme.markGlow, root.hovered ? 0.14 : 0)
         Behavior on color { ColorAnimation { duration: Motion.fast } }
     }
 
@@ -155,7 +155,7 @@ Item {
             width: 14 * root.s
             opacity: root.dirty ? 1 : 0
             stroke: 1.9
-            color: undoMA.containsMouse ? Theme.bright : Qt.alpha(Theme.onGlow, 0.55)
+            color: undoMA.containsMouse ? Theme.bright : Qt.alpha(Theme.markGlow, 0.55)
             Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
 
             MouseArea {
@@ -175,7 +175,7 @@ Item {
             text: "−"
             width: implicitWidth
             opacity: root.hovered ? 1 : 0
-            color: root.overMinus ? Theme.bright : Qt.alpha(Theme.onGlow, 0.6)
+            color: root.overMinus ? Theme.bright : Qt.alpha(Theme.markGlow, 0.6)
             font.family: Theme.font
             font.pixelSize: 15 * root.s
             font.weight: Font.Medium
@@ -220,7 +220,7 @@ Item {
             text: "+"
             width: implicitWidth
             opacity: root.hovered ? 1 : 0
-            color: root.overPlus ? Theme.bright : Qt.alpha(Theme.onGlow, 0.6)
+            color: root.overPlus ? Theme.bright : Qt.alpha(Theme.markGlow, 0.6)
             font.family: Theme.font
             font.pixelSize: 15 * root.s
             font.weight: Font.Medium

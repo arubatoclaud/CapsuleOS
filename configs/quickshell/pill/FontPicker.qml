@@ -154,7 +154,7 @@ SettingsSurface {
                 placeholderText: "search fonts"
                 placeholderTextColor: Theme.faint
                 selectByMouse: true
-                selectionColor: Theme.verm
+                selectionColor: Theme.markDeep
                 onTextChanged: {
                     root.query = text;
                     root.focusIndex = 0;
@@ -234,7 +234,7 @@ SettingsSurface {
                         anchors.bottomMargin: 2 * root.s
                         radius: 9 * root.s
                         color: frow.selected
-                            ? Qt.alpha(Theme.vermLit, 0.14)
+                            ? Qt.alpha(Theme.markLit, 0.14)
                             : (frow.focused ? Theme.frameBg : "transparent")
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
                     }
@@ -246,7 +246,7 @@ SettingsSurface {
                         anchors.rightMargin: 10 * root.s
                         anchors.verticalCenter: parent.verticalCenter
                         text: frow.modelData.label
-                        color: frow.selected ? Theme.vermLit : Theme.cream
+                        color: frow.selected ? Theme.markLit : Theme.cream
                         font.family: frow.isReset ? Theme.font : frow.modelData.family
                         font.pixelSize: 14 * root.s
                         font.weight: frow.selected ? Font.DemiBold : Font.Medium
@@ -262,7 +262,7 @@ SettingsSurface {
                         width: 6 * root.s
                         height: 6 * root.s
                         radius: width / 2
-                        color: Theme.vermLit
+                        color: Theme.markLit
                     }
                 }
             }

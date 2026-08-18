@@ -151,7 +151,7 @@ Item {
                 width: 2 * tray.s
                 height: parent.height * 0.46
                 radius: width / 2
-                color: Theme.vermLit
+                color: Theme.markLit
                 opacity: mrowArea.containsMouse && mrow.entryData.enabled ? 1 : 0
                 Behavior on opacity { NumberAnimation { duration: Motion.fast } }
             }
@@ -171,7 +171,7 @@ Item {
                 radius: isRadio ? width / 2 : 3 * tray.s
                 color: "transparent"
                 border.width: 1
-                border.color: checked ? Theme.vermLit : Theme.border
+                border.color: checked ? Theme.markLit : Theme.border
 
                 Rectangle {
                     anchors.centerIn: parent
@@ -179,7 +179,7 @@ Item {
                     width: 5 * tray.s
                     height: 5 * tray.s
                     radius: stateBox.isRadio ? width / 2 : 1.5 * tray.s
-                    color: Theme.vermLit
+                    color: Theme.markLit
                 }
             }
 
@@ -223,7 +223,7 @@ Item {
                 width: 10 * tray.s
                 height: 10 * tray.s
                 name: "chevron-right"
-                color: mrow.expanded ? Theme.vermLit : Theme.iconDim
+                color: mrow.expanded ? Theme.markLit : Theme.iconDim
                 stroke: 2
                 rotation: mrow.expanded ? 90 : 0
                 Behavior on rotation { NumberAnimation { duration: Motion.fast } }

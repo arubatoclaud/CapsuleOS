@@ -269,7 +269,7 @@ Item {
                 width: parent.width * content.progress
                 height: parent.height
                 radius: 1
-                color: Theme.verm
+                color: Theme.mark
             }
             Rectangle {
                 x: Math.min(parent.width - width, Math.max(0, threadFill.width - width / 2))

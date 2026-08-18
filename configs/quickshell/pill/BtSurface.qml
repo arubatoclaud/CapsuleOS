@@ -237,7 +237,7 @@ PillSurface {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.adapter ? root.adapter.enabled === true : false
                 text: root.discovering ? "Scanning…" : "Scan"
-                color: root.discovering ? Theme.vermLit : Theme.dim
+                color: root.discovering ? Theme.markLit : Theme.dim
                 font.family: Theme.font
                 font.pixelSize: 9.5 * root.s
                 font.weight: Font.DemiBold
@@ -358,7 +358,7 @@ PillSurface {
                                     width: 15 * root.s
                                     height: 15 * root.s
                                     name: root.iconFor(devItem.modelData)
-                                    color: devItem.isConnected ? Theme.vermLit : Theme.iconDim
+                                    color: devItem.isConnected ? Theme.markLit : Theme.iconDim
                                     stroke: 1.7
                                 }
                             }
@@ -406,7 +406,7 @@ PillSurface {
                                     width: 4 * root.s
                                     height: 4 * root.s
                                     radius: width / 2
-                                    color: Theme.flameGlow
+                                    color: Theme.markGlow
 
                                     SequentialAnimation on opacity {
                                         running: devItem.pairing || devItem.busy
@@ -441,7 +441,7 @@ PillSurface {
                                     radius: 999
                                     color: pairArea.containsMouse ? Theme.frameBg : Theme.tileBg
                                     border.width: 1
-                                    border.color: pairArea.containsMouse ? Theme.vermDim : Theme.border
+                                    border.color: pairArea.containsMouse ? Theme.markDim : Theme.border
                                     height: 18 * root.s
                                     width: pairText.implicitWidth + 16 * root.s
                                     Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -501,7 +501,7 @@ PillSurface {
                                     radius: 7 * root.s
                                     color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
                                     border.width: 1
-                                    border.color: primaryArea.containsMouse ? Theme.vermDim : Theme.border
+                                    border.color: primaryArea.containsMouse ? Theme.markDim : Theme.border
 
                                     Text {
                                         id: primaryLabel
@@ -531,16 +531,16 @@ PillSurface {
                                     height: 22 * root.s
                                     radius: 7 * root.s
                                     color: forgetArea.containsMouse
-                                        ? Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.2)
-                                        : Qt.rgba(Theme.verm.r, Theme.verm.g, Theme.verm.b, 0.12)
+                                        ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.2)
+                                        : Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.12)
                                     border.width: 1
-                                    border.color: Qt.rgba(Theme.vermLit.r, Theme.vermLit.g, Theme.vermLit.b, 0.45)
+                                    border.color: Qt.rgba(Theme.markLit.r, Theme.markLit.g, Theme.markLit.b, 0.45)
 
                                     Text {
                                         id: forgetLabel
                                         anchors.centerIn: parent
                                         text: "Forget"
-                                        color: Theme.vermLit
+                                        color: Theme.markLit
                                         font.family: Theme.font
                                         font.pixelSize: 10 * root.s
                                         font.weight: Font.DemiBold
@@ -561,7 +561,7 @@ PillSurface {
                         Text {
                             visible: devItem.failed
                             text: "Pairing failed"
-                            color: Theme.vermLit
+                            color: Theme.markLit
                             font.family: Theme.font
                             font.pixelSize: 9.5 * root.s
                             leftPadding: 42 * root.s

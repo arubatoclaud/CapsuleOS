@@ -56,7 +56,7 @@ Item {
         placeholderText: root.placeholder
         placeholderTextColor: Theme.faint
         selectByMouse: true
-        selectionColor: Theme.verm
+        selectionColor: Theme.markDeep
         cursorDelegate: Item {}
         Keys.onUpPressed: root.moved(-1)
         Keys.onDownPressed: root.moved(1)

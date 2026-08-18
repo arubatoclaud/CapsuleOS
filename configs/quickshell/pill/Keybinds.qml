@@ -400,7 +400,7 @@ PillSurface {
                 placeholderText: "search binds"
                 placeholderTextColor: Theme.faint
                 selectByMouse: true
-                selectionColor: Theme.verm
+                selectionColor: Theme.markDeep
                 onTextChanged: {
                     root.query = text;
                     root.focusIndex = 0;
@@ -482,9 +482,9 @@ PillSurface {
                     width: comboText.implicitWidth + 12 * root.s
                     height: comboText.implicitHeight + 8 * root.s
                     radius: 7 * root.s
-                    color: brow.focused ? Qt.alpha(Theme.vermLit, 0.16) : Theme.frameBg
+                    color: brow.focused ? Qt.alpha(Theme.markLit, 0.16) : Theme.frameBg
                     border.width: 1
-                    border.color: brow.focused ? Qt.alpha(Theme.vermLit, 0.45) : Theme.hairSoft
+                    border.color: brow.focused ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     Text {
@@ -562,9 +562,9 @@ PillSurface {
                 anchors.topMargin: 5 * root.s
                 anchors.bottomMargin: 5 * root.s
                 radius: 9 * root.s
-                color: addArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.1) : "transparent"
+                color: addArea.containsMouse ? Qt.alpha(Theme.markLit, 0.1) : "transparent"
                 border.width: 1
-                border.color: Qt.alpha(Theme.vermLit, addArea.containsMouse ? 0.6 : 0.32)
+                border.color: Qt.alpha(Theme.markLit, addArea.containsMouse ? 0.6 : 0.32)
 
                 Row {
                     anchors.centerIn: parent
@@ -573,7 +573,7 @@ PillSurface {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "+"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 14 * root.s
                         font.weight: Font.Bold
@@ -581,7 +581,7 @@ PillSurface {
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "add keybind"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 11 * root.s
                         font.weight: Font.DemiBold
@@ -672,9 +672,9 @@ PillSurface {
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
                     radius: 8 * root.s
-                    color: root.listening ? Qt.alpha(Theme.vermLit, 0.12) : Theme.frameBg
+                    color: root.listening ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                     border.width: 1
-                    border.color: root.listening ? Qt.alpha(Theme.vermLit, 0.55) : Theme.hairSoft
+                    border.color: root.listening ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                     Text {
@@ -683,7 +683,7 @@ PillSurface {
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.listening ? "press keys…  esc cancels"
                             : (root.formCombo.length ? root.formCombo : "tap to set a key")
-                        color: root.listening ? Theme.flameGlow
+                        color: root.listening ? Theme.markGlow
                             : (root.formCombo.length ? Theme.cream : Theme.faint)
                         font.family: Theme.font
                         font.pixelSize: 11.5 * root.s
@@ -726,7 +726,7 @@ PillSurface {
                     radius: 8 * root.s
                     color: Theme.frameBg
                     border.width: 1
-                    border.color: nameField.activeFocus ? Qt.alpha(Theme.vermLit, 0.45) : Theme.hairSoft
+                    border.color: nameField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
 
                     TextField {
                         id: nameField
@@ -743,7 +743,7 @@ PillSurface {
                         placeholderText: "label (optional)"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         text: root.formName
                         onTextEdited: root.formName = text
                         Keys.onPressed: (e) => {
@@ -778,7 +778,7 @@ PillSurface {
                     radius: 8 * root.s
                     color: Theme.frameBg
                     border.width: 1
-                    border.color: (cmdField.activeFocus || actionField.activeFocus) ? Qt.alpha(Theme.vermLit, 0.45) : Theme.hairSoft
+                    border.color: (cmdField.activeFocus || actionField.activeFocus) ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
 
                     TextField {
                         id: cmdField
@@ -796,7 +796,7 @@ PillSurface {
                         placeholderText: "shell command"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         text: root.formCmd
                         onTextEdited: root.formCmd = text
                         Keys.onPressed: (e) => {
@@ -821,7 +821,7 @@ PillSurface {
                         placeholderText: "lua dispatch"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
-                        selectionColor: Theme.verm
+                        selectionColor: Theme.markDeep
                         text: root.formAction
                         onTextEdited: root.formAction = text
                         Keys.onPressed: (e) => {
@@ -836,7 +836,7 @@ PillSurface {
                 width: parent.width
                 visible: root.conflict.length > 0
                 text: root.conflict
-                color: Theme.vermLit
+                color: Theme.markLit
                 font.family: Theme.font
                 font.pixelSize: 10 * root.s
                 font.weight: Font.DemiBold
@@ -855,15 +855,15 @@ PillSurface {
                     width: deleteLabel.implicitWidth + 24 * root.s
                     height: 28 * root.s
                     radius: 8 * root.s
-                    color: deleteArea.containsMouse ? Qt.alpha(Theme.verm, 0.2) : Qt.alpha(Theme.verm, 0.1)
+                    color: deleteArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.2) : Qt.alpha(Theme.markDeep, 0.1)
                     border.width: 1
-                    border.color: Qt.alpha(Theme.vermLit, 0.45)
+                    border.color: Qt.alpha(Theme.markLit, 0.45)
 
                     Text {
                         id: deleteLabel
                         anchors.centerIn: parent
                         text: "Delete"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 10.5 * root.s
                         font.weight: Font.DemiBold
@@ -886,7 +886,7 @@ PillSurface {
                     width: saveLabel.implicitWidth + 30 * root.s
                     height: 28 * root.s
                     radius: 8 * root.s
-                    color: saveArea.containsMouse ? Theme.vermLit : Theme.verm
+                    color: saveArea.containsMouse ? Theme.markLit : Theme.markDeep
 
                     Text {
                         id: saveLabel

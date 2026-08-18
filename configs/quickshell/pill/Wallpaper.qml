@@ -508,9 +508,9 @@ PillSurface {
             radius: height / 2
             x: segRow.x + filterRow.currentChip.x + 2 * root.s
             width: filterRow.currentChip.width - 4 * root.s
-            color: Qt.alpha(Theme.onGlow, 0.18)
+            color: Qt.alpha(Theme.markGlow, 0.18)
             border.width: 1
-            border.color: Qt.alpha(Theme.onGlow, 0.45)
+            border.color: Qt.alpha(Theme.markGlow, 0.45)
             Behavior on x { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
             Behavior on width { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
         }
@@ -574,7 +574,7 @@ PillSurface {
             font.family: Theme.font
             font.pixelSize: 11 * root.s
             selectByMouse: true
-            selectionColor: Theme.verm
+            selectionColor: Theme.markDeep
             Keys.onPressed: (e) => {
                 if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
                     Store.set("wallpaperDir", dirField.text.trim());
@@ -770,9 +770,9 @@ PillSurface {
                     height: card.height * tile.commitProgress
                     visible: tile.committing
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: Qt.alpha(Theme.vermBurn, 0.66) }
-                        GradientStop { position: 0.74; color: Qt.alpha(Theme.vermLit, 0.30) }
-                        GradientStop { position: 1.0; color: Qt.alpha(Theme.flameGlow, 0.0) }
+                        GradientStop { position: 0.0; color: Qt.alpha(Theme.glowBurn, 0.66) }
+                        GradientStop { position: 0.74; color: Qt.alpha(Theme.markLit, 0.30) }
+                        GradientStop { position: 1.0; color: Qt.alpha(Theme.markGlow, 0.0) }
                     }
 
                     Rectangle {
@@ -783,9 +783,9 @@ PillSurface {
                         opacity: Math.min(1, tile.commitProgress * 3)
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop { position: 0.0; color: Qt.alpha(Theme.flameGlow, 0.0) }
-                            GradientStop { position: 0.5; color: Theme.flameGlow }
-                            GradientStop { position: 1.0; color: Qt.alpha(Theme.flameGlow, 0.0) }
+                            GradientStop { position: 0.0; color: Qt.alpha(Theme.markGlow, 0.0) }
+                            GradientStop { position: 0.5; color: Theme.markGlow }
+                            GradientStop { position: 1.0; color: Qt.alpha(Theme.markGlow, 0.0) }
                         }
                     }
                 }
@@ -847,8 +847,8 @@ PillSurface {
                 border.width: 1
                 border.color: {
                     if (tile.remote && dlProc.failed.length && dlProc.failed === tile.modelData.image)
-                        return Theme.vermLit;
-                    return tile.committing ? Theme.vermLit : Theme.border;
+                        return Theme.markLit;
+                    return tile.committing ? Theme.markLit : Theme.border;
                 }
                 Behavior on border.color { ColorAnimation { duration: Motion.fast } }
             }
@@ -938,9 +938,9 @@ PillSurface {
                             width: Math.max(2, mrect.modelData.w - 1.5 * root.s)
                             height: Math.max(2, mrect.modelData.h - 1.5 * root.s)
                             radius: 3 * root.s
-                            color: monHover.hovered ? Qt.alpha(Theme.vermLit, 0.45) : Qt.rgba(1, 1, 1, 0.10)
+                            color: monHover.hovered ? Qt.alpha(Theme.markLit, 0.45) : Qt.rgba(1, 1, 1, 0.10)
                             border.width: 1
-                            border.color: monHover.hovered ? Theme.vermLit : Qt.rgba(1, 1, 1, 0.35)
+                            border.color: monHover.hovered ? Theme.markLit : Qt.rgba(1, 1, 1, 0.35)
 
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
                             Behavior on border.color { ColorAnimation { duration: Motion.fast } }

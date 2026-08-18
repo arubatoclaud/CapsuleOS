@@ -47,8 +47,8 @@ Item {
                         radius: parent.radius
                         visible: bar.lit
                         gradient: Gradient {
-                            GradientStop { position: 0.0; color: Theme.vermLit }
-                            GradientStop { position: 1.0; color: Theme.vermBurn }
+                            GradientStop { position: 0.0; color: Theme.markLit }
+                            GradientStop { position: 1.0; color: Theme.glowBurn }
                         }
                     }
 
@@ -59,7 +59,7 @@ Item {
                         height: 2.5 * root.s
                         radius: parent.radius
                         visible: bar.lit
-                        color: Theme.flameCore
+                        color: Theme.markLift
                     }
                 }
             }
@@ -83,8 +83,8 @@ Item {
             radius: parent.radius
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: Theme.vermDim }
-                GradientStop { position: 1.0; color: Theme.vermLit }
+                GradientStop { position: 0.0; color: Theme.markDim }
+                GradientStop { position: 1.0; color: Theme.markLit }
             }
         }
     }

@@ -71,8 +71,9 @@ Singleton {
      * 4.5:1 against the pill surface, so it is the only accent safe under
      * text and glyphs. `glow`, `glowDeep` and `glowInk` are light — filament,
      * ember and the string form Canvas needs — and carry no contrast promise.
-     * Everything below them is a deprecated alias kept only until Task 3
-     * rewires the consumers.
+     * The block below them is derived accents promoted from Task 3's
+     * consumer sweep (see that block's own comment); the fourteen washi/Ame
+     * -era aliases (verm*, onGlow, flame*, todayWarm) are gone.
      *
      * The dynamic branch reads the split fields; until the cache is
      * regenerated (Task 9) Dyn.mark falls back to primary and Dyn.glow to
@@ -93,28 +94,39 @@ Singleton {
     readonly property string glowInk: dyn ? Dyn.glow : "#ff9838"
 
     /**
-     * `onGlow` cannot be written as a plain binding any more: QML reads
-     * `property T onFoo: expr` as a handler for `foo` once a member named
-     * `foo` exists on the object, so declaring `glow` above silently turns
-     * `onGlow: ...` into a script and leaves the token black. The indirection
-     * through a nested object is the only way to keep the deprecated name
-     * bindable; it dies with the alias. (Same mechanism, long blamed on
-     * matugen, that empties Dyn.onPrimaryContainer.)
-     *
-     * DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3.
+     * Night Glass derived accents, promoted out of Task 3's consumer sweep:
+     * each carries a static-mode hex distinct from any canonical token's own,
+     * so inlining the dyn expression at every call site would have silently
+     * dropped that curated value. Comments record what each replaces.
      */
-    readonly property QtObject legacy: QtObject {
-        id: legacyTokens
-        readonly property color onGlow: Theme.dyn ? Theme.mark : "#ffb454"
-    }
-    readonly property alias onGlow: legacyTokens.onGlow
+    readonly property color markDeep:     dyn ? Qt.darker(mark, 1.18) : "#e0762a"
+    readonly property color markLit:      dyn ? mark : "#ff9838"
+    readonly property color markDimDeep:  dyn ? Qt.darker(mark, 2.2) : "#55442e"
+    readonly property color markLift:     dyn ? Qt.lighter(mark, 1.03) : "#ffe2b8"
+    readonly property color markGlow:     dyn ? mark : "#ffb454"
+    readonly property color markWarm:     dyn ? mark : "#ffcf8f"
+    readonly property color glowBurn:     dyn ? Qt.darker(glowDeep, 1.1) : "#8a3a0a"
+    /**
+     * String-typed like glowInk, for the same Canvas addColorStop reason:
+     * these feed the flame gradient's ink/ember/coal stops directly.
+     */
+    readonly property string markInk:     dyn ? Dyn.mark : "#ff9838"
+    readonly property string glowEmber:   dyn ? Dyn.primaryContainer : "#7a3410"
+    readonly property string glowCoal:    dyn ? Dyn.primaryContainer : "#8a3a0a"
+    /**
+     * glowTip replaces flameTip, which read Dyn.onPrimaryContainer and so
+     * always rendered empty: `onPrimaryContainer` sits next to
+     * `primaryContainer` on Dyn, and QML reads `property T onFoo: expr` as a
+     * handler for `foo` whenever a member named `foo` exists on the object,
+     * so the binding was discarded from the day it was written (same trap
+     * `onGlow` needed the nested-QtObject workaround for, now gone). glowTip
+     * is the intended visible color instead: a hot tip lifted off glow. It is
+     * color-typed, not string, because Qt.lighter needs a real color to work
+     * on and its only consumer (Ame.qml's flame stroke) assigns it directly,
+     * the same pattern markLit and markDeep already use there safely.
+     */
+    readonly property color glowTip:      dyn ? Qt.lighter(glow, 1.25) : "#ffcf8f"
 
-    /** DEPRECATED(night-glass): = Qt.darker(mark, 1.18), static branch is its own hex, removed in Task 3. */
-    readonly property color verm:     dyn ? Qt.darker(mark, 1.18) : "#e0762a"
-    /** DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3. */
-    readonly property color vermLit:  dyn ? mark : "#ff9838"
-    /** DEPRECATED(night-glass): = glowDeep, removed in Task 3. */
-    readonly property color vermDeep: glowDeep
     readonly property color cream:    dyn ? Dyn.cream : "#d5dce6"
     readonly property color bright:   dyn ? Dyn.bright : "#f2f6fb"
     readonly property color dim:      dyn ? Dyn.dim : "#7d8797"
@@ -129,42 +141,8 @@ Singleton {
     readonly property color hair:     Qt.alpha(cream, material === "glass" ? 0.22 : 0.13)
     readonly property color hairSoft: Qt.alpha(cream, material === "glass" ? 0.14 : 0.08)
     readonly property color sheen:    Qt.alpha(cream, material === "glass" ? 0.16 : 0.07)
-    /** DEPRECATED(night-glass): = markDim, removed in Task 3. */
-    readonly property color vermDim:   markDim
-    /** DEPRECATED(night-glass): = Qt.darker(mark, 2.2), static branch is its own hex, removed in Task 3. */
-    readonly property color vermDimDeep: dyn ? Qt.darker(mark, 2.2) : "#55442e"
-    /** DEPRECATED(night-glass): = Qt.darker(glowDeep, 1.1), static branch is its own hex, removed in Task 3. */
-    readonly property color vermBurn:  dyn ? Qt.darker(glowDeep, 1.1) : "#8a3a0a"
     readonly property color tickRest:  dyn ? Dyn.tickRest : "#aab6c6"
     readonly property color threadBg:  Qt.alpha(cream, 0.13)
-    /** DEPRECATED(night-glass): = Qt.lighter(mark, 1.03), static branch is its own hex, removed in Task 3. */
-    readonly property color flameCore: dyn ? Qt.lighter(mark, 1.03) : "#ffe2b8"
-    /** DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3. */
-    readonly property color flameGlow: dyn ? mark : "#ffb454"
-
-    /**
-     * Flame canvas ramp: literal hex strings (color type won't work), fed
-     * directly to Canvas addColorStop/strokeStyle. A color property serializes
-     * to #aarrggbb and corrupts the gradient render, so these take the raw
-     * palette strings the canonical tokens are built from rather than the
-     * canonical colors themselves — the string type is what keeps them off
-     * `glowInk`, not a different source of truth. Task 3 moves the flame onto
-     * glowInk/glowDeep, which is also where flameTip's rot gets fixed: it
-     * currently renders EMPTY on a live palette, because Dyn.onPrimaryContainer
-     * is unbindable by name (see the alias note above), and preserving that is
-     * the only reason it still points there.
-     *
-     * DEPRECATED(night-glass): = Dyn.mark, static branch is its own hex, removed in Task 3.
-     */
-    readonly property string flameInk:   dyn ? Dyn.mark : "#ff9838"
-    /** DEPRECATED(night-glass): = Dyn.primaryContainer, static branch is its own hex, removed in Task 3. */
-    readonly property string flameEmber: dyn ? Dyn.primaryContainer : "#7a3410"
-    /** DEPRECATED(night-glass): = Dyn.primaryContainer, static branch is its own hex, removed in Task 3. */
-    readonly property string flameBurn:  dyn ? Dyn.primaryContainer : "#8a3a0a"
-    /** DEPRECATED(night-glass): = Dyn.onPrimaryContainer, no canonical equivalent, removed in Task 3. */
-    readonly property string flameTip:   dyn ? Dyn.onPrimaryContainer : "#ffcf8f"
-    /** DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3. */
-    readonly property color todayWarm: dyn ? mark : "#ffcf8f"
     readonly property color ghost:     dyn ? Dyn.surfaceContainerHighest : "#2e3a50"
     readonly property color frameBg:      Qt.alpha(cream, 0.055)
     readonly property color frameBorder:  Qt.alpha(cream, 0.10)

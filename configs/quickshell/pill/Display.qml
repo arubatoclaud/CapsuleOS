@@ -622,9 +622,9 @@ SettingsSurface {
                         height: Math.max(2, tile.modelData.h - 3 * root.s)
                         z: tileMA.pressed ? 10 : (tile.sel ? 5 : 0)
                         radius: 7 * root.s
-                        color: tile.sel ? Qt.alpha(Theme.onGlow, 0.13) : Theme.cardTop
+                        color: tile.sel ? Qt.alpha(Theme.markGlow, 0.13) : Theme.cardTop
                         border.width: 1
-                        border.color: tile.moved ? Qt.alpha(Theme.vermLit, 0.7) : (tile.sel ? Theme.cream : Theme.hairSoft)
+                        border.color: tile.moved ? Qt.alpha(Theme.markLit, 0.7) : (tile.sel ? Theme.cream : Theme.hairSoft)
 
                         Behavior on x { enabled: !tileMA.pressed; NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
                         Behavior on y { enabled: !tileMA.pressed; NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
@@ -661,7 +661,7 @@ SettingsSurface {
                             anchors.rightMargin: 5 * root.s
                             visible: tile.isMain
                             text: "★"
-                            color: Theme.vermLit
+                            color: Theme.markLit
                             font.family: Theme.fontIcon
                             font.pixelSize: 9.5 * root.s
                         }
@@ -708,7 +708,7 @@ SettingsSurface {
                 radius: Motion.rTile * root.s
                 color: Theme.cardTop
                 border.width: 1
-                border.color: card.pending ? Qt.alpha(Theme.vermLit, 0.55) : Theme.hairSoft
+                border.color: card.pending ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
                 implicitHeight: cardCol.implicitHeight + 22 * root.s
                 Behavior on border.color { ColorAnimation { duration: Motion.fast } }
 
@@ -916,10 +916,10 @@ SettingsSurface {
                             width: applyLabel.implicitWidth + 28 * root.s
                             height: 28 * root.s
                             radius: 9 * root.s
-                            color: !card.applyReady ? Qt.alpha(Theme.onGlow, 0.10)
-                                : (applyArea.containsMouse ? Qt.alpha(Theme.onGlow, 0.34) : Qt.alpha(Theme.onGlow, 0.20))
+                            color: !card.applyReady ? Qt.alpha(Theme.markGlow, 0.10)
+                                : (applyArea.containsMouse ? Qt.alpha(Theme.markGlow, 0.34) : Qt.alpha(Theme.markGlow, 0.20))
                             border.width: 1
-                            border.color: Qt.alpha(Theme.onGlow, !card.applyReady ? 0.22 : (applyArea.containsMouse ? 0.6 : 0.4))
+                            border.color: Qt.alpha(Theme.markGlow, !card.applyReady ? 0.22 : (applyArea.containsMouse ? 0.6 : 0.4))
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
                             Behavior on border.color { ColorAnimation { duration: Motion.fast } }
 
@@ -956,7 +956,7 @@ SettingsSurface {
                                 width: keepLabel.implicitWidth + 28 * root.s
                                 height: 28 * root.s
                                 radius: 9 * root.s
-                                color: keepArea.containsMouse ? Theme.vermLit : Theme.verm
+                                color: keepArea.containsMouse ? Theme.markLit : Theme.markDeep
                                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                                 Text {
@@ -1108,7 +1108,7 @@ SettingsSurface {
                     : (root.selMon === null ? "Select a monitor above"
                         : (root.selIsMain ? root.selName + " is already the main monitor"
                             : root.displayMainEntry.caption))
-                subColor: (root.mainArmed && root.displayMainEntry.danger) ? Theme.vermLit : Theme.faint
+                subColor: (root.mainArmed && root.displayMainEntry.danger) ? Theme.markLit : Theme.faint
                 last: true
 
                 Rectangle {
@@ -1118,12 +1118,12 @@ SettingsSurface {
                     radius: 8 * root.s
                     visible: root.selMon !== null && !root.selIsMain
                     color: root.mainArmed
-                        ? Qt.alpha(Theme.verm, mainArea.containsMouse ? 0.5 : 0.38)
+                        ? Qt.alpha(Theme.markDeep, mainArea.containsMouse ? 0.5 : 0.38)
                         : (mainArea.containsMouse
-                            ? Qt.alpha(Theme.verm, 0.2)
-                            : Qt.alpha(Theme.verm, 0.12))
+                            ? Qt.alpha(Theme.markDeep, 0.2)
+                            : Qt.alpha(Theme.markDeep, 0.12))
                     border.width: 1
-                    border.color: Qt.alpha(Theme.vermLit, root.mainArmed ? 0.75 : 0.45)
+                    border.color: Qt.alpha(Theme.markLit, root.mainArmed ? 0.75 : 0.45)
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                     Behavior on border.color { ColorAnimation { duration: Motion.fast } }
 
@@ -1131,7 +1131,7 @@ SettingsSurface {
                         id: mainLabel
                         anchors.centerIn: parent
                         text: root.mainArmed ? "Confirm" : "Set as main"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 10 * root.s
                         font.weight: Font.DemiBold

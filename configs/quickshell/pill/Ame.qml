@@ -351,10 +351,10 @@ Item {
             ctx.scale(1 + stretch, 1 / (1 + stretch * 0.55));
             ctx.rotate(-ang);
             const hg = ctx.createRadialGradient(-R * 0.32, -R * 0.38, 0, 0, 0, R);
-            hg.addColorStop(0, Theme.flameInk);
-            hg.addColorStop(0.55, Theme.vermLit);
-            hg.addColorStop(0.92, Theme.verm);
-            hg.addColorStop(1, Theme.flameEmber);
+            hg.addColorStop(0, Theme.markInk);
+            hg.addColorStop(0.55, Theme.markLit);
+            hg.addColorStop(0.92, Theme.markDeep);
+            hg.addColorStop(1, Theme.glowEmber);
             ctx.beginPath();
             ctx.arc(0, 0, R, 0, 7);
             ctx.fillStyle = hg;
@@ -369,7 +369,7 @@ Item {
                 ctx.arc(0, 0, R * (0.45 + k * 0.22),
                         root.swirl * (0.5 + k * 0.25) + k * 2.6,
                         root.swirl * (0.5 + k * 0.25) + k * 2.6 + 2.4);
-                ctx.strokeStyle = k ? Theme.flameBurn : Theme.flameTip;
+                ctx.strokeStyle = k ? Theme.glowCoal : Theme.glowTip;
                 ctx.lineWidth = 1.6 * root.s;
                 ctx.stroke();
             }
@@ -425,7 +425,7 @@ Item {
                     ctx.beginPath();
                     ctx.moveTo(a2.x, a2.y);
                     ctx.lineTo(b2.x, b2.y);
-                    ctx.strokeStyle = fI > 0.6 ? Theme.vermLit : Theme.verm;
+                    ctx.strokeStyle = fI > 0.6 ? Theme.markLit : Theme.markDeep;
                     ctx.lineWidth = (0.8 + 6.5 * fI * fI) * S;
                     ctx.lineCap = "round";
                     ctx.globalAlpha = 0.12 + 0.55 * fI;
@@ -455,7 +455,7 @@ Item {
                     const sy2 = by + Math.sin(sa) * sr * 1.25;
                     ctx.beginPath();
                     ctx.arc(sx2, sy2, (2.2 - 0.9 * sq) * S, 0, 7);
-                    ctx.fillStyle = Theme.vermLit;
+                    ctx.fillStyle = Theme.markLit;
                     ctx.globalAlpha = hop * 0.85;
                     ctx.fill();
                 }
@@ -471,7 +471,7 @@ Item {
                 ctx.globalAlpha = blink;
                 ctx.beginPath();
                 ctx.roundedRect(bx - wdt / 2, by - hgt / 2, wdt, Math.max(2 * S, hgt), Math.min(wdt, hgt) / 2, Math.min(wdt, hgt) / 2);
-                ctx.fillStyle = Theme.flameInk;
+                ctx.fillStyle = Theme.markInk;
                 ctx.fill();
                 ctx.globalAlpha = 1;
                 return;
@@ -489,7 +489,7 @@ Item {
                 const wy0 = by + root.wickDir * (r + 1.5 * S);
                 const wg = ctx.createLinearGradient(0, wy0, 0, wy0 + root.wickDir * wl);
                 wg.addColorStop(0, Qt.rgba(1, 0.851, 0.761, 0.55 * fadeIn));
-                wg.addColorStop(1, Qt.alpha(Theme.vermLit, 0));
+                wg.addColorStop(1, Qt.alpha(Theme.markLit, 0));
                 ctx.beginPath();
                 ctx.moveTo(bx, wy0);
                 ctx.lineTo(bx, wy0 + root.wickDir * wl);
@@ -508,10 +508,10 @@ Item {
                 ctx.translate(bx, by);
                 ctx.scale(rx / ry, 1);
                 const tg = ctx.createRadialGradient(-ry * 0.3, -ry * 0.35, 0, 0, 0, ry);
-                tg.addColorStop(0, Theme.flameInk);
-                tg.addColorStop(0.55, Theme.vermLit);
-                tg.addColorStop(0.92, Theme.verm);
-                tg.addColorStop(1, Theme.flameEmber);
+                tg.addColorStop(0, Theme.markInk);
+                tg.addColorStop(0.55, Theme.markLit);
+                tg.addColorStop(0.92, Theme.markDeep);
+                tg.addColorStop(1, Theme.glowEmber);
                 ctx.beginPath();
                 ctx.arc(0, 0, ry, 0, 7);
                 ctx.fillStyle = tg;
@@ -529,9 +529,9 @@ Item {
                 const sh = 18 * S * (settling ? (0.6 + 0.4 * e) : 1);
                 const sw = 4.2 * S;
                 const sg3 = ctx.createLinearGradient(0, by - sh / 2, 0, by + sh / 2);
-                sg3.addColorStop(0, Qt.alpha(Theme.vermLit, 0.92));
-                sg3.addColorStop(0.5, Theme.flameInk);
-                sg3.addColorStop(1, Qt.alpha(Theme.vermLit, 0.92));
+                sg3.addColorStop(0, Qt.alpha(Theme.markLit, 0.92));
+                sg3.addColorStop(0.5, Theme.markInk);
+                sg3.addColorStop(1, Qt.alpha(Theme.markLit, 0.92));
                 ctx.beginPath();
                 ctx.roundedRect(bx - sw / 2, by - sh / 2, sw, sh, sw / 2, sw / 2);
                 ctx.fillStyle = sg3;
@@ -552,7 +552,7 @@ Item {
                 ctx.globalAlpha = 1;
                 ctx.beginPath();
                 ctx.arc(bx, by, Math.max(2 * S, R), 0, 7);
-                ctx.strokeStyle = Theme.vermLit;
+                ctx.strokeStyle = Theme.markLit;
                 ctx.lineWidth = Math.max(1.6 * S, (7 - 4.8 * fadeIn) * S);
                 ctx.stroke();
                 ctx.beginPath();

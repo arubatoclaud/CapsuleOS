@@ -74,8 +74,8 @@ Item {
                 height: parent.height * Math.max(0, Math.min(1, root.value))
                 radius: parent.radius
                 gradient: Gradient {
-                    GradientStop { position: 0.0; color: root.lit ? Theme.vermLit : Theme.vermDim }
-                    GradientStop { position: 1.0; color: root.lit ? Theme.vermBurn : Theme.vermDimDeep }
+                    GradientStop { position: 0.0; color: root.lit ? Theme.markLit : Theme.markDim }
+                    GradientStop { position: 1.0; color: root.lit ? Theme.glowBurn : Theme.markDimDeep }
                 }
                 Behavior on height { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
             }

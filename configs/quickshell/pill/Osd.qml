@@ -254,7 +254,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: parent.width * root.volume
                 radius: parent.radius
-                color: root.muted ? Theme.vermDim : Theme.vermLit
+                color: root.muted ? Theme.markDim : Theme.markLit
                 Behavior on width { NumberAnimation { duration: Motion.fast } }
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
             }
@@ -335,7 +335,7 @@ Item {
             width: 18 * root.s
             height: 18 * root.s
             name: root.subjectPlaying ? "play" : "pause"
-            color: root.subjectPlaying ? Theme.vermLit : Theme.iconDim
+            color: root.subjectPlaying ? Theme.markLit : Theme.iconDim
         }
 
         Column {
@@ -418,7 +418,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: parent.width * root.brightness
                 radius: parent.radius
-                color: Theme.vermLit
+                color: Theme.markLit
                 Behavior on width { NumberAnimation { duration: Motion.fast } }
             }
         }
@@ -438,7 +438,7 @@ Item {
             width: 17 * root.s
             height: 17 * root.s
             name: "bolt"
-            color: Theme.flameGlow
+            color: Theme.markGlow
             stroke: 1.7
         }
 
@@ -476,8 +476,8 @@ Item {
                 radius: parent.radius
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: Theme.vermDeep }
-                    GradientStop { position: 1.0; color: Theme.flameGlow }
+                    GradientStop { position: 0.0; color: Theme.glowDeep }
+                    GradientStop { position: 1.0; color: Theme.markGlow }
                 }
                 Behavior on width { NumberAnimation { duration: Motion.fast } }
 
@@ -536,7 +536,7 @@ Item {
             width: 13 * root.s
             height: 13 * root.s
             radius: width / 2
-            color: root.recordStarted ? Theme.verm : Theme.dim
+            color: root.recordStarted ? Theme.markDeep : Theme.dim
 
             SequentialAnimation on opacity {
                 running: root.recordStarted && root.kind === "record"

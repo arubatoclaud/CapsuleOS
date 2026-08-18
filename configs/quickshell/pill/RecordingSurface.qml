@@ -68,7 +68,7 @@ SettingsSurface {
 
             Text {
                 text: "CHANGE"
-                color: changeArea.containsMouse ? Theme.flameGlow : Theme.subtle
+                color: changeArea.containsMouse ? Theme.markGlow : Theme.subtle
                 font.family: Theme.font
                 font.pixelSize: 9 * root.s
                 font.weight: Font.Bold

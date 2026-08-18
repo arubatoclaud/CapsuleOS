@@ -312,7 +312,7 @@ PillSurface {
             width: 16 * root.s
             height: 16 * root.s
             name: arow.glyph
-            color: arow.on ? Theme.vermLit : Theme.iconDim
+            color: arow.on ? Theme.markLit : Theme.iconDim
             stroke: 1.7
         }
 
@@ -414,7 +414,7 @@ PillSurface {
                     width: 7 * root.s
                     height: 7 * root.s
                     radius: width / 2
-                    color: Theme.verm
+                    color: Theme.markDeep
                     SequentialAnimation on opacity {
                         running: ScreenRec.recording
                         loops: Animation.Infinite
@@ -427,7 +427,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     text: ScreenRec.recording ? root.fmtTime(root.elapsed)
                         : (root.counting ? "GET READY" : "IDLE")
-                    color: ScreenRec.recording ? Theme.vermLit : Theme.dim
+                    color: ScreenRec.recording ? Theme.markLit : Theme.dim
                     font.family: Theme.font
                     font.pixelSize: 10 * root.s
                     font.weight: Font.Bold
@@ -476,7 +476,7 @@ PillSurface {
                     Item {
                         id: corner
                         required property var modelData
-                        readonly property color arm: Qt.alpha(Theme.vermLit, 0.5)
+                        readonly property color arm: Qt.alpha(Theme.markLit, 0.5)
                         width: 14 * root.s
                         height: 14 * root.s
                         opacity: root.counting || ScreenRec.recording
@@ -531,7 +531,7 @@ PillSurface {
                             width: 5 * root.s
                             height: 5 * root.s
                             radius: width / 2
-                            color: ScreenRec.recording ? Theme.verm : Theme.vermDim
+                            color: ScreenRec.recording ? Theme.markDeep : Theme.markDim
                         }
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
@@ -558,11 +558,11 @@ PillSurface {
                         width: 6 * root.s
                         height: 6 * root.s
                         radius: width / 2
-                        color: Theme.verm
+                        color: Theme.markDeep
                     }
                     Text {
                         text: "REC"
-                        color: Theme.vermLit
+                        color: Theme.markLit
                         font.family: Theme.font
                         font.pixelSize: 8.5 * root.s
                         font.weight: Font.ExtraBold
@@ -578,7 +578,7 @@ PillSurface {
                     width: 13 * root.s
                     height: 13 * root.s
                     name: "chevron-down"
-                    color: root.drawerOpen ? Theme.vermLit : Theme.faint
+                    color: root.drawerOpen ? Theme.markLit : Theme.faint
                     stroke: 2.2
                     rotation: root.drawerOpen ? 180 : 0
                     Behavior on rotation { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
@@ -687,8 +687,8 @@ PillSurface {
                 clip: true
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
-                    GradientStop { position: 0.0; color: ScreenRec.recording ? Qt.alpha(Theme.verm, 0.34) : Qt.alpha(Theme.verm, 0.2) }
-                    GradientStop { position: 1.0; color: ScreenRec.recording ? Qt.alpha(Theme.verm, 0.16) : Qt.alpha(Theme.flameGlow, 0.09) }
+                    GradientStop { position: 0.0; color: ScreenRec.recording ? Qt.alpha(Theme.markDeep, 0.34) : Qt.alpha(Theme.markDeep, 0.2) }
+                    GradientStop { position: 1.0; color: ScreenRec.recording ? Qt.alpha(Theme.markDeep, 0.16) : Qt.alpha(Theme.markGlow, 0.09) }
                 }
 
                 ClippingRectangle {
@@ -704,7 +704,7 @@ PillSurface {
                         visible: root.counting
                         width: parent.width * (root.counting && ScreenRec.preroll > 0
                             ? (ScreenRec.preroll - root.countdown + 1) / ScreenRec.preroll : 0)
-                        color: Qt.alpha(Theme.vermLit, 0.18)
+                        color: Qt.alpha(Theme.markLit, 0.18)
                         Behavior on width { NumberAnimation { duration: 950; easing.type: Easing.Linear } }
                     }
                 }
@@ -719,8 +719,8 @@ PillSurface {
                     height: 17 * root.s
                     radius: width / 2
                     gradient: Gradient {
-                        GradientStop { position: 0.0; color: Theme.vermLit }
-                        GradientStop { position: 1.0; color: Theme.vermDeep }
+                        GradientStop { position: 0.0; color: Theme.markLit }
+                        GradientStop { position: 1.0; color: Theme.glowDeep }
                     }
                 }
 
@@ -733,7 +733,7 @@ PillSurface {
                     width: 15 * root.s
                     height: 15 * root.s
                     radius: 4 * root.s
-                    color: Theme.vermLit
+                    color: Theme.markLit
                     SequentialAnimation on scale {
                         running: ScreenRec.recording
                         loops: Animation.Infinite
@@ -749,7 +749,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: root.counting
                     text: root.countdown
-                    color: Theme.flameGlow
+                    color: Theme.markGlow
                     font.family: Theme.font
                     font.pixelSize: 24 * root.s
                     font.weight: Font.ExtraBold
@@ -818,9 +818,9 @@ PillSurface {
                             width: (chooser.width - 12 * root.s - 6 * root.s) / 2
                             height: parent.height
                             radius: 9 * root.s
-                            color: srcArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : Theme.tileBg
+                            color: srcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                             border.width: 1
-                            border.color: srcArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.5) : Theme.border
+                            border.color: srcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                             Row {
@@ -831,7 +831,7 @@ PillSurface {
                                     width: 16 * root.s
                                     height: 16 * root.s
                                     name: srcTile.modelData.glyph
-                                    color: srcArea.containsMouse ? Theme.vermLit : Theme.iconDim
+                                    color: srcArea.containsMouse ? Theme.markLit : Theme.iconDim
                                     stroke: 1.7
                                 }
                                 Text {
@@ -888,9 +888,9 @@ PillSurface {
                         width: 152 * root.s
                         height: monList.height
                         radius: 9 * root.s
-                        color: monArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.16) : Theme.tileBg
+                        color: monArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                         border.width: 1
-                        border.color: monArea.containsMouse ? Qt.alpha(Theme.vermLit, 0.5) : Theme.border
+                        border.color: monArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                         Column {
@@ -1053,7 +1053,7 @@ PillSurface {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     text: "CHANGE"
-                    color: changeArea.containsMouse ? Theme.flameGlow : Theme.subtle
+                    color: changeArea.containsMouse ? Theme.markGlow : Theme.subtle
                     font.family: Theme.font
                     font.pixelSize: 9 * root.s
                     font.weight: Font.Bold
@@ -1074,7 +1074,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     text: "OPEN"
-                    color: openArea.containsMouse ? Theme.flameGlow : Theme.subtle
+                    color: openArea.containsMouse ? Theme.markGlow : Theme.subtle
                     font.family: Theme.font
                     font.pixelSize: 9 * root.s
                     font.weight: Font.Bold
@@ -1164,7 +1164,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: Flags.showGlyphs
                     text: "\uf12d"
-                    color: clearArea.containsMouse ? Theme.flameGlow : Theme.vermDeep
+                    color: clearArea.containsMouse ? Theme.markGlow : Theme.glowDeep
                     font.family: Theme.fontIcon
                     font.pixelSize: 11 * root.s
                 }
@@ -1173,7 +1173,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     text: "CLEAR"
-                    color: clearArea.containsMouse ? Theme.flameGlow : Theme.vermDeep
+                    color: clearArea.containsMouse ? Theme.markGlow : Theme.glowDeep
                     font.family: Theme.font
                     font.pixelSize: 9 * root.s
                     font.weight: Font.Bold
@@ -1305,8 +1305,8 @@ PillSurface {
                         radius: thumb.radius
                         color: "transparent"
                         border.width: 1.5
-                        border.color: frame.index === 0 ? Qt.alpha(Theme.vermLit, 0.4)
-                            : (frameArea.containsMouse ? Theme.vermDim : Theme.border)
+                        border.color: frame.index === 0 ? Qt.alpha(Theme.markLit, 0.4)
+                            : (frameArea.containsMouse ? Theme.markDim : Theme.border)
                         Behavior on border.color { ColorAnimation { duration: Motion.fast } }
                     }
 

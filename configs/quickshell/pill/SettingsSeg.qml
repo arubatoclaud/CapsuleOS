@@ -59,10 +59,10 @@ Rectangle {
                 width: optLabel.implicitWidth + 18 * seg.s
                 height: optLabel.implicitHeight + 12 * seg.s
                 radius: 8 * seg.s
-                color: opt.armed ? Qt.alpha(Theme.verm, 0.42)
-                    : (opt.current ? Qt.alpha(Theme.onGlow, 0.16) : (opt.hovered ? Theme.frameBg : "transparent"))
+                color: opt.armed ? Qt.alpha(Theme.markDeep, 0.42)
+                    : (opt.current ? Qt.alpha(Theme.markGlow, 0.16) : (opt.hovered ? Theme.frameBg : "transparent"))
                 border.width: opt.armed ? 1 : 0
-                border.color: Qt.alpha(Theme.vermLit, 0.7)
+                border.color: Qt.alpha(Theme.markLit, 0.7)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
                 Text {

@@ -94,9 +94,9 @@ PillSurface {
                 if (v > 0.5) {
                     var diag = r * 0.7071;
                     var grad = ctx.createLinearGradient(cx - diag, cy + diag, cx + diag, cy - diag);
-                    grad.addColorStop(0, Theme.vermBurn);
-                    grad.addColorStop(0.35, Theme.vermBurn);
-                    grad.addColorStop(1, Theme.vermLit);
+                    grad.addColorStop(0, Theme.glowBurn);
+                    grad.addColorStop(0.35, Theme.glowBurn);
+                    grad.addColorStop(1, Theme.markLit);
                     ctx.strokeStyle = grad;
                     ctx.beginPath();
                     ctx.arc(cx, cy, r, start, start + full * v / 100, false);
@@ -323,7 +323,7 @@ PillSurface {
                             }
                             Text {
                                 text: "↑" + Sysmon.netUp.toFixed(1)
-                                color: Theme.vermLit
+                                color: Theme.markLit
                                 font.family: Theme.font
                                 font.pixelSize: 13 * root.s
                                 font.weight: Font.ExtraBold

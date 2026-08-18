@@ -64,9 +64,9 @@ Item {
             width: parent.width - 72 * pick.s
             height: 24 * pick.s
             radius: 9 * pick.s
-            color: pick.open ? Qt.alpha(Theme.onGlow, 0.14) : (field.hovered ? Theme.frameBg : "transparent")
+            color: pick.open ? Qt.alpha(Theme.markGlow, 0.14) : (field.hovered ? Theme.frameBg : "transparent")
             border.width: 1
-            border.color: pick.open ? Qt.alpha(Theme.onGlow, 0.5) : Theme.hairSoft
+            border.color: pick.open ? Qt.alpha(Theme.markGlow, 0.5) : Theme.hairSoft
             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
             DisplayLabel {
@@ -156,7 +156,7 @@ Item {
                 height: 24 * pick.s
                 radius: 7 * pick.s
                 color: optHover.hovered ? Theme.frameBg
-                    : (optRow.current ? Qt.alpha(Theme.onGlow, 0.16) : "transparent")
+                    : (optRow.current ? Qt.alpha(Theme.markGlow, 0.16) : "transparent")
 
                 HoverHandler { id: optHover }
 

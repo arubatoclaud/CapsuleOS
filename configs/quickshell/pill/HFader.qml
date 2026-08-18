@@ -54,8 +54,8 @@ Item {
             radius: parent.radius
             gradient: Gradient {
                 orientation: Gradient.Horizontal
-                GradientStop { position: 0.0; color: root.on ? Theme.vermBurn : Theme.vermDimDeep }
-                GradientStop { position: 1.0; color: root.on ? Theme.vermLit : Theme.vermDim }
+                GradientStop { position: 0.0; color: root.on ? Theme.glowBurn : Theme.markDimDeep }
+                GradientStop { position: 1.0; color: root.on ? Theme.markLit : Theme.markDim }
             }
             Behavior on width { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
         }
