@@ -48,9 +48,7 @@ Singleton {
      * bright wallpaper that eats the accent's contrast. The palette guarantees
      * the mark 4.5:1 against the pill card as it composites at SURF_ALPHA =
      * 0.86, so anything thinner than that is the renderer's problem, not the
-     * palette's (Task 1 review, Important-2: the floor this replaces was
-     * load-bearing on glass, where alpha 0.62 lets far too much wallpaper
-     * through). Glass is the only material under 0.86, so its alpha is floored
+     * palette's. Glass is the only material under 0.86, so its alpha is floored
      * back to 0.85 exactly when the wallpaper is bright enough to matter:
      * Dyn.brightSurface, the top of the dark-only depth band, which is where
      * the dropped `light` flag's job went. Dark wallpapers keep the full glass
@@ -89,13 +87,12 @@ Singleton {
     /**
      * String-typed for Canvas: a color property serializes to #aarrggbb and
      * corrupts addColorStop/strokeStyle, so the raw palette hex goes through
-     * untouched and no Qt.* math may be applied to it.
+     * untouched and no Qt.* math may be applied to it. In static mode, glowInk
+     * and glow are independently curated; dynamically both are Dyn.glow.
      */
     readonly property string glowInk: dyn ? Dyn.glow : "#ff9838"
 
     /**
-     * DEPRECATED(night-glass): alias of mark, removed in Task 3.
-     *
      * `onGlow` cannot be written as a plain binding any more: QML reads
      * `property T onFoo: expr` as a handler for `foo` once a member named
      * `foo` exists on the object, so declaring `glow` above silently turns
@@ -103,6 +100,8 @@ Singleton {
      * through a nested object is the only way to keep the deprecated name
      * bindable; it dies with the alias. (Same mechanism, long blamed on
      * matugen, that empties Dyn.onPrimaryContainer.)
+     *
+     * DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3.
      */
     readonly property QtObject legacy: QtObject {
         id: legacyTokens
@@ -110,11 +109,11 @@ Singleton {
     }
     readonly property alias onGlow: legacyTokens.onGlow
 
-    /** DEPRECATED(night-glass): alias of mark, removed in Task 3. */
+    /** DEPRECATED(night-glass): = Qt.darker(mark, 1.18), static branch is its own hex, removed in Task 3. */
     readonly property color verm:     dyn ? Qt.darker(mark, 1.18) : "#e0762a"
-    /** DEPRECATED(night-glass): alias of mark, removed in Task 3. */
+    /** DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3. */
     readonly property color vermLit:  dyn ? mark : "#ff9838"
-    /** DEPRECATED(night-glass): alias of glowDeep, removed in Task 3. */
+    /** DEPRECATED(night-glass): = glowDeep, removed in Task 3. */
     readonly property color vermDeep: glowDeep
     readonly property color cream:    dyn ? Dyn.cream : "#d5dce6"
     readonly property color bright:   dyn ? Dyn.bright : "#f2f6fb"
@@ -130,17 +129,17 @@ Singleton {
     readonly property color hair:     Qt.alpha(cream, material === "glass" ? 0.22 : 0.13)
     readonly property color hairSoft: Qt.alpha(cream, material === "glass" ? 0.14 : 0.08)
     readonly property color sheen:    Qt.alpha(cream, material === "glass" ? 0.16 : 0.07)
-    /** DEPRECATED(night-glass): alias of markDim, removed in Task 3. */
+    /** DEPRECATED(night-glass): = markDim, removed in Task 3. */
     readonly property color vermDim:   markDim
-    /** DEPRECATED(night-glass): alias of mark, removed in Task 3. */
+    /** DEPRECATED(night-glass): = Qt.darker(mark, 2.2), static branch is its own hex, removed in Task 3. */
     readonly property color vermDimDeep: dyn ? Qt.darker(mark, 2.2) : "#55442e"
-    /** DEPRECATED(night-glass): alias of glowDeep, removed in Task 3. */
+    /** DEPRECATED(night-glass): = Qt.darker(glowDeep, 1.1), static branch is its own hex, removed in Task 3. */
     readonly property color vermBurn:  dyn ? Qt.darker(glowDeep, 1.1) : "#8a3a0a"
     readonly property color tickRest:  dyn ? Dyn.tickRest : "#aab6c6"
     readonly property color threadBg:  Qt.alpha(cream, 0.13)
-    /** DEPRECATED(night-glass): alias of mark, removed in Task 3. */
+    /** DEPRECATED(night-glass): = Qt.lighter(mark, 1.03), static branch is its own hex, removed in Task 3. */
     readonly property color flameCore: dyn ? Qt.lighter(mark, 1.03) : "#ffe2b8"
-    /** DEPRECATED(night-glass): alias of mark, removed in Task 3. */
+    /** DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3. */
     readonly property color flameGlow: dyn ? mark : "#ffb454"
 
     /**
@@ -154,16 +153,17 @@ Singleton {
      * currently renders EMPTY on a live palette, because Dyn.onPrimaryContainer
      * is unbindable by name (see the alias note above), and preserving that is
      * the only reason it still points there.
+     *
+     * DEPRECATED(night-glass): = Dyn.mark, static branch is its own hex, removed in Task 3.
      */
-    /** DEPRECATED(night-glass): alias of glowInk's source, removed in Task 3. */
     readonly property string flameInk:   dyn ? Dyn.mark : "#ff9838"
-    /** DEPRECATED(night-glass): alias of glowDeep's source, removed in Task 3. */
+    /** DEPRECATED(night-glass): = Dyn.primaryContainer, static branch is its own hex, removed in Task 3. */
     readonly property string flameEmber: dyn ? Dyn.primaryContainer : "#7a3410"
-    /** DEPRECATED(night-glass): alias of glowDeep's source, removed in Task 3. */
+    /** DEPRECATED(night-glass): = Dyn.primaryContainer, static branch is its own hex, removed in Task 3. */
     readonly property string flameBurn:  dyn ? Dyn.primaryContainer : "#8a3a0a"
-    /** DEPRECATED(night-glass): no canonical equivalent, see above; removed in Task 3. */
+    /** DEPRECATED(night-glass): = Dyn.onPrimaryContainer, no canonical equivalent, removed in Task 3. */
     readonly property string flameTip:   dyn ? Dyn.onPrimaryContainer : "#ffcf8f"
-    /** DEPRECATED(night-glass): alias of mark, removed in Task 3. */
+    /** DEPRECATED(night-glass): = mark, static branch is its own hex, removed in Task 3. */
     readonly property color todayWarm: dyn ? mark : "#ffcf8f"
     readonly property color ghost:     dyn ? Dyn.surfaceContainerHighest : "#2e3a50"
     readonly property color frameBg:      Qt.alpha(cream, 0.055)
