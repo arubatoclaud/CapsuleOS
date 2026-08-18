@@ -62,4 +62,4 @@ hl.config({
     at startup, so a hand edit here is undone: change Material instead. Shipped
     present because the default material (frost) blurs.
 ]]
-hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })
+hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.2 })

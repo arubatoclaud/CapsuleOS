@@ -30,16 +30,25 @@ Singleton {
     property alias manualDark: adapter.manualDark
     property alias manualSat: adapter.manualSat
     property alias uiFont: adapter.uiFont
-    property alias pillOpacity: adapter.pillOpacity
     /**
-     * There is deliberately no `pillBlur` here. The pill's blur follows its
-     * material, its truth is decoration.lua's `pill-blur` layer_rule (which
-     * Store adds and removes as the material changes), and the derived value
-     * lives once as `Theme.pillBlur`. The old JSON key was a second,
-     * independently-settable copy of that state (audit P0-4). It is NOT
-     * declared on the adapter anymore: a stale `pillBlur` still sitting in an
+     * TWO KEYS ARE DELIBERATELY ABSENT, both for the same reason: each was a
+     * second control over a piece of state the material already decides.
+     *
+     * `pillBlur` — the pill's blur follows its material, its truth is
+     * decoration.lua's `pill-blur` layer_rule (which Store adds and removes as
+     * the material changes), and the derived value lives once as
+     * `Theme.pillBlur`. The old JSON key was an independently-settable copy of
+     * that state (audit P0-4).
+     *
+     * `pillOpacity` — the pill's alpha follows its material too, and glass
+     * follows the user's window-background opacity (`Theme.glassAlpha`). The
+     * flag multiplied on top of the material's alpha at the render sites, and
+     * that product could fall under the `pill-blur` rule's `ignore_alpha` and
+     * stop the compositor blurring with no setting anywhere admitting it.
+     *
+     * Neither is declared on the adapter: a stale key still sitting in an
      * existing flags.json loads without error, is ignored, and is dropped from
-     * the file on the next write — no migration step needed.
+     * the file on the next write — no migration step needed for either.
      */
     property alias autoHide: adapter.autoHide
     property alias autoHideDelay: adapter.autoHideDelay
@@ -134,7 +143,6 @@ Singleton {
             property bool manualDark: true
             property real manualSat: 0.5
             property string uiFont: ""
-            property real pillOpacity: 1.0
             /** macOS menubar behaviour: the pill retracts off the top edge at rest and releases its reserved band, and a thin hover strip at the screen edge slides it back. */
             property bool autoHide: false
             /** Auto-hide pacing: "off" instant, else short/medium/long scale the reveal dwell and hide linger together. */

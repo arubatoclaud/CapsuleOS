@@ -17,10 +17,32 @@ Singleton {
     /**
      * Material preset: glass = bright translucent, frost = dark translucent,
      * ink = flat opaque. Alpha rides the surface tokens so every surface
-     * follows; Flags.pillOpacity still multiplies on top at the window level.
+     * follows, and nothing multiplies on top of it at the window level.
      */
     readonly property string material: Flags.material
-    readonly property real baseAlpha: material === "glass" ? 0.62 : material === "ink" ? 1.0 : 0.86
+
+    /**
+     * GLASS TRACKS THE TERMINAL BACKGROUND. `background-opacity` from the
+     * ghostty config times Hyprland's `active_opacity` is the exact alpha a
+     * focused window's background composites at, so binding glass to that
+     * product makes the pill read as the same pane the windows under it are
+     * made of, and one control moves both. Frost and ink keep fixed alphas of
+     * their own: frost is the palette's contract value (see `surfAlpha`), ink
+     * is opaque by definition.
+     *
+     * Both halves are BINDINGS onto Store, not `get()` snapshots, so a write
+     * from Windows › Transparency — or a hand edit of either file that Store
+     * re-reads — repaints the pill straight away. Store falls each half back to
+     * its Schema default when the file will not parse, so an unreadable config
+     * yields the shipped look rather than a pill that vanishes.
+     *
+     * This replaced a standalone `pillOpacity` flag that multiplied on top of a
+     * fixed 0.62 at the two Pill.qml render sites. Two independent controls over
+     * one composited alpha is what let the pill's blur switch off silently:
+     * their product could fall under the `pill-blur` layer_rule's `ignore_alpha`
+     * with no setting anywhere admitting that blur had changed.
+     */
+    readonly property real glassAlpha: Store.termBgOpacity * Store.activeOpacity
     /**
      * Whether the material wants the compositor blurring what sits behind the
      * pill: glass and frost are translucent and read as frosted glass over the
@@ -44,17 +66,23 @@ Singleton {
     }
     readonly property bool pillBlur: Theme.blursBehind(Theme.material)
     /**
+     * THE alpha every surface token composites at, and the only one: there is
+     * no second factor applied downstream of it.
+     *
      * Translucent surfaces composite the wallpaper through the pill, and on a
      * bright wallpaper that eats the accent's contrast. The palette guarantees
      * the mark 4.5:1 against the pill card as it composites at SURF_ALPHA =
-     * 0.86, so anything thinner than that is the renderer's problem, not the
-     * palette's. Glass is the only material under 0.86, so its alpha is floored
-     * back to 0.85 exactly when the wallpaper is bright enough to matter:
-     * Dyn.brightSurface, the top of the dark-only depth band, which is where
-     * the dropped `light` flag's job went. Dark wallpapers keep the full glass
-     * thinness — the floor is a rescue, not the resting state.
+     * 0.86, which frost meets exactly and ink beats. Glass used to be floored
+     * back to 0.85 on `Dyn.brightSurface` to buy that same margin on a bright
+     * wallpaper; that floor is gone, because glass is no longer a constant the
+     * renderer picked but the user's own window-background opacity, and
+     * overriding it would mean the pill quietly refusing the transparency the
+     * Windows › Transparency scrubs say it has. On glass the 4.5:1 guarantee is
+     * therefore user-governed: thinner glass trades legibility for translucency
+     * by the user's explicit instruction, the same trade wallcolors.py's
+     * SURF_ALPHA comment already hands to the renderer.
      */
-    readonly property real surfAlpha: (dyn && Dyn.brightSurface) ? Math.max(baseAlpha, 0.85) : baseAlpha
+    readonly property real surfAlpha: material === "glass" ? glassAlpha : material === "ink" ? 1.0 : 0.86
 
     /**
      * Conversion factor for the handful of sites that hard-pin their own alpha

@@ -52,7 +52,6 @@ SettingsSurface {
 
     readonly property var topGapEntry: Schema.settings.topGap
     readonly property var appGapEntry: Schema.settings.appGap
-    readonly property var pillOpacityEntry: Schema.settings.pillOpacity
     readonly property var autoHideEntry: Schema.settings.autoHide
     readonly property var autoHideDelayEntry: Schema.settings.autoHideDelay
     readonly property var materialEntry: Schema.settings.material
@@ -64,8 +63,7 @@ SettingsSurface {
         if (active) {
             root.base = {
                 topGap: Store.get("topGap"),
-                appGap: Store.get("appGap"),
-                pillOpacity: Store.get("pillOpacity")
+                appGap: Store.get("appGap")
             };
             // Material is the control, the layer_rule is the state it implies, and
             // nothing but Store writes either — but a hand edit of decoration.lua
@@ -473,23 +471,6 @@ SettingsSurface {
                 openValue: root.base.appGap
                 from: root.appGapEntry.from; to: root.appGapEntry.to; step: root.appGapEntry.step; decimals: 1
                 onEdited: v => Store.set("appGap", v)
-            }
-        }
-
-        SettingsRow {
-            id: pillOpRow
-            surface: root
-            settingId: "pillOpacity"
-            name: root.pillOpacityEntry.label
-            sub: root.pillOpacityEntry.caption
-            captionOnFocus: true
-            ScrubValue {
-                id: pillOpScrub
-                s: root.s
-                value: Store.get("pillOpacity")
-                openValue: root.base.pillOpacity
-                from: root.pillOpacityEntry.from; to: root.pillOpacityEntry.to; step: root.pillOpacityEntry.step; decimals: 2
-                onEdited: v => Store.set("pillOpacity", v)
             }
         }
 

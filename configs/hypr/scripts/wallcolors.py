@@ -94,10 +94,13 @@ GLOW_L = 0.62
 # frost default 0.86), so the accent is clamped against the surface as it
 # actually composites, not against the flat surface swatch. The MARK_CONTRAST
 # contract is therefore stated against the *frost* composite: it holds exactly
-# on frost and with margin on ink (alpha 1.0), while glass (0.62) lets far more
-# wallpaper through and trades legibility for translucency by design. The
-# pipeline cannot see the runtime material flag, so guarding glass is the
-# renderer's job, not this file's.
+# on frost and with margin on ink (alpha 1.0), while glass lets more wallpaper
+# through and trades legibility for translucency by design. The pipeline cannot
+# see the runtime material flag, so guarding glass is the renderer's job, not
+# this file's -- and the renderer no longer guards it either: glass now
+# composites at the user's own window-background opacity (Theme.glassAlpha), so
+# on glass the MARK_CONTRAST guarantee is user-governed and thinner glass is an
+# explicit choice, not a palette failure.
 SURF_ALPHA = 0.86
 
 

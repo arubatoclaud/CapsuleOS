@@ -131,8 +131,19 @@ Singleton {
      * The pill-blur layer rule, verbatim as it sits in decoration.lua. Blur
      * behind a shell layer cannot be set as a config field, only as a rule, so
      * the material's blur half is this line's presence or absence.
+     *
+     * `ignore_alpha` is the compositor's cutoff: Hyprland skips blurring any
+     * pixel whose alpha falls BELOW it, so the field is a second, invisible
+     * on/off switch for the pill's blur sitting underneath the material's. At
+     * the old 0.5 it sat right in the middle of the range the glass alpha can
+     * legitimately take — the user's window-background opacity — so an ordinary
+     * turn of the transparency scrub could put the pill under the line and stop
+     * the blur with nothing on screen saying why. 0.2 puts the cutoff below
+     * anything the settings tree can produce (the transparency scrubs floor at
+     * 0.5 each, i.e. 0.25 composited) while still doing its real job of not
+     * spending GPU time blurring behind pixels that are essentially clear.
      */
-    readonly property string pillBlurRule: 'hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })\n'
+    readonly property string pillBlurRule: 'hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.2 })\n'
 
     property string _decoText: ""
     property string _inputText: ""
@@ -152,6 +163,39 @@ Singleton {
     readonly property string decoText: root._decoText
     readonly property string inputText: root._inputText
     readonly property string animText: root._animText
+
+    /**
+     * The two window-opacity values the pill's glass material is made of, as
+     * BINDABLE properties rather than `get(id)` calls. Theme composites glass at
+     * `termBgOpacity * activeOpacity`, so it has to re-evaluate whenever either
+     * one is written; `Store.get(...)` inside that binding would read whatever
+     * the texts happened to hold at the moment the binding was first evaluated,
+     * which on a cold start is before the files have been read at all.
+     *
+     * They parse the same texts with the same parsers as `get`'s `deco` and
+     * `app` branches — `_decoText` and `_ghosttyText` are ordinary properties, so
+     * every rewrite by `_setDeco`/`_setApp` and every `_sync` after a hand edit
+     * notifies these for free, with no watcher and no polling. Kept next to
+     * the raw texts because that is what they are: a typed reading of one field.
+     *
+     * A field that is absent or will not parse falls back to its Schema default,
+     * the same answer `get` gives, so the settings row and the glass can never
+     * disagree about what an unreadable file means.
+     */
+    readonly property real activeOpacity: root._opacityOr(SetDeco.getField(root._decoText, "active_opacity"),
+                                                          Schema.settings.activeOpacity.def)
+    readonly property real termBgOpacity: {
+        var m = root._ghosttyText.match(/^\s*background-opacity\s*=\s*([0-9.]+)/m);
+        return root._opacityOr(m ? m[1] : "", Schema.settings.termBgOpacity.def);
+    }
+
+    /** A parsed opacity field clamped into 0..1, or `def` when it is absent or not a number. */
+    function _opacityOr(raw, def) {
+        if (raw === undefined || raw === null || String(raw).length === 0)
+            return def;
+        var n = parseFloat(raw);
+        return isNaN(n) ? def : Math.max(0, Math.min(1, n));
+    }
 
     /**
      * Writes of ours still landing, per file. A `setText` is asynchronous, so
@@ -363,10 +407,8 @@ Singleton {
         case "app":
             if (e.key === "vibrance")
                 return Devices.vibrance;
-            if (e.key === "background-opacity") {
-                var m = root._ghosttyText.match(/^\s*background-opacity\s*=\s*([0-9.]+)/m);
-                return m ? parseFloat(m[1]) : e.def;
-            }
+            if (e.key === "background-opacity")
+                return root.termBgOpacity;
             return e.def;
         }
         return e.def;
@@ -732,7 +774,10 @@ Singleton {
      * fades text with the background; the SIGUSR2 poke is debounced like the
      * Hyprland reload so a scrub drag reloads open windows once, and a failed
      * pkill only means no ghostty is running and the value waits for the next
-     * launch. Vibrance is Devices' own persisted state.
+     * launch. It has a second reader now: `termBgOpacity` above, which the pill's
+     * glass material composites at, so this write repaints the pill as well —
+     * through the binding on `_ghosttyText` set below, with no reload involved.
+     * Vibrance is Devices' own persisted state.
      */
     function _setApp(id, e, v) {
         if (e.key === "vibrance") {

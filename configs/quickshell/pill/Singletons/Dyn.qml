@@ -46,23 +46,13 @@ Singleton {
     readonly property string glow: adapter.glow.length > 0 ? adapter.glow : primaryContainer
 
     /**
-     * True when the wallpaper is bright enough that the palette has lifted the
-     * surface to the top of its band. wallcolors.py is dark-only now and maps
-     * wallpaper mean lightness onto the surface's HSL lightness in
-     * [DEPTH_MIN, DEPTH_MAX] = [0.06, 0.16], so the surface lightness IS the
-     * wallpaper-brightness signal that the dropped `light` flag used to carry;
-     * > 0.13 is the brightest fifth of that band. Theme floors the glass alpha
-     * on it so a bright wallpaper cannot composite through the pill and eat
-     * the mark's contrast (see Theme.surfAlpha).
-     *
-     * Gated on the raw `mark` field because the threshold only means something
-     * inside the Night Glass band: a pre-split colors.json comes off the old
-     * [0.045, 0.20] ramp, where 0.13 is an ordinary dark surface, and reading
-     * it through this threshold would floor the alpha on palettes that never
-     * asked for it. No mark field, no claim.
+     * There is deliberately no `brightSurface` here any more. It existed for
+     * exactly one consumer — the floor `Theme.surfAlpha` put under glass on a
+     * bright wallpaper — and that floor is gone: glass now composites at the
+     * user's own window-background opacity, which nothing derived from the
+     * wallpaper gets to override. With its only reader retired the property was
+     * a wallpaper-brightness signal answering a question nobody asked.
      */
-    readonly property bool brightSurface: adapter.mark.length > 0 && surface.length > 0
-                                          && Qt.color(surface).hslLightness > 0.13
 
     FileView {
         id: file

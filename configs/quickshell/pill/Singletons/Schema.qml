@@ -193,19 +193,13 @@ Singleton {
             control: "scrub", type: "real", backend: "flags", key: "appGap", def: 1.0,
             from: 0, to: 2, step: 0.1, unit: ""
         },
-        pillOpacity: {
-            page: "appearance", group: "chrome", order: 2,
-            label: "Pill opacity", caption: "How see-through the pill sits",
-            control: "scrub", type: "real", backend: "flags", key: "pillOpacity", def: 1.0,
-            from: 0.55, to: 1.0, step: 0.05, unit: ""
-        },
         autoHide: {
-            page: "appearance", group: "chrome", order: 3,
+            page: "appearance", group: "chrome", order: 2,
             label: "Auto-hide pill", caption: "Slide away at rest, reveal on the top edge",
             control: "toggle", type: "bool", backend: "flags", key: "autoHide", def: false
         },
         autoHideDelay: {
-            page: "appearance", group: "chrome", order: 4,
+            page: "appearance", group: "chrome", order: 3,
             label: "Delay", caption: "Dwell on the edge to reveal, linger before retracting",
             control: "seg", type: "string", backend: "flags", key: "autoHideDelay", def: "medium",
             options: [{ label: "Off", value: "off" }, { label: "Short", value: "short" }, { label: "Medium", value: "medium" }, { label: "Long", value: "long" }]
@@ -349,7 +343,7 @@ Singleton {
         },
         termBgOpacity: {
             page: "look", group: "opacity", order: 2,
-            label: "Ghostty background", caption: "Ghostty background only. Text stays solid.",
+            label: "Background opacity", caption: "Ghostty's background, and the pill's glass tint tracks it. Text stays solid.",
             control: "scrub", type: "real", backend: "app", key: "background-opacity", def: 0.85,
             from: 0.5, to: 1.0, step: 0.05, unit: ""
         },
