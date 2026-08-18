@@ -13,8 +13,8 @@ import "Singletons"
  * the option strips come from Schema, so a rename is an edit there, not here.
  * Keep-awake in the mixer already inhibits the Wayland idle notification, which
  * pauses every listener while it is on, so this surface never touches that
- * wiring. Reached from the settings index and morphs back to it on an empty
- * click or the back chevron.
+ * wiring. Reached from the settings index and morphs back to it via the back
+ * chevron in the header strip, popping the settings stack.
  */
 SettingsSurface {
     id: root

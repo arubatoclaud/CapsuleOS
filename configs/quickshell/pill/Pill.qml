@@ -83,7 +83,10 @@ Item {
      * the stack, so the morph, the mask, the anchors and the ame seam keep reading
      * the one string they always read. `settingsTrail` holds only what sits
      * beneath that top; deriving the top instead of storing it means the stack can
-     * never disagree with the page actually on screen, whoever moved it.
+     * never disagree with the page actually on screen at quiescence. However, during
+     * a surface-change cascade, onSurfaceChanged mutates the trail before settingsTop
+     * rebinds, so bindings on settingsStack can observe a transiently wrong value;
+     * imperative readers between events are safe. Do not bind directly on settingsStack.
      *
      * `openSettingsPage()` pushes, `settingsBack()` pops (an empty stack closes
      * the pill), and `onSurfaceChanged` reconciles every move that comes from

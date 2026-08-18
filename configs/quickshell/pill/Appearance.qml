@@ -8,8 +8,8 @@ import "Singletons"
 /**
  * APPEARANCE sub-surface: the clock format and seconds, the palette mode
  * (static flame, dynamic per-wallpaper, or a manually chosen hue), the UI scale
- * and a reduce-motion switch. Reached from the settings index and morphs back to it on an empty click
- * or the back chevron.
+ * and a reduce-motion switch. Reached from the settings index and morphs back to it via the back
+ * chevron in the header strip, popping the settings stack.
  *
  * Every row but the manual-palette editor reads and writes through Store,
  * which validates against Schema and assigns the matching Flags key — so this

@@ -10,8 +10,8 @@ import "Singletons"
  * picking. A click writes the family to Flags.uiFont, which Theme.font reads back
  * through a validated ternary so the whole shell re-renders at once; the leading
  * reset row writes "" to fall back to the bundled Inter. The current pick carries
- * the vermilion tint. Reached from Appearance and morphs back to it on the back
- * chevron or an empty click.
+ * the vermilion tint. Reached from Appearance (or via deep link) and pops back to
+ * the page that pushed it — Appearance normally, the settings index on a deep link.
  */
 SettingsSurface {
     id: root
