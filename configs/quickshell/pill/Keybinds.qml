@@ -477,9 +477,9 @@ PillSurface {
                 Rectangle {
                     id: comboChip
                     anchors.left: parent.left
-                    anchors.leftMargin: 12 * root.s
+                    anchors.leftMargin: 8 * root.s
                     anchors.verticalCenter: parent.verticalCenter
-                    width: comboText.implicitWidth + 16 * root.s
+                    width: comboText.implicitWidth + 12 * root.s
                     height: comboText.implicitHeight + 8 * root.s
                     radius: 7 * root.s
                     color: brow.focused ? Qt.alpha(Theme.vermLit, 0.16) : Theme.frameBg
@@ -501,9 +501,9 @@ PillSurface {
 
                 Column {
                     anchors.left: comboChip.right
-                    anchors.leftMargin: 12 * root.s
+                    anchors.leftMargin: 8 * root.s
                     anchors.right: parent.right
-                    anchors.rightMargin: 14 * root.s
+                    anchors.rightMargin: 10 * root.s
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 1 * root.s
 

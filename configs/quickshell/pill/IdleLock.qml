@@ -19,7 +19,6 @@ import "Singletons"
 SettingsSurface {
     id: root
 
-    backSurface: "settings"
     implicitHeight: content.implicitHeight
 
     readonly property var lockEntry: Schema.settings.idleLockMin

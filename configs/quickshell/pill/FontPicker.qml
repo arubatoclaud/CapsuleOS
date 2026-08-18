@@ -16,7 +16,6 @@ import "Singletons"
 SettingsSurface {
     id: root
 
-    backSurface: "appearance"
     implicitHeight: content.implicitHeight
 
     property string query: ""

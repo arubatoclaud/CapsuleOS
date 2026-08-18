@@ -18,7 +18,6 @@ import "Singletons"
 SettingsSurface {
     id: root
 
-    backSurface: "settings"
     implicitHeight: content.implicitHeight
 
     readonly property var sensEntry: Schema.settings.sensitivity

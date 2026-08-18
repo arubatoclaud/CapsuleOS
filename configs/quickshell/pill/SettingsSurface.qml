@@ -6,9 +6,11 @@ import "Singletons"
 /**
  * Shared base for the morphing settings surfaces: the category index and each
  * sub-surface. Carries the keyboard-navigable row registry and the glowing
- * row-soul seam, and morphs back to the parent index when empty space is clicked
- * on a sub-surface. The deriving surface optionally sets `backSurface` and lays
- * out its own content column (header, section labels, SettingsRow lines).
+ * row-soul seam. The deriving surface lays out its own content column (header,
+ * section labels, SettingsRow lines) and nothing else: which page a `requestSurface`
+ * lands on, and which page back returns to, are the pill's settings stack to
+ * decide — a page no longer names its own parent, so the same page reached from
+ * two places pops to the one it was actually opened from.
  *
  * `rows` is derived, not written: each row lodges a SettingsNav claim while it
  * is on screen, and this surface orders the live claims by where they sit on
@@ -37,7 +39,6 @@ PillSurface {
     mRight: 19
     mBottom: 14
 
-    property string backSurface: ""
     signal requestSurface(string name)
 
     property Item focusRowItem: null

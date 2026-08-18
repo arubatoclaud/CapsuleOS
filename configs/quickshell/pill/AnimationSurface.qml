@@ -30,7 +30,6 @@ import "Singletons"
 SettingsSurface {
     id: root
 
-    backSurface: "settings"
     implicitHeight: content.implicitHeight
 
     readonly property bool animOn: Store.get("animEnabled")
