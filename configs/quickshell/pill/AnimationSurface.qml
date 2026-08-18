@@ -208,7 +208,7 @@ SettingsSurface {
             surface: root
             settingId: "animEnabled"
             navSet: (v) => root.writeEnabled(v)
-            name: "Enabled"
+            name: "Animate windows"
             sub: "Animate windows, workspaces and fades"
             captionOnFocus: true
             icon: "sparkles"

@@ -220,31 +220,31 @@ Singleton {
         // ── Look · Window ─────────────────────────────────────────────────
         gapsIn: {
             page: "look", group: "window", order: 0,
-            label: "Gaps inner", caption: "Space between tiled windows",
+            label: "Inner gaps", caption: "Space between tiled windows",
             control: "scrub", type: "int", backend: "deco", key: "gaps_in", def: 6,
             from: 0, to: 40, step: 1, unit: "px"
         },
         gapsOut: {
             page: "look", group: "window", order: 1,
-            label: "Gaps outer", caption: "Space to the screen edge",
+            label: "Outer gaps", caption: "Space to the screen edge",
             control: "scrub", type: "int", backend: "deco", key: "gaps_out", def: 12,
             from: 0, to: 60, step: 1, unit: "px"
         },
         rounding: {
             page: "look", group: "window", order: 2,
-            label: "Rounding", caption: "Corner radius in pixels",
+            label: "Corner radius", caption: "Corner radius in pixels",
             control: "scrub", type: "int", backend: "deco", key: "rounding", def: 14,
             from: 0, to: 30, step: 1, unit: "px"
         },
         roundingPower: {
             page: "look", group: "window", order: 3,
-            label: "Rounding power", caption: "Higher bends corners to a squircle",
+            label: "Corner shape", caption: "Higher bends corners to a squircle",
             control: "scrub", type: "int", backend: "deco", key: "rounding_power", def: 4,
             from: 1, to: 10, step: 1, unit: ""
         },
         borderSize: {
             page: "look", group: "window", order: 4,
-            label: "Border size", caption: "Window outline thickness",
+            label: "Border thickness", caption: "Window outline thickness",
             control: "scrub", type: "int", backend: "deco", key: "border_size", def: 0,
             from: 0, to: 8, step: 1, unit: "px"
         },
@@ -260,18 +260,18 @@ Singleton {
         // ── Look · Shadow ─────────────────────────────────────────────────
         shadowEnabled: {
             page: "look", group: "shadow", order: 0,
-            label: "Enabled", caption: "Drop shadow under windows",
+            label: "Enable shadow", caption: "Drop shadow under windows",
             control: "toggle", type: "bool", backend: "deco", key: "shadow.enabled", def: true
         },
         shadowRange: {
             page: "look", group: "shadow", order: 1,
-            label: "Range", caption: "How far the shadow spreads",
+            label: "Spread", caption: "How far the shadow spreads",
             control: "scrub", type: "int", backend: "deco", key: "shadow.range", def: 18,
             from: 0, to: 50, step: 1, unit: "px"
         },
         shadowRenderPower: {
             page: "look", group: "shadow", order: 2,
-            label: "Render power", caption: "Shadow falloff sharpness",
+            label: "Falloff", caption: "Shadow falloff sharpness",
             control: "scrub", type: "int", backend: "deco", key: "shadow.render_power", def: 3,
             from: 1, to: 4, step: 1, unit: ""
         },
@@ -279,12 +279,12 @@ Singleton {
         // ── Look · Blur ───────────────────────────────────────────────────
         blurEnabled: {
             page: "look", group: "blur", order: 0,
-            label: "Enabled", caption: "Blur behind transparent windows",
+            label: "Enable blur", caption: "Blur behind transparent windows",
             control: "toggle", type: "bool", backend: "deco", key: "blur.enabled", def: true
         },
         blurSize: {
             page: "look", group: "blur", order: 1,
-            label: "Strength", caption: "Blur radius",
+            label: "Radius", caption: "Blur radius",
             control: "scrub", type: "int", backend: "deco", key: "blur.size", def: 8,
             from: 1, to: 20, step: 1, unit: "px"
         },
@@ -366,19 +366,19 @@ Singleton {
         },
         nightLightTemp: {
             page: "display", group: "night", order: 1,
-            label: "Temperature", caption: "Lower is warmer",
+            label: "Warmth", caption: "Lower is warmer",
             control: "scrub", type: "int", backend: "night", key: "nightLightTemp", def: 4000,
             from: 2200, to: 6000, step: 100, unit: "K"
         },
         nightLightOnMin: {
             page: "display", group: "night", order: 2,
-            label: "On at", caption: "Warm tint starts",
+            label: "Turns on", caption: "Warm tint starts",
             control: "scrub", type: "int", backend: "night", key: "nightLightOnMin", def: 1260,
             from: 0, to: 1425, step: 15, unit: ""
         },
         nightLightOffMin: {
             page: "display", group: "night", order: 3,
-            label: "Off at", caption: "Back to neutral",
+            label: "Turns off", caption: "Back to neutral",
             control: "scrub", type: "int", backend: "night", key: "nightLightOffMin", def: 450,
             from: 0, to: 1425, step: 15, unit: ""
         },
@@ -386,7 +386,7 @@ Singleton {
         // ── Input · Pointer ───────────────────────────────────────────────
         sensitivity: {
             page: "input", group: "pointer", order: 0,
-            label: "Sensitivity", caption: "Pointer speed offset",
+            label: "Speed", caption: "Pointer speed offset",
             control: "scrub", type: "real", backend: "input", key: "sensitivity", def: 0,
             from: -1, to: 1, step: 0.1, unit: ""
         },
@@ -444,7 +444,7 @@ Singleton {
         // ── Animation · Motion ────────────────────────────────────────────
         animEnabled: {
             page: "animation", group: "motion", order: 0,
-            label: "Enabled", caption: "Animate windows, workspaces and fades",
+            label: "Animate windows", caption: "Animate windows, workspaces and fades",
             control: "toggle", type: "bool", backend: "anim", key: "enabled", def: true
         },
         /**
@@ -520,14 +520,14 @@ Singleton {
         // ── Session · Idle ────────────────────────────────────────────────
         idleLockMin: {
             page: "session", group: "idle", order: 0,
-            label: "Auto-lock", caption: "Lock the screen after idle",
+            label: "Lock after", caption: "Lock the screen after idle",
             control: "seg", type: "int", backend: "idle", key: "idleLockMin", def: 5,
             options: [{ label: "Off", value: 0 }, { label: "1 min", value: 1 }, { label: "3 min", value: 3 },
                 { label: "5 min", value: 5 }, { label: "10 min", value: 10 }, { label: "15 min", value: 15 }]
         },
         idleScreenOffMin: {
             page: "session", group: "idle", order: 1,
-            label: "Screen off", caption: "Blank the display after idle",
+            label: "Screen off after", caption: "Blank the display after idle",
             control: "seg", type: "int", backend: "idle", key: "idleScreenOffMin", def: 10,
             options: [{ label: "Off", value: 0 }, { label: "3 min", value: 3 }, { label: "5 min", value: 5 },
                 { label: "10 min", value: 10 }, { label: "15 min", value: 15 }]
@@ -607,7 +607,7 @@ Singleton {
             page: "recording", group: "options", order: 0,
             label: "Frame rate", caption: "Frames captured per second",
             control: "seg", type: "int", backend: "rec", key: "fps", def: 60,
-            options: [{ label: "30", value: 30 }, { label: "60", value: 60 }, { label: "120", value: 120 }, { label: "144", value: 144 }]
+            options: [{ label: "30 fps", value: 30 }, { label: "60 fps", value: 60 }, { label: "120 fps", value: 120 }, { label: "144 fps", value: 144 }]
         },
         recordQuality: {
             page: "recording", group: "options", order: 1,
@@ -625,7 +625,7 @@ Singleton {
             page: "recording", group: "options", order: 3,
             label: "Countdown", caption: "Pre-roll before recording starts",
             control: "seg", type: "int", backend: "flags", key: "recordCountdown", def: 5,
-            options: [{ label: "Off", value: 0 }, { label: "3s", value: 3 }, { label: "5s", value: 5 }, { label: "10s", value: 10 }]
+            options: [{ label: "Off", value: 0 }, { label: "3 s", value: 3 }, { label: "5 s", value: 5 }, { label: "10 s", value: 10 }]
         },
         recordMic: {
             page: "recording", group: "audio", order: 0,
