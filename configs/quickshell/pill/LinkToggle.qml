@@ -16,7 +16,7 @@ Rectangle {
     height: 16 * s
     radius: Metrics.rFull
     color: on ? Theme.markDeep : Theme.tileBg
-    border.width: on ? 0 : 1
+    border.width: on ? 0 : Metrics.hairW(s)
     border.color: Theme.border
 
     Rectangle {

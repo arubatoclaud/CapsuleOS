@@ -256,7 +256,7 @@ PillSurface {
         height: errorText.implicitHeight + 14 * root.s
         radius: Metrics.rCard * root.s
         color: Qt.alpha(Theme.tileBg, 0.97)
-        border.width: 1
+        border.width: Metrics.hairW(root.s)
         border.color: Theme.frameBorder
         z: 20
         opacity: root.errorNote.length > 0 ? 1 : 0
@@ -273,7 +273,7 @@ PillSurface {
             text: root.errorNote
             color: Theme.subtle
             font.family: Theme.font
-            font.pixelSize: 10 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: Font.Medium
             wrapMode: Text.WordWrap
             lineHeight: 1.25

@@ -149,7 +149,7 @@ SettingsSurface {
                 padding: 0
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 13 * root.s
+                font.pixelSize: Metrics.tTitle * root.s
                 placeholderText: "search settings"
                 placeholderTextColor: Theme.faint
                 selectByMouse: true
@@ -216,11 +216,11 @@ SettingsSurface {
                         last: pageRow.index === Schema.pages.length - 1
 
                         GlyphIcon {
-                            width: 16 * root.s
-                            height: 16 * root.s
+                            width: Metrics.iconRow * root.s
+                            height: Metrics.iconRow * root.s
                             name: "chevron-right"
                             color: root.focusRowItem === pageRow ? Theme.cream : Theme.iconDim
-                            stroke: 2.2
+                            stroke: Metrics.iconStroke
                         }
                     }
                 }
@@ -259,11 +259,11 @@ SettingsSurface {
                         last: resultRow.index === root.results.length - 1
 
                         GlyphIcon {
-                            width: 16 * root.s
-                            height: 16 * root.s
+                            width: Metrics.iconRow * root.s
+                            height: Metrics.iconRow * root.s
                             name: "chevron-right"
                             color: root.focusRowItem === resultRow ? Theme.cream : Theme.iconDim
-                            stroke: 2.2
+                            stroke: Metrics.iconStroke
                         }
                     }
                 }
@@ -277,7 +277,7 @@ SettingsSurface {
                     text: "No matching settings"
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 11 * root.s
+                    font.pixelSize: Metrics.tLabel * root.s
                     font.weight: Font.Medium
                 }
             }

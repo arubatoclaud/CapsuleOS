@@ -602,7 +602,7 @@ PillSurface {
                 text: "WIFI"
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 10 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.6 * root.s
@@ -613,7 +613,7 @@ PillSurface {
                 text: "· " + root.statusText
                 color: root.activeNet ? Theme.markLit : Theme.faint
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.Medium
                 elide: Text.ElideRight
             }
@@ -694,7 +694,7 @@ PillSurface {
             text: "Searching networks…"
             color: Theme.faint
             font.family: Theme.font
-            font.pixelSize: 10.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
         }
 
         Flickable {
@@ -758,7 +758,7 @@ PillSurface {
                                 text: netItem.ssid.length ? netItem.ssid : "Hidden"
                                 color: netItem.isActive ? Theme.markLit : Theme.subtle
                                 font.family: Theme.font
-                                font.pixelSize: 11.5 * root.s
+                                font.pixelSize: Metrics.tLabel * root.s
                                 font.weight: netItem.isActive ? Font.DemiBold : Font.Medium
                                 elide: Text.ElideRight
                             }
@@ -818,7 +818,7 @@ PillSurface {
                             text: root.connDetail
                             color: Theme.faint
                             font.family: Theme.font
-                            font.pixelSize: 9.5 * root.s
+                            font.pixelSize: Metrics.tBody * root.s
                             font.weight: Font.Medium
                             leftPadding: 10 * root.s
                             bottomPadding: 2 * root.s
@@ -840,7 +840,7 @@ PillSurface {
                                 text: netItem.isActive ? "Connected" : "Saved network"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 9.5 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.Medium
                                 elide: Text.ElideRight
                             }
@@ -859,7 +859,7 @@ PillSurface {
                                     height: 22 * root.s
                                     radius: Metrics.rSmall * root.s
                                     color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: primaryArea.containsMouse ? Theme.markDim : Theme.border
 
                                     Text {
@@ -868,7 +868,7 @@ PillSurface {
                                         text: netItem.isActive ? "Disconnect" : "Connect"
                                         color: Theme.cream
                                         font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
+                                        font.pixelSize: Metrics.tBody * root.s
                                         font.weight: Font.DemiBold
                                         font.letterSpacing: 0.3 * root.s
                                     }
@@ -893,7 +893,7 @@ PillSurface {
                                     height: 22 * root.s
                                     radius: Metrics.rSmall * root.s
                                     color: revealArea.containsMouse ? Theme.tileBg : "transparent"
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: revealBtn.shown
                                         ? Theme.markDim
                                         : (revealArea.containsMouse ? Theme.markDim : Theme.border)
@@ -904,7 +904,7 @@ PillSurface {
                                         text: revealBtn.shown ? "Hide" : "Show"
                                         color: Theme.cream
                                         font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
+                                        font.pixelSize: Metrics.tBody * root.s
                                         font.weight: Font.DemiBold
                                         font.letterSpacing: 0.3 * root.s
                                     }
@@ -927,7 +927,7 @@ PillSurface {
                                     color: forgetArea.containsMouse
                                         ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.2)
                                         : Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.12)
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: Qt.rgba(Theme.markLit.r, Theme.markLit.g, Theme.markLit.b, 0.45)
 
                                     Text {
@@ -936,7 +936,7 @@ PillSurface {
                                         text: "Forget"
                                         color: Theme.markLit
                                         font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
+                                        font.pixelSize: Metrics.tBody * root.s
                                         font.weight: Font.DemiBold
                                         font.letterSpacing: 0.3 * root.s
                                     }
@@ -966,7 +966,7 @@ PillSurface {
                                 text: "PASSWORD"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 9 * root.s
+                                font.pixelSize: Metrics.tCaption * root.s
                                 font.weight: Font.Medium
                                 font.capitalization: Font.AllUppercase
                                 font.letterSpacing: 1 * root.s
@@ -980,7 +980,7 @@ PillSurface {
                                 text: "no saved password"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 10 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.Medium
                             }
 
@@ -1000,7 +1000,7 @@ PillSurface {
                                 text: root.revealedSsid === netItem.ssid ? root.revealedPw : ""
                                 color: Theme.markLift
                                 font.family: Theme.font
-                                font.pixelSize: 11.5 * root.s
+                                font.pixelSize: Metrics.tLabel * root.s
                                 font.weight: Font.Medium
                             }
                         }
@@ -1021,7 +1021,7 @@ PillSurface {
                                 padding: 0
                                 color: Theme.cream
                                 font.family: Theme.font
-                                font.pixelSize: 11.5 * root.s
+                                font.pixelSize: Metrics.tLabel * root.s
                                 echoMode: TextInput.Password
                                 placeholderText: "Password"
                                 placeholderTextColor: Theme.faint
@@ -1080,7 +1080,7 @@ PillSurface {
                             text: "Connection failed" + (root.connFailReason.length ? " · " + root.connFailReason : "")
                             color: Theme.markLit
                             font.family: Theme.font
-                            font.pixelSize: 9.5 * root.s
+                            font.pixelSize: Metrics.tBody * root.s
                             leftPadding: 10 * root.s
                             elide: Text.ElideRight
                             maximumLineCount: 1
@@ -1141,7 +1141,7 @@ PillSurface {
                     text: cr.label
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 9 * root.s
+                    font.pixelSize: Metrics.tCaption * root.s
                     font.weight: Font.Medium
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1 * root.s
@@ -1155,7 +1155,7 @@ PillSurface {
                     text: cr.value.length ? cr.value : "tap to set"
                     color: cr.value.length ? (cr.secret ? Theme.markLift : Theme.cream) : Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 12 * root.s
+                    font.pixelSize: Metrics.tLabel * root.s
                     font.weight: Font.Medium
                     font.features: ({ "tnum": 1 })
 
@@ -1183,7 +1183,7 @@ PillSurface {
                     padding: 0
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 12 * root.s
+                    font.pixelSize: Metrics.tLabel * root.s
                     placeholderText: cr.field === "pw" ? "8+ characters" : "Name"
                     placeholderTextColor: Theme.faint
                     selectByMouse: true
@@ -1222,14 +1222,14 @@ PillSurface {
                         text: "Hotspot"
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 12.5 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: Font.DemiBold
                     }
                     Text {
                         text: root.hsBusy ? "…" : (root.hsActive ? "Active" : "Off")
                         color: root.hsActive ? Theme.markGlow : Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 9.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.Medium
                     }
                 }

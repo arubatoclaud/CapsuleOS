@@ -345,7 +345,7 @@ SettingsSurface {
                         anchors.fill: parent
                         radius: Metrics.rCard * root.s
                         color: Theme.frameBg
-                        border.width: 1
+                        border.width: Metrics.hairW(root.s)
                         border.color: Theme.hairSoft
                     }
 

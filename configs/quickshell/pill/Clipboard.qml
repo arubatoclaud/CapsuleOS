@@ -203,7 +203,7 @@ PillSurface {
         text: root.query.length ? "No matches" : "History empty"
         color: Theme.faint
         font.family: Theme.font
-        font.pixelSize: 10.5 * root.s
+        font.pixelSize: Metrics.tBody * root.s
     }
 
     ListView {
@@ -245,7 +245,7 @@ PillSurface {
                 radius: Metrics.rCard * root.s
                 visible: row.selected || rowHover.hovered
                 color: row.selected ? Theme.frameBg : Qt.rgba(0.94, 0.88, 0.84, 0.03)
-                border.width: row.selected ? 1 : 0
+                border.width: row.selected ? Metrics.hairW(root.s) : 0
                 border.color: Theme.frameBorder
             }
 
@@ -272,7 +272,7 @@ PillSurface {
                     height: 32 * root.s
                     radius: 6 * root.s
                     color: Theme.tileBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: Theme.border
                     clip: true
 
@@ -300,7 +300,7 @@ PillSurface {
                         ? (row.selected ? Theme.dim : Theme.faint)
                         : (row.selected ? Theme.cream : Theme.subtle)
                     font.family: Theme.font
-                    font.pixelSize: 11.5 * root.s
+                    font.pixelSize: Metrics.tLabel * root.s
                     font.weight: row.selected ? Font.DemiBold : Font.Medium
                     elide: Text.ElideRight
                     maximumLineCount: 1
@@ -316,7 +316,7 @@ PillSurface {
                     width: text.length ? implicitWidth : 0
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 10.5 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.features: ({ "tnum": 1 })
                 }
 
@@ -335,7 +335,7 @@ PillSurface {
                         text: "↵"
                         color: Theme.markLit
                         font.family: Theme.font
-                        font.pixelSize: 12 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         Behavior on opacity { NumberAnimation { duration: Motion.fast } }
                     }
 
@@ -346,7 +346,7 @@ PillSurface {
                         opacity: rowHover.hovered ? 1 : 0
                         text: "✕"
                         color: dismissArea.containsMouse ? Theme.cream : Theme.dim
-                        font.pixelSize: 10 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         Behavior on opacity { NumberAnimation { duration: Motion.fast } }
 
                         MouseArea {

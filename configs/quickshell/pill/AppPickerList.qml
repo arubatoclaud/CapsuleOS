@@ -183,7 +183,7 @@ Column {
                 text: "+"
                 color: Theme.markLit
                 font.family: Theme.font
-                font.pixelSize: 14 * picker.s
+                font.pixelSize: Metrics.tTitle * picker.s
                 font.weight: Font.Bold
             }
             Text {
@@ -191,7 +191,7 @@ Column {
                 text: "Add app"
                 color: Theme.markLit
                 font.family: Theme.font
-                font.pixelSize: 11 * picker.s
+                font.pixelSize: Metrics.tLabel * picker.s
                 font.weight: Font.DemiBold
                 font.letterSpacing: 0.5 * picker.s
             }
@@ -245,7 +245,7 @@ Column {
                 text: "ADD APP"
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 9.5 * picker.s
+                font.pixelSize: Metrics.tBody * picker.s
                 font.weight: Font.DemiBold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.4 * picker.s
@@ -301,7 +301,7 @@ Column {
                     radius: Metrics.rCard * picker.s
                     visible: appRow.selected || appArea.containsMouse
                     color: appRow.selected ? Theme.frameBg : Qt.rgba(0.94, 0.88, 0.84, 0.03)
-                    border.width: appRow.selected ? 1 : 0
+                    border.width: appRow.selected ? Metrics.hairW(picker.s) : 0
                     border.color: Theme.frameBorder
                 }
 
@@ -355,7 +355,7 @@ Column {
                     text: appRow.entry ? appRow.entry.name : ""
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 12.5 * picker.s
+                    font.pixelSize: Metrics.tTitle * picker.s
                     font.weight: appRow.selected ? Font.DemiBold : Font.Normal
                     elide: Text.ElideRight
                 }

@@ -96,7 +96,7 @@ Item {
         text: Math.round(root.clamped * 100) + "%"
         color: root.focused ? Theme.cream : Theme.subtle
         font.family: Theme.font
-        font.pixelSize: 10 * root.s
+        font.pixelSize: Metrics.tBody * root.s
         font.weight: Font.DemiBold
         font.features: ({ "tnum": 1 })
     }

@@ -150,7 +150,7 @@ SettingsSurface {
                 padding: 0
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 13 * root.s
+                font.pixelSize: Metrics.tTitle * root.s
                 placeholderText: "search fonts"
                 placeholderTextColor: Theme.faint
                 selectByMouse: true
@@ -248,7 +248,7 @@ SettingsSurface {
                         text: frow.modelData.label
                         color: frow.selected ? Theme.markLit : Theme.cream
                         font.family: frow.isReset ? Theme.font : frow.modelData.family
-                        font.pixelSize: 14 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: frow.selected ? Font.DemiBold : Font.Medium
                         elide: Text.ElideRight
                     }

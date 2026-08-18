@@ -293,7 +293,7 @@ SettingsSurface {
                         height: 34 * root.s
                         radius: Metrics.rCard * root.s
                         color: root.accentColor
-                        border.width: 1
+                        border.width: Metrics.hairW(root.s)
                         border.color: Theme.border
                     }
 
@@ -309,14 +309,14 @@ SettingsSurface {
                             text: "Accent hue"
                             color: Theme.cream
                             font.family: Theme.font
-                            font.pixelSize: 12 * root.s
+                            font.pixelSize: Metrics.tLabel * root.s
                             font.weight: Font.DemiBold
                         }
                         Text {
                             text: root.currentHex + " · " + (Flags.manualDark ? "dark" : "light")
                             color: Theme.faint
                             font.family: Theme.font
-                            font.pixelSize: 10.5 * root.s
+                            font.pixelSize: Metrics.tBody * root.s
                             font.features: ({ "tnum": 1 })
                             elide: Text.ElideRight
                             width: parent.width
@@ -346,7 +346,7 @@ SettingsSurface {
                         text: "#"
                         color: Theme.faint
                         font.family: Theme.font
-                        font.pixelSize: 14 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: Font.DemiBold
                     }
 
@@ -361,7 +361,7 @@ SettingsSurface {
                         padding: 0
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 13 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.features: ({ "tnum": 1 })
                         placeholderText: root.currentHex
                         placeholderTextColor: Theme.faint

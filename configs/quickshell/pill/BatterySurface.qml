@@ -69,7 +69,7 @@ PillSurface {
                     text: "BATTERY"
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 10 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.DemiBold
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1.6 * root.s
@@ -82,7 +82,7 @@ PillSurface {
                 text: Battery.stateLabel
                 color: Battery.charging ? Theme.markGlow : Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.Bold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.1 * root.s
@@ -116,7 +116,7 @@ PillSurface {
                 text: body
                 color: Battery.charging ? Theme.markLift : Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 11 * root.s
+                font.pixelSize: Metrics.tLabel * root.s
                 font.weight: Font.DemiBold
             }
         }
@@ -161,7 +161,7 @@ PillSurface {
                     text: stat.label
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 10 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.Medium
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 0.8 * root.s
@@ -173,7 +173,7 @@ PillSurface {
                     text: stat.value
                     color: stat.warm ? Theme.markGlow : Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 12.5 * root.s
+                    font.pixelSize: Metrics.tTitle * root.s
                     font.weight: Font.DemiBold
                     font.features: ({ "tnum": 1 })
                 }

@@ -469,7 +469,7 @@ PillSurface {
             text: fchip.label
             color: root.kindFilter === fchip.kind ? Theme.cream : Theme.faint
             font.family: Theme.font
-            font.pixelSize: 9.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: Font.DemiBold
             font.letterSpacing: 0.4 * root.s
             Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -497,7 +497,7 @@ PillSurface {
         height: 22 * root.s
         radius: height / 2
         color: Theme.frameBg
-        border.width: 1
+        border.width: Metrics.hairW(root.s)
         border.color: Theme.hairSoft
 
         readonly property Item currentChip: root.kindFilter === "all" ? chipAll : (root.kindFilter === "still" ? chipStill : chipLive)
@@ -509,7 +509,7 @@ PillSurface {
             x: segRow.x + filterRow.currentChip.x + 2 * root.s
             width: filterRow.currentChip.width - 4 * root.s
             color: Qt.alpha(Theme.markGlow, 0.18)
-            border.width: 1
+            border.width: Metrics.hairW(root.s)
             border.color: Qt.alpha(Theme.markGlow, 0.45)
             Behavior on x { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
             Behavior on width { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
@@ -558,7 +558,7 @@ PillSurface {
             elide: Text.ElideMiddle
             color: folderHover.hovered ? Theme.subtle : Theme.faint
             font.family: Theme.font
-            font.pixelSize: 9.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             Behavior on color { ColorAnimation { duration: Motion.fast } }
         }
 
@@ -572,7 +572,7 @@ PillSurface {
             clip: true
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 11 * root.s
+            font.pixelSize: Metrics.tLabel * root.s
             selectByMouse: true
             selectionColor: Theme.markDeep
             Keys.onPressed: (e) => {
@@ -594,7 +594,7 @@ PillSurface {
                 elide: Text.ElideMiddle
                 color: Theme.faint
                 font.family: Theme.font
-                font.pixelSize: 11 * root.s
+                font.pixelSize: Metrics.tLabel * root.s
             }
         }
 
@@ -806,7 +806,7 @@ PillSurface {
                         text: "▶"
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 7.5 * root.s
+                        font.pixelSize: Metrics.tCaption * root.s
                     }
                 }
 
@@ -816,7 +816,7 @@ PillSurface {
                     text: "saving…"
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 11 * root.s
+                    font.pixelSize: Metrics.tLabel * root.s
                 }
 
                 Rectangle {
@@ -834,7 +834,7 @@ PillSurface {
                         text: tile.resLabel.replace("x", "×")
                         color: Theme.bright
                         font.family: Theme.font
-                        font.pixelSize: 9.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.features: ({ "tnum": 1 })
                     }
                 }
@@ -844,7 +844,7 @@ PillSurface {
                 anchors.fill: parent
                 radius: tile.corner
                 color: "transparent"
-                border.width: 1
+                border.width: Metrics.hairW(root.s)
                 border.color: {
                     if (tile.remote && dlProc.failed.length && dlProc.failed === tile.modelData.image)
                         return Theme.markLit;
@@ -913,7 +913,7 @@ PillSurface {
                     text: monPick.hoverOut
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 9 * root.s
+                    font.pixelSize: Metrics.tCaption * root.s
                     font.weight: Font.DemiBold
                     font.letterSpacing: 0.3 * root.s
                 }
@@ -939,7 +939,7 @@ PillSurface {
                             height: Math.max(2, mrect.modelData.h - 1.5 * root.s)
                             radius: 3 * root.s
                             color: monHover.hovered ? Qt.alpha(Theme.markLit, 0.45) : Qt.rgba(1, 1, 1, 0.10)
-                            border.width: 1
+                            border.width: Metrics.hairW(root.s)
                             border.color: monHover.hovered ? Theme.markLit : Qt.rgba(1, 1, 1, 0.35)
 
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -976,7 +976,7 @@ PillSurface {
         }
         color: Theme.faint
         font.family: Theme.font
-        font.pixelSize: 10.5 * root.s
+        font.pixelSize: Metrics.tBody * root.s
     }
 
     Text {
@@ -985,7 +985,7 @@ PillSurface {
         text: "searching…"
         color: Theme.faint
         font.family: Theme.font
-        font.pixelSize: 10.5 * root.s
+        font.pixelSize: Metrics.tBody * root.s
     }
 
     component HintKey: Row {
@@ -1002,7 +1002,7 @@ PillSurface {
             height: keyText.implicitHeight + 6 * root.s
             radius: 5 * root.s
             color: Theme.frameBg
-            border.width: 1
+            border.width: Metrics.hairW(root.s)
             border.color: Theme.hairSoft
 
             Text {
@@ -1011,7 +1011,7 @@ PillSurface {
                 text: hk.key
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 8.5 * root.s
+                font.pixelSize: Metrics.tCaption * root.s
                 font.weight: Font.DemiBold
                 font.letterSpacing: 0.5 * root.s
             }
@@ -1022,7 +1022,7 @@ PillSurface {
             text: hk.caption
             color: Theme.faint
             font.family: Theme.font
-            font.pixelSize: 9.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: Font.Medium
             font.letterSpacing: 0.3 * root.s
         }
@@ -1060,7 +1060,7 @@ PillSurface {
             text: "set on " + root.monHover + " only"
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 10 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: Font.DemiBold
             font.letterSpacing: 0.4 * root.s
         }

@@ -94,7 +94,7 @@ SettingsSurface {
             text: Walls.count + (Walls.count === 1 ? " wallpaper in " : " wallpapers in ") + Walls.wpDir
             color: Theme.faint
             font.family: Theme.font
-            font.pixelSize: 9.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: Font.Medium
             wrapMode: Text.WrapAnywhere
         }

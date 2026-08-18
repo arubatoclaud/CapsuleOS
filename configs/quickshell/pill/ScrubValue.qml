@@ -177,7 +177,7 @@ Item {
             opacity: root.hovered ? 1 : 0
             color: root.overMinus ? Theme.bright : Qt.alpha(Theme.markGlow, 0.6)
             font.family: Theme.font
-            font.pixelSize: 15 * root.s
+            font.pixelSize: Metrics.tHead * root.s
             font.weight: Font.Medium
             Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         }
@@ -199,7 +199,7 @@ Item {
                     text: root.fmt ? root.fmt(root.value) : root.value.toFixed(root.decimals)
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 13 * root.s
+                    font.pixelSize: Metrics.tTitle * root.s
                     font.weight: Font.DemiBold
                 }
                 Text {
@@ -208,7 +208,7 @@ Item {
                     text: root.unit
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 9.5 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.Medium
                 }
             }
@@ -222,7 +222,7 @@ Item {
             opacity: root.hovered ? 1 : 0
             color: root.overPlus ? Theme.bright : Qt.alpha(Theme.markGlow, 0.6)
             font.family: Theme.font
-            font.pixelSize: 15 * root.s
+            font.pixelSize: Metrics.tHead * root.s
             font.weight: Font.Medium
             Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
         }

@@ -623,7 +623,7 @@ SettingsSurface {
                         z: tileMA.pressed ? 10 : (tile.sel ? 5 : 0)
                         radius: Metrics.rSmall * root.s
                         color: tile.sel ? Qt.alpha(Theme.markGlow, 0.13) : Theme.cardTop
-                        border.width: 1
+                        border.width: Metrics.hairW(root.s)
                         border.color: tile.moved ? Qt.alpha(Theme.markLit, 0.7) : (tile.sel ? Theme.cream : Theme.hairSoft)
 
                         Behavior on x { enabled: !tileMA.pressed; NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
@@ -640,7 +640,7 @@ SettingsSurface {
                                 text: tile.modelData.name
                                 color: tile.sel ? Theme.cream : Theme.subtle
                                 font.family: Theme.font
-                                font.pixelSize: 10 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.DemiBold
                             }
                             Text {
@@ -648,7 +648,7 @@ SettingsSurface {
                                 text: tile.modelData.hz + "Hz"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 8.5 * root.s
+                                font.pixelSize: Metrics.tCaption * root.s
                                 font.weight: Font.Medium
                                 font.features: ({ "tnum": 1 })
                             }
@@ -707,7 +707,7 @@ SettingsSurface {
                 width: parent.width
                 radius: Metrics.rTile * root.s
                 color: Theme.cardTop
-                border.width: 1
+                border.width: Metrics.hairW(root.s)
                 border.color: card.pending ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
                 implicitHeight: cardCol.implicitHeight + 22 * root.s
                 Behavior on border.color { ColorAnimation { duration: Motion.fast } }
@@ -809,7 +809,7 @@ SettingsSurface {
                         text: root.selMon ? root.selMon.name + (root.selIsMain ? "  ·  Main" : "") : ""
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 12.5 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: Font.Bold
                         font.letterSpacing: 0.3 * root.s
                     }
@@ -890,7 +890,7 @@ SettingsSurface {
                                 text: "Scale"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 10.5 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.Medium
                             }
 
@@ -918,7 +918,7 @@ SettingsSurface {
                             radius: Metrics.rCard * root.s
                             color: !card.applyReady ? Qt.alpha(Theme.markGlow, 0.10)
                                 : (applyArea.containsMouse ? Qt.alpha(Theme.markGlow, 0.34) : Qt.alpha(Theme.markGlow, 0.20))
-                            border.width: 1
+                            border.width: Metrics.hairW(root.s)
                             border.color: Qt.alpha(Theme.markGlow, !card.applyReady ? 0.22 : (applyArea.containsMouse ? 0.6 : 0.4))
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
                             Behavior on border.color { ColorAnimation { duration: Motion.fast } }
@@ -929,7 +929,7 @@ SettingsSurface {
                                 text: "Apply"
                                 color: card.applyReady ? Theme.cream : Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 10.5 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.DemiBold
                                 font.letterSpacing: 0.3 * root.s
                             }
@@ -965,7 +965,7 @@ SettingsSurface {
                                     text: "Keep (" + root.countdown + ")"
                                     color: Theme.cream
                                     font.family: Theme.font
-                                    font.pixelSize: 10.5 * root.s
+                                    font.pixelSize: Metrics.tBody * root.s
                                     font.weight: Font.Bold
                                     font.letterSpacing: 0.3 * root.s
                                 }
@@ -984,7 +984,7 @@ SettingsSurface {
                                 text: "reverts automatically if not kept"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 9.5 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.Medium
                             }
                         }
@@ -998,7 +998,7 @@ SettingsSurface {
                 text: root.note
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 10 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.Medium
                 wrapMode: Text.WordWrap
                 lineHeight: 1.25
@@ -1122,7 +1122,7 @@ SettingsSurface {
                         : (mainArea.containsMouse
                             ? Qt.alpha(Theme.markDeep, 0.2)
                             : Qt.alpha(Theme.markDeep, 0.12))
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: Qt.alpha(Theme.markLit, root.mainArmed ? 0.75 : 0.45)
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                     Behavior on border.color { ColorAnimation { duration: Motion.fast } }
@@ -1133,7 +1133,7 @@ SettingsSurface {
                         text: root.mainArmed ? "Confirm" : "Set as main"
                         color: Theme.markLit
                         font.family: Theme.font
-                        font.pixelSize: 10 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.DemiBold
                         font.letterSpacing: 0.3 * root.s
                     }

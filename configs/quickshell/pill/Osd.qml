@@ -233,7 +233,7 @@ Item {
             text: root.muted ? "Muted" : Math.round(root.volume * 100) + "%"
             color: root.muted ? Theme.dim : Theme.cream
             font.family: Theme.font
-            font.pixelSize: 11 * root.s
+            font.pixelSize: Metrics.tLabel * root.s
             font.weight: Font.DemiBold
             font.features: ({ "tnum": 1 })
         }
@@ -351,7 +351,7 @@ Item {
                 text: root.subjectHas ? root.subjectTitle : "Nothing playing"
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 14 * root.s
+                font.pixelSize: Metrics.tTitle * root.s
                 font.weight: Font.DemiBold
                 maximumLineCount: 1
                 elide: Text.ElideRight
@@ -362,7 +362,7 @@ Item {
                 text: root.subjectArtist
                 color: Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 11 * root.s
+                font.pixelSize: Metrics.tLabel * root.s
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 visible: text.length > 0
@@ -397,7 +397,7 @@ Item {
             text: Math.round(root.brightness * 100) + "%"
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 11 * root.s
+            font.pixelSize: Metrics.tLabel * root.s
             font.weight: Font.DemiBold
             font.features: ({ "tnum": 1 })
         }
@@ -451,7 +451,7 @@ Item {
             text: Battery.pct + "%"
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 11 * root.s
+            font.pixelSize: Metrics.tLabel * root.s
             font.weight: Font.DemiBold
             font.features: ({ "tnum": 1 })
         }
@@ -554,7 +554,7 @@ Item {
             text: root.recordStarted ? "Recording started" : "Recording stopped"
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 11.5 * root.s
+            font.pixelSize: Metrics.tLabel * root.s
             font.weight: Font.DemiBold
             elide: Text.ElideRight
             maximumLineCount: 1

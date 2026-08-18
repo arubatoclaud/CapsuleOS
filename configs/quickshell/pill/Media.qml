@@ -280,7 +280,7 @@ PillSurface {
             anchors.right: parent.right
             text: root.artist
             color: Theme.dim
-            pixelSize: 11.5 * root.s
+            pixelSize: Metrics.tLabel * root.s
             active: root.active
             visible: text.length > 0
         }
@@ -316,7 +316,7 @@ PillSurface {
                 text: root.serviceLabel
                 color: Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
             }
 
             Rectangle {
@@ -328,7 +328,7 @@ PillSurface {
                 width: bubbleRow.width + 14 * root.s
                 radius: height / 2
                 color: Qt.alpha(Theme.markDeep, 0.16)
-                border.width: 1
+                border.width: Metrics.hairW(root.s)
                 border.color: Qt.alpha(Theme.markLit, 0.45 + 0.35 * glow)
 
                 property real glow: 0
@@ -354,14 +354,14 @@ PillSurface {
                         text: root.serviceLabel
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 10 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.DemiBold
                     }
                     Text {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "▾"
                         color: Theme.markLit
-                        font.pixelSize: 8 * root.s
+                        font.pixelSize: Metrics.tCaption * root.s
                     }
                 }
 
@@ -383,7 +383,7 @@ PillSurface {
                 elide: Text.ElideRight
                 color: Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.features: ({ "tnum": 1 })
             }
         }
@@ -425,7 +425,7 @@ PillSurface {
                         width: bubInner.width + 18 * root.s
                         radius: Metrics.rTile * root.s
                         color: isActive ? Qt.alpha(Theme.markDeep, 0.2) : Qt.alpha(Theme.cream, 0.045)
-                        border.width: 1
+                        border.width: Metrics.hairW(root.s)
                         border.color: isActive ? Theme.markLit : Qt.alpha(Theme.cream, 0.12)
 
                         Row {
@@ -445,14 +445,14 @@ PillSurface {
                                     text: Players.labelOf(bub.modelData)
                                     color: bub.isActive ? Theme.bright : Theme.dim
                                     font.family: Theme.font
-                                    font.pixelSize: 11 * root.s
+                                    font.pixelSize: Metrics.tLabel * root.s
                                     font.weight: Font.DemiBold
                                 }
                                 Text {
                                     text: Players.nowPlayingFor(bub.modelData)
                                     color: bub.isActive ? Theme.subtle : Theme.faint
                                     font.family: Theme.font
-                                    font.pixelSize: 8.5 * root.s
+                                    font.pixelSize: Metrics.tCaption * root.s
                                     elide: Text.ElideRight
                                     width: Math.min(implicitWidth, 150 * root.s)
                                 }
@@ -507,7 +507,7 @@ PillSurface {
             opacity: (sealArea.enabled ? 1 : 0.4) * (0.75 + 0.25 * sat)
             Behavior on opacity { NumberAnimation { duration: Motion.fast } }
 
-            border.width: 1
+            border.width: Metrics.hairW(root.s)
             border.color: Qt.alpha(Theme.markLit, 0.4 + 0.4 * root.sealPulse)
             gradient: Gradient {
                 GradientStop { position: 0.0; color: root.mix(Theme.markDeep, Theme.tileBg, 0.55 - 0.27 * seal.sat) }

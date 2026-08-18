@@ -52,7 +52,7 @@ Item {
         padding: 0
         color: Theme.cream
         font.family: Theme.font
-        font.pixelSize: 15 * root.s
+        font.pixelSize: Metrics.tHead * root.s
         placeholderText: root.placeholder
         placeholderTextColor: Theme.faint
         selectByMouse: true
@@ -96,7 +96,7 @@ Item {
         text: root.counterText
         color: Theme.faint
         font.family: Theme.font
-        font.pixelSize: 10.5 * root.s
+        font.pixelSize: Metrics.tBody * root.s
         font.features: ({ "tnum": 1 })
     }
 

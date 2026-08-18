@@ -221,7 +221,7 @@ PillSurface {
                 text: "BLUETOOTH"
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 10 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.6 * root.s
@@ -239,7 +239,7 @@ PillSurface {
                 text: root.discovering ? "Scanning…" : "Scan"
                 color: root.discovering ? Theme.markLit : Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
 
                 MouseArea {
@@ -291,7 +291,7 @@ PillSurface {
             text: root.discovering ? "Scanning…" : "No devices found"
             color: Theme.faint
             font.family: Theme.font
-            font.pixelSize: 10.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
         }
 
         Flickable {
@@ -350,7 +350,7 @@ PillSurface {
                                 height: 26 * root.s
                                 radius: Metrics.rCard * root.s
                                 color: Theme.tileBg
-                                border.width: 1
+                                border.width: Metrics.hairW(root.s)
                                 border.color: Theme.border
 
                                 GlyphIcon {
@@ -376,7 +376,7 @@ PillSurface {
                                     text: devItem.modelData ? (devItem.modelData.deviceName || devItem.modelData.name || "Unknown") : "Unknown"
                                     color: devItem.isConnected ? Theme.cream : Theme.subtle
                                     font.family: Theme.font
-                                    font.pixelSize: 11.5 * root.s
+                                    font.pixelSize: Metrics.tLabel * root.s
                                     font.weight: devItem.isConnected ? Font.DemiBold : Font.Medium
                                     elide: Text.ElideRight
                                 }
@@ -387,7 +387,7 @@ PillSurface {
                                     text: root.metaFor(devItem.modelData)
                                     color: Theme.faint
                                     font.family: Theme.font
-                                    font.pixelSize: 9.5 * root.s
+                                    font.pixelSize: Metrics.tBody * root.s
                                     font.weight: Font.Medium
                                     elide: Text.ElideRight
                                 }
@@ -430,7 +430,7 @@ PillSurface {
                                     text: devItem.battery + "%"
                                     color: Theme.faint
                                     font.family: Theme.font
-                                    font.pixelSize: 9.5 * root.s
+                                    font.pixelSize: Metrics.tBody * root.s
                                     font.weight: Font.Medium
                                     font.features: ({ "tnum": 1 })
                                 }
@@ -440,7 +440,7 @@ PillSurface {
                                     visible: !devItem.isPaired && !devItem.pairing
                                     radius: Metrics.rFull
                                     color: pairArea.containsMouse ? Theme.frameBg : Theme.tileBg
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: pairArea.containsMouse ? Theme.markDim : Theme.border
                                     height: 18 * root.s
                                     width: pairText.implicitWidth + 16 * root.s
@@ -453,7 +453,7 @@ PillSurface {
                                         text: "Pair"
                                         color: pairArea.containsMouse ? Theme.cream : Theme.dim
                                         font.family: Theme.font
-                                        font.pixelSize: 9.5 * root.s
+                                        font.pixelSize: Metrics.tBody * root.s
                                         font.weight: Font.DemiBold
                                     }
 
@@ -482,7 +482,7 @@ PillSurface {
                                 text: devItem.isConnected ? "Connected" : "Paired"
                                 color: Theme.faint
                                 font.family: Theme.font
-                                font.pixelSize: 9.5 * root.s
+                                font.pixelSize: Metrics.tBody * root.s
                                 font.weight: Font.Medium
                                 elide: Text.ElideRight
                             }
@@ -500,7 +500,7 @@ PillSurface {
                                     height: 22 * root.s
                                     radius: Metrics.rSmall * root.s
                                     color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: primaryArea.containsMouse ? Theme.markDim : Theme.border
 
                                     Text {
@@ -509,7 +509,7 @@ PillSurface {
                                         text: devItem.isConnected ? "Disconnect" : "Connect"
                                         color: Theme.cream
                                         font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
+                                        font.pixelSize: Metrics.tBody * root.s
                                         font.weight: Font.DemiBold
                                         font.letterSpacing: 0.3 * root.s
                                     }
@@ -533,7 +533,7 @@ PillSurface {
                                     color: forgetArea.containsMouse
                                         ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.2)
                                         : Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.12)
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: Qt.rgba(Theme.markLit.r, Theme.markLit.g, Theme.markLit.b, 0.45)
 
                                     Text {
@@ -542,7 +542,7 @@ PillSurface {
                                         text: "Forget"
                                         color: Theme.markLit
                                         font.family: Theme.font
-                                        font.pixelSize: 10 * root.s
+                                        font.pixelSize: Metrics.tBody * root.s
                                         font.weight: Font.DemiBold
                                         font.letterSpacing: 0.3 * root.s
                                     }
@@ -563,7 +563,7 @@ PillSurface {
                             text: "Pairing failed"
                             color: Theme.markLit
                             font.family: Theme.font
-                            font.pixelSize: 9.5 * root.s
+                            font.pixelSize: Metrics.tBody * root.s
                             leftPadding: 42 * root.s
                         }
                     }

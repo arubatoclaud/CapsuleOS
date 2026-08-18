@@ -55,7 +55,7 @@ Item {
         height: 28 * root.s
         radius: Metrics.rCard * root.s
         color: Theme.tileBg
-        border.width: 1
+        border.width: Metrics.hairW(root.s)
         border.color: Theme.border
 
         Image {
@@ -88,7 +88,7 @@ Item {
         text: "✕"
         color: dismissArea.containsMouse ? Theme.cream : Theme.dim
         font.family: Theme.font
-        font.pixelSize: 11 * root.s
+        font.pixelSize: Metrics.tLabel * root.s
 
         Behavior on color {
             ColorAnimation { duration: Motion.fast }
@@ -118,7 +118,7 @@ Item {
             text: (root.notif.appName && root.notif.appName.length) ? root.notif.appName : "System"
             color: Theme.dim
             font.family: Theme.font
-            font.pixelSize: 8.5 * root.s
+            font.pixelSize: Metrics.tCaption * root.s
             font.weight: Font.DemiBold
             font.capitalization: Font.AllUppercase
             font.letterSpacing: 1.4 * root.s
@@ -157,7 +157,7 @@ Item {
                 text: root.notif.summary
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 11.5 * root.s
+                font.pixelSize: Metrics.tLabel * root.s
                 font.weight: Font.DemiBold
                 maximumLineCount: 1
                 elide: Text.ElideRight
@@ -170,7 +170,7 @@ Item {
             text: root.notif.body
             color: Theme.dim
             font.family: Theme.font
-            font.pixelSize: 10.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             wrapMode: Text.Wrap
             maximumLineCount: 2
             elide: Text.ElideRight
@@ -194,7 +194,7 @@ Item {
                     width: actText.implicitWidth + 18 * root.s
                     radius: Metrics.rFull
                     color: Theme.tileBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: Theme.border
 
                     Text {
@@ -203,7 +203,7 @@ Item {
                         text: actPill.modelData.text
                         color: actPill.index === 0 ? Theme.markLit : Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 9.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.DemiBold
                     }
 

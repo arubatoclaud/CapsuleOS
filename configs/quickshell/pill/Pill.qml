@@ -685,7 +685,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         visible: opacity > 0.01
         opacity: shown ? 1 : 0
-        border.width: 1
+        border.width: Metrics.hairW(pill.s)
         border.color: Theme.border
         /** Qt.alpha replaces the channel rather than scaling it, so the material's own alpha has to be multiplied back in here or the token's translucency is thrown away. */
         gradient: Gradient {
@@ -749,7 +749,7 @@ Item {
         topRightRadius: pill.morphRadius * (1 - gameFlat)
         bottomLeftRadius: pill.morphRadius * (1 - gameFlat)
         bottomRightRadius: pill.morphRadius * (1 - gameFlat)
-        border.width: 1
+        border.width: Metrics.hairW(pill.s)
         border.color: Theme.border
         /** Material alpha times the user's pill opacity: Qt.alpha sets the channel outright, so leaving Theme.surfAlpha out here would render glass, frost and ink identically. */
         gradient: Gradient {
@@ -1160,7 +1160,7 @@ Item {
                     : "Drop to install")))
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 13 * pill.s
+                font.pixelSize: Metrics.tTitle * pill.s
                 font.weight: Font.Medium
             }
 
@@ -1171,7 +1171,7 @@ Item {
                 text: pill.dragStage === "installing" && pill.installLine.length > 0 ? pill.installLine : pill.dragName
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 11 * pill.s
+                font.pixelSize: Metrics.tLabel * pill.s
                 elide: Text.ElideMiddle
                 maximumLineCount: 1
             }
@@ -1222,7 +1222,7 @@ Item {
                     text: Players.title
                     color: Theme.cream
                     font.family: Theme.font
-                    font.pixelSize: 12.5 * pill.s
+                    font.pixelSize: Metrics.tTitle * pill.s
                     font.weight: Font.Medium
                     elide: Text.ElideRight
                     width: Math.min(implicitWidth, 220 * pill.s)
@@ -1231,7 +1231,7 @@ Item {
                     text: Players.artist
                     color: Theme.dim
                     font.family: Theme.font
-                    font.pixelSize: 10.5 * pill.s
+                    font.pixelSize: Metrics.tBody * pill.s
                     elide: Text.ElideRight
                     width: Math.min(implicitWidth, 220 * pill.s)
                     visible: text.length > 0
@@ -1244,7 +1244,7 @@ Item {
             text: clock.hhmm
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 16 * pill.s
+            font.pixelSize: Metrics.tHead * pill.s
             font.weight: Font.DemiBold
             font.features: ({ "tnum": 1 })
         }
@@ -1295,7 +1295,7 @@ Item {
                 text: Math.round((osd.kind === "brightness" ? osd.brightness : osd.volume) * 100) + "%"
                 color: osd.kind === "volume" && osd.muted ? Theme.dim : Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 10.5 * pill.s
+                font.pixelSize: Metrics.tBody * pill.s
                 font.weight: Font.DemiBold
                 font.features: ({ "tnum": 1 })
             }
@@ -1374,7 +1374,7 @@ Item {
                 text: clock.hhmm
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 16 * pill.s
+                font.pixelSize: Metrics.tHead * pill.s
                 font.weight: Font.DemiBold
                 font.features: ({ "tnum": 1 })
             }
@@ -1384,7 +1384,7 @@ Item {
                 text: pill.specialView
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 16 * pill.s
+                font.pixelSize: Metrics.tHead * pill.s
                 font.weight: Font.DemiBold
             }
         }
@@ -1439,7 +1439,7 @@ Item {
                         text: clock.hhmm
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 18 * pill.s
+                        font.pixelSize: Metrics.tDisplay * pill.s
                         font.weight: Font.DemiBold
                         font.features: ({ "tnum": 1 })
                     }
@@ -1448,7 +1448,7 @@ Item {
                         text: clock.date
                         color: Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 8.5 * pill.s
+                        font.pixelSize: Metrics.tCaption * pill.s
                         font.weight: Font.Medium
                         font.capitalization: Font.AllUppercase
                         font.letterSpacing: 1.6 * pill.s
@@ -1506,7 +1506,7 @@ Item {
                         text: Weather.tempNow + "°"
                         color: Theme.subtle
                         font.family: Theme.font
-                        font.pixelSize: 12.5 * pill.s
+                        font.pixelSize: Metrics.tTitle * pill.s
                         font.weight: Font.Medium
                         font.features: ({ "tnum": 1 })
                     }
@@ -1681,7 +1681,7 @@ Item {
                             text: Battery.pct + "%"
                             color: Battery.low ? Theme.markLit : (Battery.charging ? Theme.markGlow : Theme.subtle)
                             font.family: Theme.font
-                            font.pixelSize: 13 * pill.s
+                            font.pixelSize: Metrics.tTitle * pill.s
                             font.weight: Battery.charging ? Font.DemiBold : Font.Medium
                             font.features: ({ "tnum": 1 })
                         }
@@ -2303,7 +2303,7 @@ Item {
                 text: "+" + (Notifs.popups.length - 1)
                 color: Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 9 * pill.s
+                font.pixelSize: Metrics.tCaption * pill.s
                 font.weight: Font.DemiBold
             }
         }
@@ -2347,7 +2347,7 @@ Item {
                     height: parent.height
                     radius: Metrics.rTile * pill.s
                     color: qSrcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
-                    border.width: 1
+                    border.width: Metrics.hairW(pill.s)
                     border.color: qSrcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -2368,7 +2368,7 @@ Item {
                             text: qSrcTile.modelData.label
                             color: qSrcArea.containsMouse ? Theme.cream : Theme.subtle
                             font.family: Theme.font
-                            font.pixelSize: 11 * pill.s
+                            font.pixelSize: Metrics.tLabel * pill.s
                             font.weight: Font.Bold
                         }
                     }
@@ -2402,7 +2402,7 @@ Item {
                 height: quickScreens.height
                 radius: Metrics.rTile * pill.s
                 color: qMonArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
-                border.width: 1
+                border.width: Metrics.hairW(pill.s)
                 border.color: qMonArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -2415,7 +2415,7 @@ Item {
                         text: qMonTile.modelData.name
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 11.5 * pill.s
+                        font.pixelSize: Metrics.tLabel * pill.s
                         font.weight: Font.Bold
                     }
                     Text {
@@ -2423,7 +2423,7 @@ Item {
                         text: qMonTile.modelData.w + " × " + qMonTile.modelData.h
                         color: Theme.subtle
                         font.family: Theme.font
-                        font.pixelSize: 9.5 * pill.s
+                        font.pixelSize: Metrics.tBody * pill.s
                         font.features: ({ "tnum": 1 })
                     }
                 }
@@ -2501,7 +2501,7 @@ Item {
                 text: "GET READY"
                 color: Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 8.5 * pill.s
+                font.pixelSize: Metrics.tCaption * pill.s
                 font.weight: Font.Bold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.6 * pill.s

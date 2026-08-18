@@ -61,7 +61,7 @@ Rectangle {
                 radius: Metrics.rCard * seg.s
                 color: opt.armed ? Qt.alpha(Theme.markDeep, 0.42)
                     : (opt.current ? Qt.alpha(Theme.markGlow, 0.16) : (opt.hovered ? Theme.frameBg : "transparent"))
-                border.width: opt.armed ? 1 : 0
+                border.width: opt.armed ? Metrics.hairW(seg.s) : 0
                 border.color: Qt.alpha(Theme.markLit, 0.7)
                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -71,7 +71,7 @@ Rectangle {
                     text: opt.modelData.label
                     color: (opt.current || opt.armed) ? Theme.cream : Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 10.5 * seg.s
+                    font.pixelSize: Metrics.tBody * seg.s
                     font.weight: Font.Bold
                     font.letterSpacing: 0.3 * seg.s
                 }

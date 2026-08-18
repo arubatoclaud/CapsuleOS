@@ -70,7 +70,7 @@ SettingsSurface {
                 text: "CHANGE"
                 color: changeArea.containsMouse ? Theme.markGlow : Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 9 * root.s
+                font.pixelSize: Metrics.tCaption * root.s
                 font.weight: Font.Bold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1 * root.s

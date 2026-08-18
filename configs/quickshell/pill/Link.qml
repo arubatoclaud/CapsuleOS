@@ -151,7 +151,7 @@ PillSurface {
             height: 16 * root.s
             radius: 5 * root.s
             color: Theme.tileBg
-            border.width: 1
+            border.width: Metrics.hairW(root.s)
             border.color: Theme.border
 
             Image {
@@ -186,7 +186,7 @@ PillSurface {
             text: nrow.n.body.length > 0 ? nrow.n.body : nrow.n.summary
             color: nrow.critical ? Theme.cream : Theme.subtle
             font.family: Theme.font
-            font.pixelSize: 10.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: nrow.critical ? Font.DemiBold : Font.Medium
             elide: Text.ElideRight
             maximumLineCount: 1
@@ -206,7 +206,7 @@ PillSurface {
                 text: "×" + nrow.entry.count
                 color: nrow.critical ? Theme.markLit : Theme.markDim
                 font.family: Theme.font
-                font.pixelSize: 9 * root.s
+                font.pixelSize: Metrics.tCaption * root.s
                 font.weight: Font.Bold
             }
 
@@ -223,7 +223,7 @@ PillSurface {
                     text: Notifs.ageLabel(nrow.n)
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 9 * root.s
+                    font.pixelSize: Metrics.tCaption * root.s
                     Behavior on opacity { NumberAnimation { duration: Motion.fast } }
                 }
 
@@ -283,7 +283,7 @@ PillSurface {
                     text: "INBOX"
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 10 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.DemiBold
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1.6 * root.s
@@ -318,7 +318,7 @@ PillSurface {
                         text: Notifs.unread + " NEW"
                         color: Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 9.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.Bold
                         font.letterSpacing: 1.4 * root.s
                     }
@@ -357,7 +357,7 @@ PillSurface {
                             text: "CLEAR"
                             color: clearArea.containsMouse ? Theme.markLit : Theme.markDim
                             font.family: Theme.font
-                            font.pixelSize: 9 * root.s
+                            font.pixelSize: Metrics.tCaption * root.s
                             font.weight: Font.Bold
                             font.letterSpacing: 1.4 * root.s
                         }
@@ -446,7 +446,7 @@ PillSurface {
                                     height: 20 * root.s
                                     radius: 6 * root.s
                                     color: Theme.tileBg
-                                    border.width: 1
+                                    border.width: Metrics.hairW(root.s)
                                     border.color: Theme.border
 
                                     Image {
@@ -481,7 +481,7 @@ PillSurface {
                                     text: group.modelData.app
                                     color: Theme.subtle
                                     font.family: Theme.font
-                                    font.pixelSize: 9 * root.s
+                                    font.pixelSize: Metrics.tCaption * root.s
                                     font.weight: Font.Bold
                                     font.capitalization: Font.AllUppercase
                                     font.letterSpacing: 1.2 * root.s
@@ -496,7 +496,7 @@ PillSurface {
                                     text: "· " + group.modelData.count
                                     color: Theme.faint
                                     font.family: Theme.font
-                                    font.pixelSize: 9 * root.s
+                                    font.pixelSize: Metrics.tCaption * root.s
                                 }
 
                                 Text {
@@ -510,7 +510,7 @@ PillSurface {
                                         : group.modelData.preview.summary
                                     color: Theme.dim
                                     font.family: Theme.font
-                                    font.pixelSize: 10 * root.s
+                                    font.pixelSize: Metrics.tBody * root.s
                                     elide: Text.ElideRight
                                     maximumLineCount: 1
                                     textFormat: Text.PlainText
@@ -601,7 +601,7 @@ PillSurface {
                 text: Flags.showGlyphs ? "ALL QUIET" : "No notifications to display"
                 color: Theme.faint
                 font.family: Theme.font
-                font.pixelSize: 9 * root.s
+                font.pixelSize: Metrics.tCaption * root.s
                 font.weight: Font.Bold
                 font.letterSpacing: Flags.showGlyphs ? 2.2 * root.s : 0.8 * root.s
             }

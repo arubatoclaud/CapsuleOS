@@ -64,7 +64,7 @@ Item {
         width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 22 * root.s
         height: column.implicitHeight + 14 * root.s
         radius: Metrics.rCard * root.s
-        border.width: 1
+        border.width: Metrics.hairW(root.s)
         border.color: Theme.frameBorder
         gradient: Gradient {
             GradientStop { position: 0.0; color: Theme.cardTop }
@@ -91,7 +91,7 @@ Item {
             text: root.title
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 11 * root.s
+            font.pixelSize: Metrics.tLabel * root.s
             font.weight: Font.Bold
         }
         Text {
@@ -101,7 +101,7 @@ Item {
             text: root.desc
             color: Theme.subtle
             font.family: Theme.font
-            font.pixelSize: 10 * root.s
+            font.pixelSize: Metrics.tBody * root.s
         }
     }
 

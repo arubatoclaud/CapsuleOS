@@ -94,7 +94,7 @@ Item {
         text: srow.glyph
         color: Theme.iconDim
         font.family: Theme.fontIcon
-        font.pixelSize: 15 * srow.s
+        font.pixelSize: Metrics.iconRow * srow.s
     }
 
     GlyphIcon {
@@ -103,11 +103,11 @@ Item {
         anchors.leftMargin: 14 * srow.s
         anchors.verticalCenter: parent.verticalCenter
         visible: srow.icon.length > 0
-        width: 17 * srow.s
-        height: 17 * srow.s
+        width: Metrics.iconRow * srow.s
+        height: Metrics.iconRow * srow.s
         name: srow.icon
         color: srow.focused ? Theme.cream : Theme.subtle
-        stroke: 1.8
+        stroke: Metrics.iconStroke
     }
 
     Column {
@@ -123,7 +123,7 @@ Item {
             text: srow.name
             color: Theme.cream
             font.family: Theme.font
-            font.pixelSize: 12.5 * srow.s
+            font.pixelSize: Metrics.tTitle * srow.s
             font.weight: Font.DemiBold
         }
         Text {
@@ -134,7 +134,7 @@ Item {
             color: srow.subColor
             font.family: Theme.font
             Behavior on color { ColorAnimation { duration: Motion.fast } }
-            font.pixelSize: 10.5 * srow.s
+            font.pixelSize: Metrics.tBody * srow.s
             wrapMode: Text.WordWrap
             lineHeight: 1.2
             Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }

@@ -223,7 +223,7 @@ SettingsSurface {
             text: "Keep awake pauses every idle timeout while it is on."
             color: Theme.faint
             font.family: Theme.font
-            font.pixelSize: 9.5 * root.s
+            font.pixelSize: Metrics.tBody * root.s
             font.weight: Font.Medium
             wrapMode: Text.WordWrap
         }

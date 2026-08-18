@@ -161,7 +161,7 @@ PillSurface {
                     text: "STASH"
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 10 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.DemiBold
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1.6 * root.s
@@ -195,7 +195,7 @@ PillSurface {
                 text: "No apps stashed yet"
                 color: Theme.faint
                 font.family: Theme.font
-                font.pixelSize: 11 * root.s
+                font.pixelSize: Metrics.tLabel * root.s
                 font.weight: Font.Medium
             }
         }
@@ -234,7 +234,7 @@ PillSurface {
                     anchors.bottomMargin: 3 * root.s
                     radius: Metrics.rTile * root.s
                     color: rowHover.hovered ? Theme.frameBg : "transparent"
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: rowHover.hovered ? Theme.frameBorder : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                 }
@@ -250,7 +250,7 @@ PillSurface {
                     height: 28 * root.s
                     radius: Metrics.rSmall * root.s
                     color: Theme.tileBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: Theme.hairSoft
 
                     Text {
@@ -259,7 +259,7 @@ PillSurface {
                         text: erow.title.length > 0 ? erow.title.charAt(0).toUpperCase() : "?"
                         color: Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 13 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: Font.DemiBold
                     }
 
@@ -290,7 +290,7 @@ PillSurface {
                         text: erow.title
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 12.5 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
                     }
@@ -300,7 +300,7 @@ PillSurface {
                         text: erow.modelData
                         color: Theme.faint
                         font.family: Theme.font
-                        font.pixelSize: 10 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.Normal
                         elide: Text.ElideRight
                     }

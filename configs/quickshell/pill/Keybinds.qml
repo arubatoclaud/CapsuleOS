@@ -348,7 +348,7 @@ PillSurface {
                     text: "KEYBINDS"
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 10 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.DemiBold
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1.6 * root.s
@@ -396,7 +396,7 @@ PillSurface {
                 padding: 0
                 color: Theme.cream
                 font.family: Theme.font
-                font.pixelSize: 13 * root.s
+                font.pixelSize: Metrics.tTitle * root.s
                 placeholderText: "search binds"
                 placeholderTextColor: Theme.faint
                 selectByMouse: true
@@ -483,7 +483,7 @@ PillSurface {
                     height: comboText.implicitHeight + 8 * root.s
                     radius: Metrics.rSmall * root.s
                     color: brow.focused ? Qt.alpha(Theme.markLit, 0.16) : Theme.frameBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: brow.focused ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -493,7 +493,7 @@ PillSurface {
                         text: root.comboPretty(brow.modelData.combo)
                         color: brow.focused ? Theme.cream : Theme.subtle
                         font.family: Theme.font
-                        font.pixelSize: 11 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         font.weight: Font.Bold
                         font.letterSpacing: 0.3 * root.s
                     }
@@ -514,7 +514,7 @@ PillSurface {
                         text: brow.modelData.label
                         color: brow.focused ? Theme.subtle : Theme.faint
                         font.family: Theme.font
-                        font.pixelSize: 11 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         font.weight: Font.Medium
                         elide: Text.ElideRight
                     }
@@ -527,7 +527,7 @@ PillSurface {
                         text: brow.modelData.cmd
                         color: Theme.dim
                         font.family: Theme.font
-                        font.pixelSize: 9 * root.s
+                        font.pixelSize: Metrics.tCaption * root.s
                         font.weight: Font.Normal
                         elide: Text.ElideLeft
                     }
@@ -563,7 +563,7 @@ PillSurface {
                 anchors.bottomMargin: 5 * root.s
                 radius: Metrics.rCard * root.s
                 color: addArea.containsMouse ? Qt.alpha(Theme.markLit, 0.1) : "transparent"
-                border.width: 1
+                border.width: Metrics.hairW(root.s)
                 border.color: Qt.alpha(Theme.markLit, addArea.containsMouse ? 0.6 : 0.32)
 
                 Row {
@@ -575,7 +575,7 @@ PillSurface {
                         text: "+"
                         color: Theme.markLit
                         font.family: Theme.font
-                        font.pixelSize: 14 * root.s
+                        font.pixelSize: Metrics.tTitle * root.s
                         font.weight: Font.Bold
                     }
                     Text {
@@ -583,7 +583,7 @@ PillSurface {
                         text: "add keybind"
                         color: Theme.markLit
                         font.family: Theme.font
-                        font.pixelSize: 11 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         font.weight: Font.DemiBold
                         font.letterSpacing: 0.5 * root.s
                     }
@@ -641,7 +641,7 @@ PillSurface {
                         text: root.formAdd ? "NEW BIND" : "EDIT BIND"
                         color: Theme.subtle
                         font.family: Theme.font
-                        font.pixelSize: 9.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.DemiBold
                         font.capitalization: Font.AllUppercase
                         font.letterSpacing: 1.4 * root.s
@@ -660,7 +660,7 @@ PillSurface {
                     text: "KEY"
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 8.5 * root.s
+                    font.pixelSize: Metrics.tCaption * root.s
                     font.weight: Font.Medium
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1 * root.s
@@ -673,7 +673,7 @@ PillSurface {
                     height: 26 * root.s
                     radius: Metrics.rCard * root.s
                     color: root.listening ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: root.listening ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -686,7 +686,7 @@ PillSurface {
                         color: root.listening ? Theme.markGlow
                             : (root.formCombo.length ? Theme.cream : Theme.faint)
                         font.family: Theme.font
-                        font.pixelSize: 11.5 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         font.weight: root.formCombo.length ? Font.DemiBold : Font.Medium
                         elide: Text.ElideRight
                     }
@@ -712,7 +712,7 @@ PillSurface {
                     text: "NAME"
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 8.5 * root.s
+                    font.pixelSize: Metrics.tCaption * root.s
                     font.weight: Font.Medium
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1 * root.s
@@ -725,7 +725,7 @@ PillSurface {
                     height: 26 * root.s
                     radius: Metrics.rCard * root.s
                     color: Theme.frameBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: nameField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
 
                     TextField {
@@ -739,7 +739,7 @@ PillSurface {
                         padding: 0
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 11.5 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         placeholderText: "label (optional)"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
@@ -764,7 +764,7 @@ PillSurface {
                     text: root.formCmdEditable ? "COMMAND" : "ACTION"
                     color: Theme.faint
                     font.family: Theme.font
-                    font.pixelSize: 8.5 * root.s
+                    font.pixelSize: Metrics.tCaption * root.s
                     font.weight: Font.Medium
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1 * root.s
@@ -777,7 +777,7 @@ PillSurface {
                     height: 26 * root.s
                     radius: Metrics.rCard * root.s
                     color: Theme.frameBg
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: (cmdField.activeFocus || actionField.activeFocus) ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
 
                     TextField {
@@ -792,7 +792,7 @@ PillSurface {
                         padding: 0
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 11.5 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         placeholderText: "shell command"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
@@ -817,7 +817,7 @@ PillSurface {
                         padding: 0
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 10.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         placeholderText: "lua dispatch"
                         placeholderTextColor: Theme.faint
                         selectByMouse: true
@@ -838,7 +838,7 @@ PillSurface {
                 text: root.conflict
                 color: Theme.markLit
                 font.family: Theme.font
-                font.pixelSize: 10 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
                 elide: Text.ElideRight
             }
@@ -856,7 +856,7 @@ PillSurface {
                     height: 28 * root.s
                     radius: Metrics.rCard * root.s
                     color: deleteArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.2) : Qt.alpha(Theme.markDeep, 0.1)
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: Qt.alpha(Theme.markLit, 0.45)
 
                     Text {
@@ -865,7 +865,7 @@ PillSurface {
                         text: "Delete"
                         color: Theme.markLit
                         font.family: Theme.font
-                        font.pixelSize: 10.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.DemiBold
                         font.letterSpacing: 0.3 * root.s
                     }
@@ -894,7 +894,7 @@ PillSurface {
                         text: "Save"
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 10.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: Font.Bold
                         font.letterSpacing: 0.4 * root.s
                     }
@@ -929,7 +929,7 @@ PillSurface {
                 text: root.formOpen ? "save · delete · esc back" : "tap edit · + add · esc close"
                 color: Theme.faint
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1 * root.s

@@ -64,7 +64,7 @@ Item {
         text: edit.value.length > 0 ? edit.value : edit.placeholder
         color: shownArea.containsMouse ? Theme.cream : (edit.value.length > 0 ? Theme.subtle : Theme.faint)
         font.family: Theme.font
-        font.pixelSize: 10.5 * edit.s
+        font.pixelSize: Metrics.tBody * edit.s
         font.weight: Font.Medium
         elide: Text.ElideMiddle
         Behavior on color { ColorAnimation { duration: Motion.fast } }
@@ -91,7 +91,7 @@ Item {
         verticalAlignment: TextInput.AlignVCenter
         color: Theme.cream
         font.family: Theme.font
-        font.pixelSize: 10.5 * edit.s
+        font.pixelSize: Metrics.tBody * edit.s
         font.weight: Font.Medium
         placeholderText: edit.placeholder
         placeholderTextColor: Theme.faint

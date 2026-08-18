@@ -31,14 +31,14 @@ Item {
             color: Theme.cream
             font.family: Theme.fontIcon
             font.weight: Font.Medium
-            font.pixelSize: 16 * head.s
+            font.pixelSize: Metrics.iconRow * head.s
         }
         Text {
             anchors.verticalCenter: parent.verticalCenter
             text: head.title
             color: Theme.subtle
             font.family: Theme.font
-            font.pixelSize: 10 * head.s
+            font.pixelSize: Metrics.tBody * head.s
             font.weight: Font.DemiBold
             font.capitalization: Font.AllUppercase
             font.letterSpacing: 1.6 * head.s
@@ -48,10 +48,10 @@ Item {
     GlyphIcon {
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
-        width: 16 * head.s
-        height: 16 * head.s
+        width: Metrics.iconRow * head.s
+        height: Metrics.iconRow * head.s
         name: head.showBack ? "chevron-left" : "cog"
         color: Theme.iconDim
-        stroke: head.showBack ? 2.2 : 1.7
+        stroke: Metrics.iconStroke
     }
 }

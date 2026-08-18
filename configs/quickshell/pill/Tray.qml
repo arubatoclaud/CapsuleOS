@@ -59,7 +59,7 @@ Item {
                     anchors.fill: parent
                     radius: 6 * tray.s
                     color: Theme.frameBg
-                    border.width: 1
+                    border.width: Metrics.hairW(tray.s)
                     border.color: Theme.frameBorder
                     opacity: area.containsMouse ? 1 : 0
                     Behavior on opacity { NumberAnimation { duration: Motion.fast } }
@@ -170,7 +170,7 @@ Item {
                 height: 11 * tray.s
                 radius: isRadio ? width / 2 : 3 * tray.s
                 color: "transparent"
-                border.width: 1
+                border.width: Metrics.hairW(tray.s)
                 border.color: checked ? Theme.markLit : Theme.border
 
                 Rectangle {
@@ -209,7 +209,7 @@ Item {
                 color: !mrow.entryData.enabled ? Theme.dim
                     : (mrowArea.containsMouse ? Theme.cream : Theme.creamMenu)
                 font.family: Theme.font
-                font.pixelSize: 13 * tray.s
+                font.pixelSize: Metrics.tTitle * tray.s
                 font.weight: mrowArea.containsMouse ? Font.DemiBold : Font.Normal
                 elide: Text.ElideRight
             }
@@ -288,7 +288,7 @@ Item {
                     GradientStop { position: 0.0; color: Theme.cardTop }
                     GradientStop { position: 1.0; color: Theme.cardBot }
                 }
-                border.width: 1
+                border.width: Metrics.hairW(tray.s)
                 border.color: Theme.border
 
                 property int expandedIdx: -1

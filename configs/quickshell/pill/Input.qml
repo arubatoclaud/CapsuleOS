@@ -178,7 +178,7 @@ SettingsSurface {
                     height: 22 * root.s
                     radius: Metrics.rCard * root.s
                     color: "transparent"
-                    border.width: 1
+                    border.width: Metrics.hairW(root.s)
                     border.color: Theme.hairSoft
 
                     Text {
@@ -187,7 +187,7 @@ SettingsSurface {
                         text: Store.get("kbLayout")
                         color: Theme.cream
                         font.family: Theme.font
-                        font.pixelSize: 11 * root.s
+                        font.pixelSize: Metrics.tLabel * root.s
                         font.weight: Font.DemiBold
                     }
                 }

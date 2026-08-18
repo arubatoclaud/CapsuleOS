@@ -53,7 +53,7 @@ Item {
             text: pick.label
             color: Theme.faint
             font.family: Theme.font
-            font.pixelSize: 10.5 * pick.s
+            font.pixelSize: Metrics.tBody * pick.s
             font.weight: Font.Medium
         }
 
@@ -65,7 +65,7 @@ Item {
             height: 24 * pick.s
             radius: Metrics.rCard * pick.s
             color: pick.open ? Qt.alpha(Theme.markGlow, 0.14) : (field.hovered ? Theme.frameBg : "transparent")
-            border.width: 1
+            border.width: Metrics.hairW(pick.s)
             border.color: pick.open ? Qt.alpha(Theme.markGlow, 0.5) : Theme.hairSoft
             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -137,7 +137,7 @@ Item {
             GradientStop { position: 0.0; color: Theme.cardTop }
             GradientStop { position: 1.0; color: Theme.cardBot }
         }
-        border.width: 1
+        border.width: Metrics.hairW(pick.s)
         border.color: Theme.frameBorder
 
         ListView {

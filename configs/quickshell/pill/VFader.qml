@@ -119,7 +119,7 @@ Item {
         color: root.lit ? Theme.cream : Theme.dim
         opacity: root.lit ? 1 : 0
         font.family: Theme.font
-        font.pixelSize: 9 * root.s
+        font.pixelSize: Metrics.tCaption * root.s
         font.weight: Font.DemiBold
         Behavior on opacity { NumberAnimation { duration: Motion.fast } }
     }
@@ -149,7 +149,7 @@ Item {
         text: root.subLabel
         color: root.lit ? Theme.cream : Theme.faint
         font.family: Theme.font
-        font.pixelSize: 9 * root.s
+        font.pixelSize: Metrics.tCaption * root.s
         font.weight: Font.DemiBold
         font.letterSpacing: 0.3 * root.s
         Behavior on opacity { NumberAnimation { duration: Motion.fast } }

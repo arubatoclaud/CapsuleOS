@@ -134,7 +134,7 @@ PillSurface {
                 text: dial.unit
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 11 * root.s
+                font.pixelSize: Metrics.tLabel * root.s
                 font.weight: Font.Bold
             }
         }
@@ -150,7 +150,7 @@ PillSurface {
                 text: dial.label
                 color: Theme.faint
                 font.family: Theme.font
-                font.pixelSize: 8.5 * root.s
+                font.pixelSize: Metrics.tCaption * root.s
                 font.weight: Font.Bold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1 * root.s
@@ -161,7 +161,7 @@ PillSurface {
                 text: dial.sub
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 10.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.Bold
                 font.features: ({ "tnum": 1 })
             }
@@ -200,7 +200,7 @@ PillSurface {
                     text: "SYSTEM"
                     color: Theme.subtle
                     font.family: Theme.font
-                    font.pixelSize: 10 * root.s
+                    font.pixelSize: Metrics.tBody * root.s
                     font.weight: Font.DemiBold
                     font.capitalization: Font.AllUppercase
                     font.letterSpacing: 1.8 * root.s
@@ -213,7 +213,7 @@ PillSurface {
                 text: Sysmon.uptime
                 color: Theme.dim
                 font.family: Theme.font
-                font.pixelSize: 9.5 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.Bold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.1 * root.s
@@ -302,7 +302,7 @@ PillSurface {
                                 : "VRAM · GB"
                             color: Theme.faint
                             font.family: Theme.font
-                            font.pixelSize: 8 * root.s
+                            font.pixelSize: Metrics.tCaption * root.s
                             font.weight: Font.Bold
                             font.capitalization: Font.AllUppercase
                             font.letterSpacing: 0.9 * root.s
@@ -317,7 +317,7 @@ PillSurface {
                                 text: "↓" + Sysmon.netDown.toFixed(1)
                                 color: Theme.cream
                                 font.family: Theme.font
-                                font.pixelSize: 13 * root.s
+                                font.pixelSize: Metrics.tTitle * root.s
                                 font.weight: Font.ExtraBold
                                 font.features: ({ "tnum": 1 })
                             }
@@ -325,7 +325,7 @@ PillSurface {
                                 text: "↑" + Sysmon.netUp.toFixed(1)
                                 color: Theme.markLit
                                 font.family: Theme.font
-                                font.pixelSize: 13 * root.s
+                                font.pixelSize: Metrics.tTitle * root.s
                                 font.weight: Font.ExtraBold
                                 font.features: ({ "tnum": 1 })
                             }
@@ -339,7 +339,7 @@ PillSurface {
                                 : Sysmon.vramUsedGb.toFixed(1) + " / " + Sysmon.vramTotalGb.toFixed(0)
                             color: Theme.cream
                             font.family: Theme.font
-                            font.pixelSize: 13 * root.s
+                            font.pixelSize: Metrics.tTitle * root.s
                             font.weight: Font.ExtraBold
                             font.features: ({ "tnum": 1 })
                         }

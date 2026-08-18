@@ -135,7 +135,7 @@ PillSurface {
                 text: "POWER"
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 10 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.6 * root.s
@@ -218,7 +218,7 @@ PillSurface {
                         anchors.fill: parent
                         radius: Metrics.rTile * root.s
                         color: tile.isHover ? Theme.frameBg : "transparent"
-                        border.width: 1
+                        border.width: Metrics.hairW(root.s)
                         border.color: tile.isHover ? Theme.frameBorder : Theme.border
                         Behavior on color { ColorAnimation { duration: Motion.fast } }
                     }
@@ -308,7 +308,7 @@ PillSurface {
         text: act ? (act.confirm ? act.label + " — hold" : act.label) : ""
         color: act && act.confirm ? Theme.markLit : Theme.subtle
         font.family: Theme.font
-        font.pixelSize: 11 * root.s
+        font.pixelSize: Metrics.tLabel * root.s
         font.weight: Font.Medium
         font.letterSpacing: 0.4 * root.s
         opacity: text.length > 0 ? 1 : 0

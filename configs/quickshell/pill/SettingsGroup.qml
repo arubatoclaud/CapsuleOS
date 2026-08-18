@@ -41,11 +41,11 @@ Column {
             anchors.right: parent.right
             anchors.rightMargin: grp.hPad
             anchors.verticalCenter: gl.verticalCenter
-            width: 15 * grp.s
-            height: 15 * grp.s
+            width: Metrics.iconRow * grp.s
+            height: Metrics.iconRow * grp.s
             name: "chevron-down"
             color: Theme.faint
-            stroke: 2.0
+            stroke: Metrics.iconStroke
             rotation: grp.open ? 0 : -90
             Behavior on rotation { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
         }

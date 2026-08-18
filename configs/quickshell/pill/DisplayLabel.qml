@@ -23,7 +23,7 @@ Row {
         text: lbl.xSplit >= 0 ? lbl.text.substring(0, lbl.xSplit) : lbl.text
         color: lbl.color
         font.family: Theme.font
-        font.pixelSize: 10.5 * lbl.s
+        font.pixelSize: Metrics.tBody * lbl.s
         font.weight: lbl.weight
         font.features: ({ "tnum": 1 })
     }
@@ -35,7 +35,7 @@ Row {
         text: "×"
         color: Qt.alpha(lbl.color, 0.55)
         font.family: Theme.font
-        font.pixelSize: 9 * lbl.s
+        font.pixelSize: Metrics.tCaption * lbl.s
         font.weight: Font.Medium
     }
 
@@ -44,7 +44,7 @@ Row {
         text: lbl.xSplit >= 0 ? lbl.text.substring(lbl.xSplit + 1) : ""
         color: lbl.color
         font.family: Theme.font
-        font.pixelSize: 10.5 * lbl.s
+        font.pixelSize: Metrics.tBody * lbl.s
         font.weight: lbl.weight
         font.features: ({ "tnum": 1 })
     }

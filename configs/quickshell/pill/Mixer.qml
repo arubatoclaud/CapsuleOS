@@ -194,7 +194,7 @@ PillSurface {
         height: 26 * root.s
         radius: Metrics.rCard * root.s
         color: chip.on ? Theme.frameBg : "transparent"
-        border.width: 1
+        border.width: Metrics.hairW(root.s)
         border.color: chip.on ? Theme.frameBorder : Theme.border
 
         GlyphIcon {
@@ -240,7 +240,7 @@ PillSurface {
         radius: Metrics.rCard * root.s
         color: dchip.open ? Qt.alpha(Theme.markGlow, 0.14)
             : (dchipHover.hovered ? Theme.frameBg : "transparent")
-        border.width: 1
+        border.width: Metrics.hairW(root.s)
         border.color: dchip.open ? Qt.alpha(Theme.markGlow, 0.5) : Theme.border
         Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -295,7 +295,7 @@ PillSurface {
                 text: "MIXER"
                 color: Theme.subtle
                 font.family: Theme.font
-                font.pixelSize: 10 * root.s
+                font.pixelSize: Metrics.tBody * root.s
                 font.weight: Font.DemiBold
                 font.capitalization: Font.AllUppercase
                 font.letterSpacing: 1.6 * root.s
@@ -428,7 +428,7 @@ PillSurface {
                 GradientStop { position: 0.0; color: Theme.cardTop }
                 GradientStop { position: 1.0; color: Theme.cardBot }
             }
-            border.width: 1
+            border.width: Metrics.hairW(root.s)
             border.color: Theme.frameBorder
 
             ListView {
@@ -461,7 +461,7 @@ PillSurface {
                         elide: Text.ElideRight
                         color: devRow.current ? Theme.cream : Theme.subtle
                         font.family: Theme.font
-                        font.pixelSize: 10.5 * root.s
+                        font.pixelSize: Metrics.tBody * root.s
                         font.weight: devRow.current ? Font.Bold : Font.Medium
                     }
 
