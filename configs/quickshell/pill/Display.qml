@@ -1108,7 +1108,7 @@ SettingsSurface {
                     : (root.selMon === null ? "Select a monitor above"
                         : (root.selIsMain ? root.selName + " is already the main monitor"
                             : root.displayMainEntry.caption))
-                subColor: root.mainArmed ? Theme.vermLit : Theme.faint
+                subColor: (root.mainArmed && root.displayMainEntry.danger) ? Theme.vermLit : Theme.faint
                 last: true
 
                 Rectangle {

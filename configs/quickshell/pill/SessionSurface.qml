@@ -202,7 +202,7 @@ SettingsSurface {
             navSet: (v) => root.requestSuspend(v)
             name: root.suspendEntry.label
             sub: root.suspendArmed !== undefined ? "Tap again to confirm" : root.suspendEntry.caption
-            subColor: root.suspendArmed !== undefined ? Theme.vermLit : Theme.faint
+            subColor: (root.suspendArmed !== undefined && root.suspendEntry.danger) ? Theme.vermLit : Theme.faint
             captionOnFocus: root.suspendArmed === undefined
             last: true
 
