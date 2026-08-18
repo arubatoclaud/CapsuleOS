@@ -67,7 +67,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        radius: Motion.rSmall * root.s
+        radius: Metrics.rSmall * root.s
         color: Qt.alpha(Theme.markGlow, root.hovered ? 0.14 : 0)
         Behavior on color { ColorAnimation { duration: Motion.fast } }
     }

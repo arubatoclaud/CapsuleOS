@@ -33,8 +33,6 @@ Singleton {
         character === "spring" ? [0.34, 1.56, 0.64, 1, 1, 1]
         : character === "glide" ? [0.45, 0.05, 0.15, 1, 1, 1]
         : [0.32, 0.72, 0, 1, 1, 1]
-    readonly property real rSmall: 7
-    readonly property real rTile:  13
 
     /** Looping scan/pairing breath pulse. */
     readonly property int pulse: Math.round(420 * mult)

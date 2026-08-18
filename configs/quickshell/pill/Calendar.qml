@@ -520,7 +520,7 @@ PillSurface {
                         required property int modelData
                         width: 22 * root.s
                         height: 22 * root.s
-                        radius: Motion.rSmall * root.s
+                        radius: Metrics.rSmall * root.s
                         color: navArea.containsMouse ? Theme.frameBg : "transparent"
                         border.width: navArea.containsMouse ? 1 : 0
                         border.color: Theme.frameBorder
@@ -622,7 +622,7 @@ PillSurface {
                         anchors.centerIn: parent
                         width: 22 * root.s
                         height: 22 * root.s
-                        radius: Motion.rSmall * root.s
+                        radius: Metrics.rSmall * root.s
                         color: cellArea.containsMouse && cell.inMonth && !cell.current
                             ? Qt.rgba(0.94, 0.88, 0.84, 0.04) : "transparent"
                     }
@@ -631,7 +631,7 @@ PillSurface {
                         anchors.centerIn: parent
                         width: 24 * root.s
                         height: 24 * root.s
-                        radius: Motion.rSmall * root.s
+                        radius: Metrics.rSmall * root.s
                         visible: cell.current || cell.sel
                         color: cell.sel && !cell.current ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                         border.width: 1
@@ -860,7 +860,7 @@ PillSurface {
                                 required property var modelData
                                 width: edList.width
                                 height: evBody.implicitHeight + 12 * root.s
-                                radius: Motion.rSmall * root.s
+                                radius: Metrics.rSmall * root.s
                                 color: evArea.hovered ? Theme.frameBg : "transparent"
 
                                 /** "all day" or "09:00–10:00", a date span when multi-day, "every year" when recurring. */
@@ -1001,7 +1001,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 28 * root.s
                     height: 28 * root.s
-                    radius: Motion.rSmall * root.s
+                    radius: Metrics.rSmall * root.s
                     readonly property bool armed: editor.titleVal.trim().length > 0
                     color: addArea.containsMouse && armed ? Qt.alpha(Theme.markLit, 0.22)
                         : (armed ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg)
@@ -1146,7 +1146,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: parent.width - extendBtn.width - clearSpan.width - 16 * root.s
                     height: 28 * root.s
-                    radius: Motion.rSmall * root.s
+                    radius: Metrics.rSmall * root.s
                     color: Theme.frameBg
                     border.width: 1
                     border.color: Theme.frameBorder
@@ -1182,7 +1182,7 @@ PillSurface {
                     readonly property bool armed: root.pickingEnd
                     width: extendLabel.implicitWidth + 18 * root.s
                     height: 28 * root.s
-                    radius: Motion.rSmall * root.s
+                    radius: Metrics.rSmall * root.s
                     color: armed ? Qt.alpha(Theme.markLit, 0.14) : Theme.frameBg
                     border.width: 1
                     border.color: armed ? Qt.alpha(Theme.markLit, 0.5) : Theme.frameBorder

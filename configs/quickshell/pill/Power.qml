@@ -216,7 +216,7 @@ PillSurface {
 
                     Rectangle {
                         anchors.fill: parent
-                        radius: Motion.rTile * root.s
+                        radius: Metrics.rTile * root.s
                         color: tile.isHover ? Theme.frameBg : "transparent"
                         border.width: 1
                         border.color: tile.isHover ? Theme.frameBorder : Theme.border
@@ -233,7 +233,7 @@ PillSurface {
                     ClippingRectangle {
                         anchors.fill: parent
                         anchors.margins: 1
-                        radius: (Motion.rTile - 1) * root.s
+                        radius: (Metrics.rTile - 1) * root.s
                         color: "transparent"
 
                         Rectangle {

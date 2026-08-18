@@ -705,7 +705,7 @@ SettingsSurface {
                 id: card
                 visible: root.selMon !== null
                 width: parent.width
-                radius: Motion.rTile * root.s
+                radius: Metrics.rTile * root.s
                 color: Theme.cardTop
                 border.width: 1
                 border.color: card.pending ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
