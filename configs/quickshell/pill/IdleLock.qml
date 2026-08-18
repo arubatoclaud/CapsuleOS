@@ -32,79 +32,6 @@ SettingsSurface {
         { item: suspendRow, kind: "seg", vals: root.suspendEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("idleSuspendMin"); }, set: function (v) { Store.set("idleSuspendMin", v); } }
     ]
 
-    /**
-     * One idle row: name and caption on their own full-width line with the
-     * segmented control stacked below, so a six-option strip never squeezes the
-     * caption into a narrow wrapping column. Hover lights the row and feeds the
-     * soul seam, matching the rest of the settings rows.
-     */
-    component IdleRow: Item {
-        id: irow
-        property string name: ""
-        property string caption: ""
-        property bool last: false
-        default property alias seg: segSlot.data
-        readonly property real s: root.s
-
-        width: parent ? parent.width : 0
-        height: col.implicitHeight + 22 * irow.s
-
-        HoverHandler {
-            id: ih
-            onHoveredChanged: root.reportRowHover(irow, hovered)
-        }
-
-        Rectangle {
-            anchors.fill: parent
-            anchors.topMargin: 3 * irow.s
-            anchors.bottomMargin: 3 * irow.s
-            radius: 9 * irow.s
-            color: (ih.hovered || root.focusRowItem === irow) ? Theme.frameBg : "transparent"
-            Behavior on color { ColorAnimation { duration: Motion.fast } }
-        }
-
-        Column {
-            id: col
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 12 * irow.s
-            anchors.rightMargin: 12 * irow.s
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 3 * irow.s
-
-            Text {
-                text: irow.name
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 12.5 * irow.s
-                font.weight: Font.DemiBold
-            }
-            Text {
-                width: parent.width
-                visible: irow.caption.length > 0
-                text: irow.caption
-                color: Theme.faint
-                font.family: Theme.font
-                font.pixelSize: 10.5 * irow.s
-            }
-            Item { width: 1; height: 7 * irow.s }
-            Item {
-                id: segSlot
-                width: childrenRect.width
-                height: childrenRect.height
-            }
-        }
-
-        Rectangle {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: 1
-            color: Theme.hairSoft
-            visible: !irow.last
-        }
-    }
-
     Column {
         id: content
         anchors.top: parent.top
@@ -121,43 +48,46 @@ SettingsSurface {
 
         Item { width: 1; height: 12 * root.s }
 
-        IdleRow {
+        SettingsRow {
             id: lockRow
+            surface: root
             name: root.lockEntry.label
-            caption: root.lockEntry.caption
+            sub: root.lockEntry.caption
+            captionOnFocus: true
 
             SettingsSeg {
                 s: root.s
-                flushLeft: true
                 options: root.lockEntry.options
                 value: Store.get("idleLockMin")
                 onPicked: (v) => Store.set("idleLockMin", v)
             }
         }
 
-        IdleRow {
+        SettingsRow {
             id: screenRow
+            surface: root
             name: root.screenEntry.label
-            caption: root.screenEntry.caption
+            sub: root.screenEntry.caption
+            captionOnFocus: true
 
             SettingsSeg {
                 s: root.s
-                flushLeft: true
                 options: root.screenEntry.options
                 value: Store.get("idleScreenOffMin")
                 onPicked: (v) => Store.set("idleScreenOffMin", v)
             }
         }
 
-        IdleRow {
+        SettingsRow {
             id: suspendRow
+            surface: root
             name: root.suspendEntry.label
-            caption: root.suspendEntry.caption
+            sub: root.suspendEntry.caption
+            captionOnFocus: true
             last: true
 
             SettingsSeg {
                 s: root.s
-                flushLeft: true
                 options: root.suspendEntry.options
                 value: Store.get("idleSuspendMin")
                 onPicked: (v) => Store.set("idleSuspendMin", v)

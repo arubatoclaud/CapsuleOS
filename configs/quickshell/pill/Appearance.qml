@@ -11,16 +11,34 @@ import "Singletons"
  * and a reduce-motion switch. Reached from the settings index and morphs back to it on an empty click
  * or the back chevron.
  *
- * Manual palette mode reveals a rainbow hue strip and a dark/light choice; moving
- * either rebuilds the rice colour set from that hue through wallcolors.py --hue
- * and reloads Hyprland and the terminal, debounced so a drag does not spawn a
- * build per pixel.
+ * Every row but the manual-palette editor reads and writes through Store,
+ * which validates against Schema and assigns the matching Flags key — so this
+ * surface carries no write plumbing of its own beyond the palette rows below.
+ *
+ * `Palette` is the deliberate exception: choosing Manual or Dynamic also has
+ * to run the wallcolors.py repaint process (rebuilding the whole rice colour
+ * set and reloading Hyprland and the terminal), which is not a Schema field
+ * Store can route. `applyMode` sets the `paletteMode` flag through Store and
+ * then drives the process locally — the same shape as Look.qml's
+ * `setPillBlur`/`setMaterial`. The manual hue strip, tone seg and hex field
+ * write `manualHue`/`manualSat`/`manualDark` straight to Flags — Schema marks
+ * them `control: "custom"` and they stay off Store exactly as before, each
+ * edit calling `applyManual()` to debounce the same repaint.
  */
 SettingsSurface {
     id: root
 
     backSurface: "settings"
     implicitHeight: content.implicitHeight
+
+    readonly property var timeEntry: Schema.settings.time12h
+    readonly property var secEntry: Schema.settings.clockSeconds
+    readonly property var vizEntry: Schema.settings.musicViz
+    readonly property var paletteEntry: Schema.settings.paletteMode
+    readonly property var randomEntry: Schema.settings.randomScope
+    readonly property var scaleEntry: Schema.settings.uiScale
+    readonly property var motionEntry: Schema.settings.reduceMotion
+    readonly property var fontEntry: Schema.settings.uiFont
 
     property string hueArg: String(Math.round(Flags.manualHue))
     property string modeArg: Flags.manualDark ? "dark" : "light"
@@ -41,7 +59,7 @@ SettingsSurface {
     }
 
     function applyMode(v) {
-        Flags.paletteMode = v;
+        Store.set("paletteMode", v);
         if (v === "manual")
             applyManual();
         else if (v === "dynamic")
@@ -71,23 +89,23 @@ SettingsSurface {
     Connections {
         target: Flags
         function onManualHueChanged() {
-            if (Flags.paletteMode === "manual")
+            if (Store.get("paletteMode") === "manual")
                 root.applyManual();
         }
         function onManualSatChanged() {
-            if (Flags.paletteMode === "manual")
+            if (Store.get("paletteMode") === "manual")
                 root.applyManual();
         }
     }
 
     rows: [
-        { item: timeRow, kind: "seg", vals: [false, true], get: function () { return Flags.time12h; }, set: function (v) { Flags.time12h = v; } },
-        { item: secRow, kind: "toggle", get: function () { return Flags.clockSeconds; }, set: function (v) { Flags.clockSeconds = v; } },
-        { item: vizRow, kind: "toggle", get: function () { return Flags.musicViz; }, set: function (v) { Flags.musicViz = v; } },
-        { item: paletteRow, kind: "seg", vals: ["static", "dynamic", "manual"], get: function () { return Flags.paletteMode; }, set: function (v) { root.applyMode(v); } },
-        { item: randomRow, kind: "seg", vals: ["all", "cursor"], get: function () { return Flags.randomScope; }, set: function (v) { Flags.randomScope = v; } },
-        { item: scaleRow, kind: "seg", vals: [0.9, 1.0, 1.1, 1.25], get: function () { return Flags.uiScale; }, set: function (v) { Flags.uiScale = v; } },
-        { item: motionRow, kind: "toggle", get: function () { return Flags.reduceMotion; }, set: function (v) { Flags.reduceMotion = v; } },
+        { item: timeRow, kind: "seg", vals: root.timeEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("time12h"); }, set: function (v) { Store.set("time12h", v); } },
+        { item: secRow, kind: "toggle", get: function () { return Store.get("clockSeconds"); }, set: function (v) { Store.set("clockSeconds", v); } },
+        { item: vizRow, kind: "toggle", get: function () { return Store.get("musicViz"); }, set: function (v) { Store.set("musicViz", v); } },
+        { item: paletteRow, kind: "seg", vals: root.paletteEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("paletteMode"); }, set: function (v) { root.applyMode(v); } },
+        { item: randomRow, kind: "seg", vals: root.randomEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("randomScope"); }, set: function (v) { Store.set("randomScope", v); } },
+        { item: scaleRow, kind: "seg", vals: root.scaleEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("uiScale"); }, set: function (v) { Store.set("uiScale", v); } },
+        { item: motionRow, kind: "toggle", get: function () { return Store.get("reduceMotion"); }, set: function (v) { Store.set("reduceMotion", v); } },
         { item: fontRow, kind: "nav", surface: "fontpicker" }
     ]
 
@@ -110,53 +128,53 @@ SettingsSurface {
         SettingsRow {
             id: timeRow
             surface: root
-            name: "Time format"
+            name: root.timeEntry.label
             icon: "clock"
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "24H", value: false }, { label: "12H", value: true }]
-                value: Flags.time12h
-                onPicked: (v) => Flags.time12h = v
+                options: root.timeEntry.options
+                value: Store.get("time12h")
+                onPicked: (v) => Store.set("time12h", v)
             }
         }
 
         SettingsRow {
             id: secRow
             surface: root
-            name: "Clock seconds"
+            name: root.secEntry.label
             icon: "stopwatch"
 
             LinkToggle {
                 s: root.s
-                on: Flags.clockSeconds
-                onToggled: Flags.clockSeconds = !Flags.clockSeconds
+                on: Store.get("clockSeconds")
+                onToggled: Store.set("clockSeconds", !Store.get("clockSeconds"))
             }
         }
 
         SettingsRow {
             id: vizRow
             surface: root
-            name: "Music visualizer"
+            name: root.vizEntry.label
             icon: "music"
 
             LinkToggle {
                 s: root.s
-                on: Flags.musicViz
-                onToggled: Flags.musicViz = !Flags.musicViz
+                on: Store.get("musicViz")
+                onToggled: Store.set("musicViz", !Store.get("musicViz"))
             }
         }
 
         SettingsRow {
             id: paletteRow
             surface: root
-            name: "Palette"
+            name: root.paletteEntry.label
             icon: "palette"
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "Static", value: "static" }, { label: "Dynamic", value: "dynamic" }, { label: "Manual", value: "manual" }]
-                value: Flags.paletteMode
+                options: root.paletteEntry.options
+                value: Store.get("paletteMode")
                 onPicked: (v) => root.applyMode(v)
             }
         }
@@ -171,7 +189,7 @@ SettingsSurface {
         Item {
             id: manualSection
             width: parent.width
-            height: Flags.paletteMode === "manual" ? manualCol.implicitHeight : 0
+            height: Store.get("paletteMode") === "manual" ? manualCol.implicitHeight : 0
             clip: true
             Behavior on height { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
 
@@ -359,50 +377,50 @@ SettingsSurface {
         SettingsRow {
             id: randomRow
             surface: root
-            name: "Random wallpaper"
+            name: root.randomEntry.label
             icon: "monitor"
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "All screens", value: "all" }, { label: "Cursor screen", value: "cursor" }]
-                value: Flags.randomScope
-                onPicked: (v) => Flags.randomScope = v
+                options: root.randomEntry.options
+                value: Store.get("randomScope")
+                onPicked: (v) => Store.set("randomScope", v)
             }
         }
 
         SettingsRow {
             id: scaleRow
             surface: root
-            name: "UI scale"
+            name: root.scaleEntry.label
             icon: "scaling"
 
             SettingsSeg {
                 s: root.s
-                options: [{ label: "90%", value: 0.9 }, { label: "100%", value: 1.0 }, { label: "110%", value: 1.1 }, { label: "125%", value: 1.25 }]
-                value: Flags.uiScale
-                onPicked: (v) => Flags.uiScale = v
+                options: root.scaleEntry.options
+                value: Store.get("uiScale")
+                onPicked: (v) => Store.set("uiScale", v)
             }
         }
 
         SettingsRow {
             id: motionRow
             surface: root
-            name: "Reduce motion"
+            name: root.motionEntry.label
             icon: "waves"
 
             LinkToggle {
                 s: root.s
-                on: Flags.reduceMotion
-                onToggled: Flags.reduceMotion = !Flags.reduceMotion
+                on: Store.get("reduceMotion")
+                onToggled: Store.set("reduceMotion", !Store.get("reduceMotion"))
             }
         }
 
         SettingsRow {
             id: fontRow
             surface: root
-            name: "Font"
+            name: root.fontEntry.label
             icon: "type"
-            sub: Flags.uiFont.length > 0 ? Flags.uiFont : "Inter"
+            sub: Store.get("uiFont").length > 0 ? Store.get("uiFont") : "Inter"
             last: true
 
             GlyphIcon {
