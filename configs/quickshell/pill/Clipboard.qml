@@ -242,7 +242,7 @@ PillSurface {
 
             Rectangle {
                 anchors.fill: parent
-                radius: 9 * root.s
+                radius: Metrics.rCard * root.s
                 visible: row.selected || rowHover.hovered
                 color: row.selected ? Theme.frameBg : Qt.rgba(0.94, 0.88, 0.84, 0.03)
                 border.width: row.selected ? 1 : 0

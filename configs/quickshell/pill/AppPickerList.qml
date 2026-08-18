@@ -298,7 +298,7 @@ Column {
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 9 * picker.s
+                    radius: Metrics.rCard * picker.s
                     visible: appRow.selected || appArea.containsMouse
                     color: appRow.selected ? Theme.frameBg : Qt.rgba(0.94, 0.88, 0.84, 0.03)
                     border.width: appRow.selected ? 1 : 0

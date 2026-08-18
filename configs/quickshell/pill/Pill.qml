@@ -207,8 +207,8 @@ Item {
     readonly property real dragOverH: 126 * s
     readonly property real gameH: 34 * s
     readonly property real gameW: barWindow ? barWindow.width : 1920
-    readonly property real restCorner: 18 * s
-    readonly property real openCorner: 22 * s
+    readonly property real restCorner: Metrics.rPill * s
+    readonly property real openCorner: Metrics.rPillOpen * s
 
     /**
      * Latch-once lazy load. Every surface sleeps in an inactive Loader until its
@@ -1205,7 +1205,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 width: 26 * pill.s
                 height: 26 * pill.s
-                radius: 7 * pill.s
+                radius: Metrics.rSmall * pill.s
                 color: Theme.tileBg
                 clip: true
                 Image {
@@ -2345,7 +2345,7 @@ Item {
                     required property var modelData
                     width: (quickSources.width - 6 * pill.s) / 2
                     height: parent.height
-                    radius: 11 * pill.s
+                    radius: Metrics.rTile * pill.s
                     color: qSrcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                     border.width: 1
                     border.color: qSrcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
@@ -2400,7 +2400,7 @@ Item {
                 required property var modelData
                 width: 152 * pill.s
                 height: quickScreens.height
-                radius: 11 * pill.s
+                radius: Metrics.rTile * pill.s
                 color: qMonArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                 border.width: 1
                 border.color: qMonArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border

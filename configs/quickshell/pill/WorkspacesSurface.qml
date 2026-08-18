@@ -378,7 +378,7 @@ PillSurface {
                         anchors.fill: parent
                         anchors.topMargin: 3 * root.s
                         anchors.bottomMargin: 3 * root.s
-                        radius: 10 * root.s
+                        radius: Metrics.rTile * root.s
                         color: (wrow.editing || (wrow.nav && navHover.hovered)) ? Theme.frameBg : "transparent"
                         border.width: 1
                         border.color: (wrow.editing || (wrow.nav && navHover.hovered)) ? Theme.frameBorder : "transparent"
@@ -471,7 +471,7 @@ PillSurface {
                             visible: !wrow.editing
                             width: keyText.implicitWidth + 16 * root.s
                             height: keyText.implicitHeight + 8 * root.s
-                            radius: 7 * root.s
+                            radius: Metrics.rSmall * root.s
                             color: Theme.frameBg
                             border.width: 1
                             border.color: Theme.hairSoft
@@ -504,7 +504,7 @@ PillSurface {
                             visible: wrow.editing
                             width: 24 * root.s
                             height: 24 * root.s
-                            radius: 7 * root.s
+                            radius: Metrics.rSmall * root.s
                             color: wSaveArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : "transparent"
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -559,7 +559,7 @@ PillSurface {
                         anchors.fill: parent
                         anchors.topMargin: 3 * root.s
                         anchors.bottomMargin: 3 * root.s
-                        radius: 10 * root.s
+                        radius: Metrics.rTile * root.s
                         color: (cHover.hovered || crow.editing) ? Theme.frameBg : "transparent"
                         border.width: 1
                         border.color: (cHover.hovered || crow.editing) ? Theme.frameBorder : "transparent"
@@ -672,7 +672,7 @@ PillSurface {
                             visible: !crow.editing
                             width: 24 * root.s
                             height: 24 * root.s
-                            radius: 7 * root.s
+                            radius: Metrics.rSmall * root.s
                             opacity: cHover.hovered ? 1 : 0
                             color: cRemoveArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.16) : "transparent"
                             Behavior on opacity { NumberAnimation { duration: Motion.fast } }
@@ -703,7 +703,7 @@ PillSurface {
                             visible: !crow.editing
                             width: cKeyText.implicitWidth + 16 * root.s
                             height: cKeyText.implicitHeight + 8 * root.s
-                            radius: 7 * root.s
+                            radius: Metrics.rSmall * root.s
                             color: crow.rebinding ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                             border.width: 1
                             border.color: crow.rebinding ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
@@ -733,7 +733,7 @@ PillSurface {
                             visible: crow.editing
                             width: 24 * root.s
                             height: 24 * root.s
-                            radius: 7 * root.s
+                            radius: Metrics.rSmall * root.s
                             color: cSaveArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : "transparent"
                             Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -922,7 +922,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: Theme.frameBg
                     border.width: 1
                     border.color: nameField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
@@ -974,7 +974,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: Theme.frameBg
                     border.width: 1
                     border.color: descField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
@@ -1026,7 +1026,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: root.listening ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                     border.width: 1
                     border.color: root.listening ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
@@ -1077,7 +1077,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: cancelLabel.implicitWidth + 24 * root.s
                     height: 28 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: cancelArea.containsMouse ? Theme.frameBg : "transparent"
                     border.width: 1
                     border.color: Theme.hairSoft
@@ -1107,7 +1107,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: createLabel.implicitWidth + 30 * root.s
                     height: 28 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: createArea.containsMouse ? Theme.markLit : Theme.markDeep
 
                     Text {

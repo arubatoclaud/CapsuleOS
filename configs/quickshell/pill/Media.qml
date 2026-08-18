@@ -167,7 +167,7 @@ PillSurface {
 
     ClippingRectangle {
         anchors.fill: parent
-        radius: 22 * root.s
+        radius: Metrics.rPillOpen * root.s
         color: "transparent"
 
         Image {
@@ -423,7 +423,7 @@ PillSurface {
                         anchors.verticalCenter: parent.verticalCenter
                         height: 32 * root.s
                         width: bubInner.width + 18 * root.s
-                        radius: 11 * root.s
+                        radius: Metrics.rTile * root.s
                         color: isActive ? Qt.alpha(Theme.markDeep, 0.2) : Qt.alpha(Theme.cream, 0.045)
                         border.width: 1
                         border.color: isActive ? Theme.markLit : Qt.alpha(Theme.cream, 0.12)
@@ -497,7 +497,7 @@ PillSurface {
             anchors.verticalCenter: parent.verticalCenter
             width: 30 * root.s
             height: 30 * root.s
-            radius: 7 * root.s
+            radius: Metrics.rSmall * root.s
             rotation: -1.5
             scale: 1 + 0.08 * root.sealPulse
 

@@ -232,7 +232,7 @@ SettingsSurface {
                         anchors.fill: parent
                         anchors.topMargin: 2 * root.s
                         anchors.bottomMargin: 2 * root.s
-                        radius: 9 * root.s
+                        radius: Metrics.rCard * root.s
                         color: frow.selected
                             ? Qt.alpha(Theme.markLit, 0.14)
                             : (frow.focused ? Theme.frameBg : "transparent")

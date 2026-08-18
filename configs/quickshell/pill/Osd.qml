@@ -274,7 +274,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: 44 * root.s
             height: 44 * root.s
-            radius: 9 * root.s
+            radius: Metrics.rCard * root.s
             color: Theme.tileBg
 
             Image {

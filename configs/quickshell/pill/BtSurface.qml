@@ -330,7 +330,7 @@ PillSurface {
                         Rectangle {
                             width: parent.width
                             height: 38 * root.s
-                            radius: 9 * root.s
+                            radius: Metrics.rCard * root.s
                             color: rowHover.hovered ? Theme.frameBg : "transparent"
 
                             HoverHandler { id: rowHover }
@@ -348,7 +348,7 @@ PillSurface {
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: 26 * root.s
                                 height: 26 * root.s
-                                radius: 8 * root.s
+                                radius: Metrics.rCard * root.s
                                 color: Theme.tileBg
                                 border.width: 1
                                 border.color: Theme.border
@@ -438,7 +438,7 @@ PillSurface {
                                 Rectangle {
                                     anchors.verticalCenter: parent.verticalCenter
                                     visible: !devItem.isPaired && !devItem.pairing
-                                    radius: 999
+                                    radius: Metrics.rFull
                                     color: pairArea.containsMouse ? Theme.frameBg : Theme.tileBg
                                     border.width: 1
                                     border.color: pairArea.containsMouse ? Theme.markDim : Theme.border
@@ -498,7 +498,7 @@ PillSurface {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: primaryLabel.implicitWidth + 20 * root.s
                                     height: 22 * root.s
-                                    radius: 7 * root.s
+                                    radius: Metrics.rSmall * root.s
                                     color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
                                     border.width: 1
                                     border.color: primaryArea.containsMouse ? Theme.markDim : Theme.border
@@ -529,7 +529,7 @@ PillSurface {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: forgetLabel.implicitWidth + 20 * root.s
                                     height: 22 * root.s
-                                    radius: 7 * root.s
+                                    radius: Metrics.rSmall * root.s
                                     color: forgetArea.containsMouse
                                         ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.2)
                                         : Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.12)

@@ -157,7 +157,7 @@ PillSurface {
                     anchors.fill: parent
                     anchors.topMargin: 3 * root.s
                     anchors.bottomMargin: 3 * root.s
-                    radius: 10 * root.s
+                    radius: Metrics.rTile * root.s
                     color: rowHover.hovered ? Theme.frameBg : "transparent"
                     border.width: 1
                     border.color: rowHover.hovered ? Theme.frameBorder : "transparent"
@@ -173,7 +173,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 28 * root.s
                     height: 28 * root.s
-                    radius: 7 * root.s
+                    radius: Metrics.rSmall * root.s
                     color: Theme.tileBg
                     border.width: 1
                     border.color: Theme.hairSoft
@@ -238,7 +238,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: 26 * root.s
                     height: 26 * root.s
-                    radius: 7 * root.s
+                    radius: Metrics.rSmall * root.s
                     color: removeArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.16) : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 

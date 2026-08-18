@@ -38,7 +38,7 @@ Rectangle {
     x: seg.flushLeft ? -seg.edgePad : 0
     width: pills.implicitWidth + 2 * pad
     height: pills.implicitHeight + 2 * pad
-    radius: 9 * seg.s
+    radius: Metrics.rCard * seg.s
     color: "transparent"
 
     Row {
@@ -58,7 +58,7 @@ Rectangle {
 
                 width: optLabel.implicitWidth + 18 * seg.s
                 height: optLabel.implicitHeight + 12 * seg.s
-                radius: 8 * seg.s
+                radius: Metrics.rCard * seg.s
                 color: opt.armed ? Qt.alpha(Theme.markDeep, 0.42)
                     : (opt.current ? Qt.alpha(Theme.markGlow, 0.16) : (opt.hovered ? Theme.frameBg : "transparent"))
                 border.width: opt.armed ? 1 : 0

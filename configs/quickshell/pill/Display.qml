@@ -528,7 +528,7 @@ SettingsSurface {
             anchors.leftMargin: -7 * root.s
             anchors.rightMargin: -7 * root.s
             height: 32 * root.s
-            radius: 8 * root.s
+            radius: Metrics.rCard * root.s
             color: (crowHover.hovered || crow.focused) ? Theme.frameBg : "transparent"
             Behavior on color { ColorAnimation { duration: Motion.fast } }
         }
@@ -621,7 +621,7 @@ SettingsSurface {
                         width: Math.max(2, tile.modelData.w - 3 * root.s)
                         height: Math.max(2, tile.modelData.h - 3 * root.s)
                         z: tileMA.pressed ? 10 : (tile.sel ? 5 : 0)
-                        radius: 7 * root.s
+                        radius: Metrics.rSmall * root.s
                         color: tile.sel ? Qt.alpha(Theme.markGlow, 0.13) : Theme.cardTop
                         border.width: 1
                         border.color: tile.moved ? Qt.alpha(Theme.markLit, 0.7) : (tile.sel ? Theme.cream : Theme.hairSoft)
@@ -915,7 +915,7 @@ SettingsSurface {
                             visible: !card.pending && root.pendingOut.length === 0
                             width: applyLabel.implicitWidth + 28 * root.s
                             height: 28 * root.s
-                            radius: 9 * root.s
+                            radius: Metrics.rCard * root.s
                             color: !card.applyReady ? Qt.alpha(Theme.markGlow, 0.10)
                                 : (applyArea.containsMouse ? Qt.alpha(Theme.markGlow, 0.34) : Qt.alpha(Theme.markGlow, 0.20))
                             border.width: 1
@@ -955,7 +955,7 @@ SettingsSurface {
                                 anchors.verticalCenter: parent.verticalCenter
                                 width: keepLabel.implicitWidth + 28 * root.s
                                 height: 28 * root.s
-                                radius: 9 * root.s
+                                radius: Metrics.rCard * root.s
                                 color: keepArea.containsMouse ? Theme.markLit : Theme.markDeep
                                 Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -1115,7 +1115,7 @@ SettingsSurface {
                     id: mainBtn
                     width: mainLabel.implicitWidth + 22 * root.s
                     height: 24 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     visible: root.selMon !== null && !root.selIsMain
                     color: root.mainArmed
                         ? Qt.alpha(Theme.markDeep, mainArea.containsMouse ? 0.5 : 0.38)

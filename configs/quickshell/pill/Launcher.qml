@@ -201,7 +201,7 @@ PillSurface {
 
         Rectangle {
             anchors.fill: parent
-            radius: 9 * root.s
+            radius: Metrics.rCard * root.s
             color: Theme.frameBg
             border.width: 1
             border.color: Theme.frameBorder
@@ -303,7 +303,7 @@ PillSurface {
 
             Rectangle {
                 anchors.fill: parent
-                radius: 9 * root.s
+                radius: Metrics.rCard * root.s
                 visible: appRow.selected || rowArea.containsMouse
                 color: appRow.selected ? Theme.frameBg : Qt.rgba(0.94, 0.88, 0.84, 0.03)
                 border.width: appRow.selected ? 1 : 0

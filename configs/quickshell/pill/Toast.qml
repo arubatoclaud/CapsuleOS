@@ -53,7 +53,7 @@ Item {
         anchors.top: parent.top
         width: 28 * root.s
         height: 28 * root.s
-        radius: 9 * root.s
+        radius: Metrics.rCard * root.s
         color: Theme.tileBg
         border.width: 1
         border.color: Theme.border
@@ -139,7 +139,7 @@ Item {
                     anchors.centerIn: parent
                     width: 8 * root.s
                     height: 8 * root.s
-                    radius: 999
+                    radius: Metrics.rFull
                     color: Theme.markGlow
                     opacity: 0.3
                 }
@@ -147,7 +147,7 @@ Item {
                     anchors.centerIn: parent
                     width: 4 * root.s
                     height: 4 * root.s
-                    radius: 999
+                    radius: Metrics.rFull
                     color: Theme.markGlow
                 }
             }
@@ -192,7 +192,7 @@ Item {
 
                     height: 20 * root.s
                     width: actText.implicitWidth + 18 * root.s
-                    radius: 999
+                    radius: Metrics.rFull
                     color: Theme.tileBg
                     border.width: 1
                     border.color: Theme.border

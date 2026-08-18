@@ -74,7 +74,7 @@ Item {
         anchors.fill: parent
         anchors.topMargin: 3 * srow.s
         anchors.bottomMargin: 3 * srow.s
-        radius: 9 * srow.s
+        radius: Metrics.rCard * srow.s
         color: (srowHover.hovered || srow.focused) ? Theme.frameBg : "transparent"
         Behavior on color { ColorAnimation { duration: Motion.fast } }
     }

@@ -737,7 +737,7 @@ PillSurface {
                         Rectangle {
                             width: parent.width
                             height: 30 * root.s
-                            radius: 9 * root.s
+                            radius: Metrics.rCard * root.s
                             color: netItem.isActive ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.14)
                                 : (rowHover.hovered ? Theme.frameBg : "transparent")
 
@@ -857,7 +857,7 @@ PillSurface {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: primaryLabel.implicitWidth + 20 * root.s
                                     height: 22 * root.s
-                                    radius: 7 * root.s
+                                    radius: Metrics.rSmall * root.s
                                     color: primaryArea.containsMouse ? Theme.tileBg : "transparent"
                                     border.width: 1
                                     border.color: primaryArea.containsMouse ? Theme.markDim : Theme.border
@@ -891,7 +891,7 @@ PillSurface {
                                     readonly property bool shown: root.revealedSsid === netItem.ssid
                                     width: revealLabel.implicitWidth + 20 * root.s
                                     height: 22 * root.s
-                                    radius: 7 * root.s
+                                    radius: Metrics.rSmall * root.s
                                     color: revealArea.containsMouse ? Theme.tileBg : "transparent"
                                     border.width: 1
                                     border.color: revealBtn.shown
@@ -923,7 +923,7 @@ PillSurface {
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: forgetLabel.implicitWidth + 20 * root.s
                                     height: 22 * root.s
-                                    radius: 7 * root.s
+                                    radius: Metrics.rSmall * root.s
                                     color: forgetArea.containsMouse
                                         ? Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.2)
                                         : Qt.rgba(Theme.markDeep.r, Theme.markDeep.g, Theme.markDeep.b, 0.12)
@@ -1197,7 +1197,7 @@ PillSurface {
             Rectangle {
                 width: parent.width
                 height: 34 * root.s
-                radius: 10 * root.s
+                radius: Metrics.rTile * root.s
                 color: root.hsActive ? Theme.frameBg : "transparent"
 
                 GlyphIcon {

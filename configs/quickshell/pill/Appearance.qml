@@ -243,7 +243,7 @@ SettingsSurface {
                     Rectangle {
                         id: hueStrip
                         anchors.fill: parent
-                        radius: 7 * root.s
+                        radius: Metrics.rSmall * root.s
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
                             GradientStop { position: 0.0; color: Qt.hsla(0.0, 0.7, 0.5, 1) }
@@ -291,7 +291,7 @@ SettingsSurface {
                         anchors.verticalCenter: parent.verticalCenter
                         width: 34 * root.s
                         height: 34 * root.s
-                        radius: 9 * root.s
+                        radius: Metrics.rCard * root.s
                         color: root.accentColor
                         border.width: 1
                         border.color: Theme.border

@@ -176,7 +176,7 @@ SettingsSurface {
                 Rectangle {
                     width: layoutLbl.implicitWidth + 20 * root.s
                     height: 22 * root.s
-                    radius: 9 * root.s
+                    radius: Metrics.rCard * root.s
                     color: "transparent"
                     border.width: 1
                     border.color: Theme.hairSoft

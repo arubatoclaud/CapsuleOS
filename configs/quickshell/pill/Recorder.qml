@@ -204,7 +204,7 @@ PillSurface {
 
         width: pills.implicitWidth + 2 * pad
         height: pills.implicitHeight + 2 * pad
-        radius: 9 * root.s
+        radius: Metrics.rCard * root.s
         color: "transparent"
 
         Row {
@@ -222,7 +222,7 @@ PillSurface {
 
                     width: optLabel.implicitWidth + 18 * root.s
                     height: optLabel.implicitHeight + 12 * root.s
-                    radius: 7 * root.s
+                    radius: Metrics.rSmall * root.s
                     color: opt.current ? Theme.cardTop : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
 
@@ -450,7 +450,7 @@ PillSurface {
                 property bool pressActive: false
                 width: parent.width
                 height: 76 * root.s
-                radius: 13 * root.s
+                radius: Metrics.rTile * root.s
                 color: Theme.cardBot
                 transformOrigin: Item.Center
                 scale: pressActive ? 0.984 : 1
@@ -606,7 +606,7 @@ PillSurface {
 
                 Rectangle {
                     anchors.fill: parent
-                    radius: 13 * root.s
+                    radius: Metrics.rTile * root.s
                     color: Theme.cardBot
                 }
                 Rectangle {
@@ -683,7 +683,7 @@ PillSurface {
             Rectangle {
                 id: actionBar
                 anchors.fill: parent
-                radius: 14 * root.s
+                radius: Metrics.rTile * root.s
                 clip: true
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
@@ -791,7 +791,7 @@ PillSurface {
                 id: chooser
                 anchors.fill: parent
                 visible: root.chooserOpen
-                radius: 14 * root.s
+                radius: Metrics.rTile * root.s
                 color: Theme.cardBot
                 border.width: 1
                 border.color: Theme.border
@@ -817,7 +817,7 @@ PillSurface {
                             required property var modelData
                             width: (chooser.width - 12 * root.s - 6 * root.s) / 2
                             height: parent.height
-                            radius: 9 * root.s
+                            radius: Metrics.rCard * root.s
                             color: srcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                             border.width: 1
                             border.color: srcArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
@@ -861,7 +861,7 @@ PillSurface {
                 id: screenChooser
                 anchors.fill: parent
                 visible: root.screenChooserOpen
-                radius: 14 * root.s
+                radius: Metrics.rTile * root.s
                 color: Theme.cardBot
                 border.width: 1
                 border.color: Theme.border
@@ -887,7 +887,7 @@ PillSurface {
                         required property var modelData
                         width: 152 * root.s
                         height: monList.height
-                        radius: 9 * root.s
+                        radius: Metrics.rCard * root.s
                         color: monArea.containsMouse ? Qt.alpha(Theme.markLit, 0.16) : Theme.tileBg
                         border.width: 1
                         border.color: monArea.containsMouse ? Qt.alpha(Theme.markLit, 0.5) : Theme.border
@@ -1247,7 +1247,7 @@ PillSurface {
                         anchors.left: parent.left
                         anchors.right: parent.right
                         height: 48 * root.s
-                        radius: 9 * root.s
+                        radius: Metrics.rCard * root.s
                         color: Theme.tileBg
 
                         Rectangle {

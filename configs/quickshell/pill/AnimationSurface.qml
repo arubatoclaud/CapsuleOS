@@ -343,7 +343,7 @@ SettingsSurface {
 
                     Rectangle {
                         anchors.fill: parent
-                        radius: 10 * root.s
+                        radius: Metrics.rCard * root.s
                         color: Theme.frameBg
                         border.width: 1
                         border.color: Theme.hairSoft

@@ -192,7 +192,7 @@ PillSurface {
 
         width: 26 * root.s
         height: 26 * root.s
-        radius: 8 * root.s
+        radius: Metrics.rCard * root.s
         color: chip.on ? Theme.frameBg : "transparent"
         border.width: 1
         border.color: chip.on ? Theme.frameBorder : Theme.border
@@ -237,7 +237,7 @@ PillSurface {
 
         width: 26 * root.s
         height: 26 * root.s
-        radius: 8 * root.s
+        radius: Metrics.rCard * root.s
         color: dchip.open ? Qt.alpha(Theme.markGlow, 0.14)
             : (dchipHover.hovered ? Theme.frameBg : "transparent")
         border.width: 1
@@ -423,7 +423,7 @@ PillSurface {
             anchors.right: parent.right
             height: Math.min(menu.model.length * 24 * root.s + 4 * root.s, 150 * root.s)
             clip: true
-            radius: 9 * root.s
+            radius: Metrics.rCard * root.s
             gradient: Gradient {
                 GradientStop { position: 0.0; color: Theme.cardTop }
                 GradientStop { position: 1.0; color: Theme.cardBot }
@@ -445,7 +445,7 @@ PillSurface {
 
                     width: ListView.view.width
                     height: 24 * root.s
-                    radius: 7 * root.s
+                    radius: Metrics.rSmall * root.s
                     color: devRowHover.hovered ? Theme.frameBg
                         : (devRow.current ? Qt.alpha(Theme.markGlow, 0.16) : "transparent")
 

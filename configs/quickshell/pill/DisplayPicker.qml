@@ -63,7 +63,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: parent.width - 72 * pick.s
             height: 24 * pick.s
-            radius: 9 * pick.s
+            radius: Metrics.rCard * pick.s
             color: pick.open ? Qt.alpha(Theme.markGlow, 0.14) : (field.hovered ? Theme.frameBg : "transparent")
             border.width: 1
             border.color: pick.open ? Qt.alpha(Theme.markGlow, 0.5) : Theme.hairSoft
@@ -132,7 +132,7 @@ Item {
         height: pick.listH
         visible: pick.open
         clip: true
-        radius: 9 * pick.s
+        radius: Metrics.rCard * pick.s
         gradient: Gradient {
             GradientStop { position: 0.0; color: Theme.cardTop }
             GradientStop { position: 1.0; color: Theme.cardBot }
@@ -154,7 +154,7 @@ Item {
 
                 width: ListView.view.width
                 height: 24 * pick.s
-                radius: 7 * pick.s
+                radius: Metrics.rSmall * pick.s
                 color: optHover.hovered ? Theme.frameBg
                     : (optRow.current ? Qt.alpha(Theme.markGlow, 0.16) : "transparent")
 

@@ -114,7 +114,7 @@ PillSurface {
 
         width: parent ? parent.width : 0
         height: 26 * root.s
-        radius: 7 * root.s
+        radius: Metrics.rSmall * root.s
         color: nrowHover.hovered ? Theme.frameBg : "transparent"
 
         HoverHandler {
@@ -138,7 +138,7 @@ PillSurface {
             anchors.verticalCenter: parent.verticalCenter
             width: 2 * root.s
             height: parent.height - 10 * root.s
-            radius: 999
+            radius: Metrics.rFull
             color: Theme.markDeep
         }
 
@@ -423,7 +423,7 @@ PillSurface {
                                 id: groupHead
                                 width: parent.width
                                 height: 32 * root.s
-                                radius: 8 * root.s
+                                radius: Metrics.rCard * root.s
                                 color: headHover.hovered ? Theme.frameBg : "transparent"
 
                                 HoverHandler {

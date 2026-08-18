@@ -63,7 +63,7 @@ Item {
         anchors.bottom: root.below ? parent.bottom : undefined
         width: Math.max(titleText.implicitWidth, descText.implicitWidth) + 22 * root.s
         height: column.implicitHeight + 14 * root.s
-        radius: 9 * root.s
+        radius: Metrics.rCard * root.s
         border.width: 1
         border.color: Theme.frameBorder
         gradient: Gradient {

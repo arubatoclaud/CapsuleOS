@@ -254,7 +254,7 @@ PillSurface {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         height: errorText.implicitHeight + 14 * root.s
-        radius: 9 * root.s
+        radius: Metrics.rCard * root.s
         color: Qt.alpha(Theme.tileBg, 0.97)
         border.width: 1
         border.color: Theme.frameBorder

@@ -469,7 +469,7 @@ PillSurface {
                     anchors.fill: parent
                     anchors.topMargin: 3 * root.s
                     anchors.bottomMargin: 3 * root.s
-                    radius: 9 * root.s
+                    radius: Metrics.rCard * root.s
                     color: (rowHover.hovered || brow.focused) ? Theme.frameBg : "transparent"
                     Behavior on color { ColorAnimation { duration: Motion.fast } }
                 }
@@ -481,7 +481,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: comboText.implicitWidth + 12 * root.s
                     height: comboText.implicitHeight + 8 * root.s
-                    radius: 7 * root.s
+                    radius: Metrics.rSmall * root.s
                     color: brow.focused ? Qt.alpha(Theme.markLit, 0.16) : Theme.frameBg
                     border.width: 1
                     border.color: brow.focused ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
@@ -561,7 +561,7 @@ PillSurface {
                 anchors.fill: parent
                 anchors.topMargin: 5 * root.s
                 anchors.bottomMargin: 5 * root.s
-                radius: 9 * root.s
+                radius: Metrics.rCard * root.s
                 color: addArea.containsMouse ? Qt.alpha(Theme.markLit, 0.1) : "transparent"
                 border.width: 1
                 border.color: Qt.alpha(Theme.markLit, addArea.containsMouse ? 0.6 : 0.32)
@@ -671,7 +671,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: root.listening ? Qt.alpha(Theme.markLit, 0.12) : Theme.frameBg
                     border.width: 1
                     border.color: root.listening ? Qt.alpha(Theme.markLit, 0.55) : Theme.hairSoft
@@ -723,7 +723,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: Theme.frameBg
                     border.width: 1
                     border.color: nameField.activeFocus ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
@@ -775,7 +775,7 @@ PillSurface {
                     anchors.right: parent.right
                     anchors.bottom: parent.bottom
                     height: 26 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: Theme.frameBg
                     border.width: 1
                     border.color: (cmdField.activeFocus || actionField.activeFocus) ? Qt.alpha(Theme.markLit, 0.45) : Theme.hairSoft
@@ -854,7 +854,7 @@ PillSurface {
                     visible: !root.formAdd
                     width: deleteLabel.implicitWidth + 24 * root.s
                     height: 28 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: deleteArea.containsMouse ? Qt.alpha(Theme.markDeep, 0.2) : Qt.alpha(Theme.markDeep, 0.1)
                     border.width: 1
                     border.color: Qt.alpha(Theme.markLit, 0.45)
@@ -885,7 +885,7 @@ PillSurface {
                     anchors.verticalCenter: parent.verticalCenter
                     width: saveLabel.implicitWidth + 30 * root.s
                     height: 28 * root.s
-                    radius: 8 * root.s
+                    radius: Metrics.rCard * root.s
                     color: saveArea.containsMouse ? Theme.markLit : Theme.markDeep
 
                     Text {
