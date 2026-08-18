@@ -68,8 +68,10 @@ PillSurface {
     /**
      * Rebuilds `rows` from the visible claims, ordered by where each row lands
      * in surface coordinates — so the arrow keys walk the page exactly as the
-     * eye does, whatever order the rows happened to be constructed in. Rows
-     * sitting at the same height (none today) fall back to creation order.
+     * eye does, whatever order the rows happened to lodge their claims in. No
+     * two rows share a height today; should any ever do so, they fall back to
+     * lodge order, which is creation order only until the first fold cycle
+     * reshuffles a group's claims to the end of `navClaims`.
      *
      * The sort is deliberately lazy: a group folding open changes the claim set
      * long before the positioner has settled, and every consumer below reaches
@@ -93,15 +95,22 @@ PillSurface {
         root.rows = out;
         root.navStale = false;
 
-        // Keep the seam on the row it was already on; if that row just folded
-        // away, stay in range rather than leaving kbIndex pointing past the end.
+        // Keep the seam on the row it was already on. If that row just folded
+        // away, clamp back into range and move the seam onto whatever now holds
+        // that slot — index and seam have to name the same row, or the arrow
+        // keys would adjust one line while the glow sits on another.
         var idx = -1;
         for (var k = 0; k < out.length; k++)
             if (out[k].item === root.focusRowItem) {
                 idx = k;
                 break;
             }
-        root.kbIndex = idx >= 0 ? idx : Math.min(root.kbIndex, out.length - 1);
+        if (idx >= 0) {
+            root.kbIndex = idx;
+        } else {
+            root.kbIndex = Math.min(root.kbIndex, out.length - 1);
+            root.focusRowItem = root.kbIndex >= 0 ? out[root.kbIndex].item : null;
+        }
     }
 
     function navRows() {
@@ -110,10 +119,17 @@ PillSurface {
         return root.rows;
     }
 
+    /**
+     * The lookup runs first because it may rebuild the list, and a rebuild moves
+     * the seam off a row that has folded away. Assigning afterwards keeps the
+     * mouse authoritative: hovering a line that claims no nav slot (Animation's
+     * preset strip) still lights it, at kbIndex -1, as it always did.
+     */
     function reportRowHover(item, hovered) {
         if (hovered) {
+            var idx = rowIndexOf(item);
             focusRowItem = item;
-            kbIndex = rowIndexOf(item);
+            kbIndex = idx;
         }
     }
     onActiveChanged: if (!active) {

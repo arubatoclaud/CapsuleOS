@@ -721,7 +721,7 @@ SettingsSurface {
                 id: pillBlurRow
                 surface: root
                 settingId: "pillBlur"
-                                navSet: (v) => root.setPillBlur(v)
+                navSet: (v) => root.setPillBlur(v)
                 name: root.pillBlurEntry.label
                 sub: root.pillBlurEntry.caption
                 captionOnFocus: true
@@ -736,7 +736,7 @@ SettingsSurface {
                 id: materialRow
                 surface: root
                 settingId: "material"
-                                navSet: (v) => root.setMaterial(v)
+                navSet: (v) => root.setMaterial(v)
                 name: root.materialEntry.label
                 sub: root.materialEntry.caption
                 captionOnFocus: true
