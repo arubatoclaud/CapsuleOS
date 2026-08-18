@@ -21,6 +21,19 @@ import Quickshell
  * `app`. It is a fallback for a missing field, never an overwrite of a stored
  * user value.
  *
+ * `key` is read in the namespace of its `backend`, and the namespaces differ:
+ * `flags`/`idle`/`night` keys are Flags.qml JsonAdapter names; `deco`/`input`/
+ * `anim` keys are Lua field names (`blur.size`/`shadow.range` name their block
+ * explicitly, and an UPPER_CASE `input` key like `XCURSOR_SIZE` means env.lua,
+ * not input.lua); `rec` keys are ScreenRec's WRAPPER PROPERTY names — `fps`,
+ * `quality`, `captureCursor`, `micOn`, `desktopOn`. The two recorder settings
+ * ScreenRec does not wrap are `flags` entries: `recordDir` (ScreenRec.outDir is
+ * readonly; its folder picker writes Flags.recordDir) and `recordCountdown`
+ * (the drawer writes Flags directly). `app` covers everything that belongs to
+ * no other backend: ghostty's config, the screen vibrance Devices persists to
+ * its own state file, and the bespoke editors that own their own files
+ * (`key: ""`, never Store-routed).
+ *
  * `control: "custom"` marks a setting whose UI is bespoke (the monitor card,
  * the hue strip, the bezier editor, the keybind and workspace editors). Those
  * carry page-level metadata; the ones with no Store backend of their own
@@ -44,6 +57,26 @@ Singleton {
         { id: "workspaces", title: "Workspaces", caption: "Special spaces and their keys", icon: "layers" },
         { id: "idlelock", title: "Idle / Lock", caption: "Auto-lock, screen off, suspend", icon: "lock" }
     ]
+
+    /**
+     * Page ids that hold settings but are NOT settings pages: surfaces
+     * elsewhere in the shell that own a setting today. They are legal `page`
+     * values and deliberately absent from `pages`, which drives the index.
+     * The homes for these are decided when the new pages land.
+     */
+    readonly property var outsidePages: ["mixer", "recorder", "wallpaper", "calendar"]
+
+    /**
+     * Named groups per page, in the order they appear on screen. A page absent
+     * from this map is flat: every one of its entries carries `group: ""`.
+     * Reordering a page's groups is an edit here, not in the page.
+     */
+    readonly property var groupOrder: ({
+        look: ["window", "night", "shadow", "blur", "opacity", "pill"],
+        input: ["pointer", "keyboard", "cursor"],
+        animation: ["motion", "curve"],
+        recorder: ["options", "audio"]
+    })
 
     readonly property var settings: ({
 
@@ -444,35 +477,55 @@ Singleton {
             label: "Keep awake", caption: "Block sleep & screen-off",
             control: "toggle", type: "bool", backend: "flags", key: "keepAwake", def: false
         },
+        /**
+         * The one deliberate alias in the table: this chip drives the same
+         * stored key as `nightLightMode` (Look → Night light) but as a bool,
+         * flipping the mode between "on" and "off". `aliasOf` records that the
+         * other entry owns the key, which is what exempts the pair from the
+         * (backend, key) type guard — and marks it for Task 8's duplicate pass.
+         */
         nightLightQuick: {
             page: "mixer", group: "", order: 2,
             label: "Night light", caption: "Warm the screen",
-            control: "toggle", type: "bool", backend: "night", key: "nightLightMode", def: false
+            control: "toggle", type: "bool", backend: "night", key: "nightLightMode", def: false,
+            aliasOf: "nightLightMode"
         },
         gameMode: {
             page: "mixer", group: "", order: 3,
             label: "Game mode", caption: "Strip effects, quiet the desktop",
             control: "toggle", type: "bool", backend: "flags", key: "gameMode", def: false
         },
+        /**
+         * Screen vibrance: a mixer fader, not a flags key. Devices owns it and
+         * persists the percent to its own state file (pillos/nvibrant-value),
+         * pushing each set to nvibrant, so it routes to Devices.vibrance rather
+         * than to any of the file backends the pinned enum names.
+         */
+        vibrance: {
+            page: "mixer", group: "", order: 4,
+            label: "Vibrance", caption: "Screen colour saturation",
+            control: "custom", type: "int", backend: "app", key: "vibrance", def: 40,
+            from: 0, to: 100, step: 1, unit: "%"
+        },
 
         // ── Recorder drawer + audio + save location ───────────────────────
         recordFps: {
             page: "recorder", group: "options", order: 0,
             label: "Frame rate", caption: "",
-            control: "seg", type: "int", backend: "rec", key: "recordFps", def: 60,
+            control: "seg", type: "int", backend: "rec", key: "fps", def: 60,
             options: [{ label: "30", value: 30 }, { label: "60", value: 60 }, { label: "120", value: 120 }, { label: "144", value: 144 }]
         },
         recordQuality: {
             page: "recorder", group: "options", order: 1,
             label: "Quality", caption: "",
-            control: "seg", type: "string", backend: "rec", key: "recordQuality", def: "high",
+            control: "seg", type: "string", backend: "rec", key: "quality", def: "high",
             options: [{ label: "Med", value: "medium" }, { label: "High", value: "high" },
                 { label: "Ultra", value: "ultra" }, { label: "Lossless", value: "lossless" }]
         },
         recordCursor: {
             page: "recorder", group: "options", order: 2,
             label: "Capture cursor", caption: "",
-            control: "toggle", type: "bool", backend: "rec", key: "recordCursor", def: true
+            control: "toggle", type: "bool", backend: "rec", key: "captureCursor", def: true
         },
         recordCountdown: {
             page: "recorder", group: "options", order: 3,
@@ -483,17 +536,18 @@ Singleton {
         recordMic: {
             page: "recorder", group: "audio", order: 0,
             label: "Microphone", caption: "",
-            control: "toggle", type: "bool", backend: "rec", key: "recordMic", def: true
+            control: "toggle", type: "bool", backend: "rec", key: "micOn", def: true
         },
         recordDesktop: {
             page: "recorder", group: "audio", order: 1,
             label: "Desktop", caption: "",
-            control: "toggle", type: "bool", backend: "rec", key: "recordDesktop", def: true
+            control: "toggle", type: "bool", backend: "rec", key: "desktopOn", def: true
         },
+        /** ScreenRec.outDir is readonly and derives from this; the folder picker writes Flags. */
         recordDir: {
             page: "recorder", group: "", order: 0,
             label: "Save to", caption: "Empty falls back to ~/Videos/Recordings",
-            control: "custom", type: "string", backend: "rec", key: "recordDir", def: ""
+            control: "custom", type: "string", backend: "flags", key: "recordDir", def: ""
         },
 
         // ── Wallpaper folder ──────────────────────────────────────────────
@@ -518,15 +572,21 @@ Singleton {
     /**
      * Hidden consistency check: every entry must carry the pinned fields with
      * legal enum values, a `def` of the declared type, scrub bounds that
-     * contain their default, and seg options that contain it. Ids collide by
-     * construction (object keys), so the only ordering hazard left is two rows
-     * claiming the same slot in a group — that is reported too. Anything it
-     * prints is a Schema bug, not a user-visible one.
+     * contain their default, and seg options that contain it. It also holds the
+     * table to its own maps: a `page` must be a real settings page or a
+     * declared outside page, a non-empty `group` must appear in that page's
+     * `groupOrder`, no two rows may claim one page/group/order slot, and two
+     * entries may only share a (backend, key) pair with different types when
+     * one declares itself an `aliasOf` the other. Anything it prints is a
+     * Schema bug, not a user-visible one.
      */
     function check() {
         var ids = Object.keys(root.settings);
         var slots = {};
+        var owners = {};
         var bad = 0;
+
+        var pageIds = root.pages.map(function (p) { return p.id; }).concat(root.outsidePages);
 
         function warn(id, msg) {
             bad += 1;
@@ -539,8 +599,17 @@ Singleton {
 
             if (typeof e.page !== "string" || e.page.length === 0)
                 warn(id, "missing page");
-            if (typeof e.group !== "string")
+            else if (pageIds.indexOf(e.page) === -1)
+                warn(id, "page '" + e.page + "' is in neither pages nor outsidePages");
+            if (typeof e.group !== "string") {
                 warn(id, "missing group");
+            } else if (e.group.length > 0) {
+                var groups = root.groupOrder[e.page];
+                if (groups === undefined)
+                    warn(id, "page '" + e.page + "' has no groupOrder but the entry is grouped");
+                else if (groups.indexOf(e.group) === -1)
+                    warn(id, "group '" + e.group + "' missing from groupOrder['" + e.page + "']");
+            }
             if (typeof e.order !== "number")
                 warn(id, "missing order");
             if (typeof e.label !== "string" || e.label.length === 0)
@@ -608,6 +677,22 @@ Singleton {
                 warn(id, "shares slot " + slot + " with " + slots[slot]);
             else
                 slots[slot] = id;
+
+            if (e.aliasOf !== undefined && root.settings[e.aliasOf] === undefined)
+                warn(id, "aliasOf points at unknown id " + e.aliasOf);
+
+            if (typeof e.key === "string" && e.key.length > 0) {
+                var pair = e.backend + "/" + e.key;
+                var owner = owners[pair];
+                if (owner === undefined) {
+                    owners[pair] = id;
+                } else if (root.settings[owner].type !== e.type
+                    && e.aliasOf !== owner && root.settings[owner].aliasOf !== id) {
+                    warn(id, "shares " + pair + " with " + owner
+                        + " at a different type (" + e.type + " vs " + root.settings[owner].type
+                        + ") and declares no aliasOf");
+                }
+            }
         }
 
         for (var p = 0; p < root.pages.length; p++) {
@@ -615,6 +700,14 @@ Singleton {
             if (typeof pg.id !== "string" || pg.id.length === 0 || typeof pg.title !== "string"
                 || typeof pg.caption !== "string" || typeof pg.icon !== "string")
                 warn("pages[" + p + "]", "malformed page entry");
+        }
+
+        var gpages = Object.keys(root.groupOrder);
+        for (var g = 0; g < gpages.length; g++) {
+            if (pageIds.indexOf(gpages[g]) === -1)
+                warn("groupOrder['" + gpages[g] + "']", "not a known page");
+            else if (!Array.isArray(root.groupOrder[gpages[g]]) || root.groupOrder[gpages[g]].length === 0)
+                warn("groupOrder['" + gpages[g] + "']", "must be a non-empty array of group ids");
         }
 
         return bad;
