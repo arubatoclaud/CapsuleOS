@@ -3,12 +3,27 @@
 Generate the rice colour set from a wallpaper and fan it out to the consumers.
 One histogram pass yields both the area-dominant chromatic hue (binned by hue
 family so a small vivid accent never hijacks the theme) and the mean lightness.
-The mean lightness drives the pill's whole tone: a bright wallpaper makes a light
-pill with dark text, a dark or OLED-black one makes a near-black pill with cream
-text, so the surfaces and the text flip together for contrast across the full
-range. The dominant hue tints every tier in HSL. An achromatic wallpaper drops to
-a neutral grey ramp. matugen still builds the dark base16 the always-dark terminal
-reads; the pill JSON carries surfaces, accent and the contrast-matched text.
+
+The palette is DARK-ONLY ("Night Glass"): the mean lightness no longer flips the
+pill between a light and a dark scheme, it only picks how far *up* the dark end
+the surface ramp sits, so a bright wallpaper yields a lighter dark -- never a
+light inversion. The dominant hue tints every tier in HSL; an achromatic
+wallpaper drops to a neutral grey ramp.
+
+The accent is split in two. `mark` is the UI-duty accent: chroma capped so it
+never screams under text and icons, lightness contrast-clamped against the pill
+surface as it actually composites over the wallpaper. `glow` is the filament
+colour: the same hue at the full computed saturation (capped so it stays hot but
+never neon) at a fixed mid-high lightness, used for light effects rather than
+legibility. matugen still builds the dark base16 the always-dark terminal reads;
+the pill JSON carries surfaces, both accents and the contrast-matched text.
+
+Usage:
+    wallcolors.py <wallpaper-path>
+    wallcolors.py --hue <degrees> [mode] [saturation]
+
+`mode` is a legacy dark/light word: it is ACCEPTED AND IGNORED (the palette is
+dark-only now), kept only so existing callers keep working unchanged.
 """
 import colorsys
 import configparser
@@ -60,12 +75,25 @@ QT_ROLE_KEYS = [
 SURF_NAMES = ["surface", "surface_container_low", "surface_container",
               "surface_container_high", "surface_container_highest", "outline_variant"]
 DARK_STEPS = [0.0, 0.022, 0.038, 0.065, 0.100, 0.225]
-LIGHT_STEPS = [0.0, -0.045, -0.075, -0.115, -0.160, -0.340]
 TEXT_KEYS = ["cream", "bright", "subtle", "dim", "faint", "icon_dim", "tick_rest"]
 DARK_TEXT = [(0.90, 0.05), (0.97, 0.03), (0.73, 0.07), (0.54, 0.06),
              (0.44, 0.05), (0.81, 0.07), (0.75, 0.08)]
-LIGHT_TEXT = [(0.20, 0.18), (0.10, 0.20), (0.36, 0.14), (0.48, 0.10),
-              (0.56, 0.08), (0.28, 0.12), (0.34, 0.12)]
+
+# Night Glass surface depth: the base lightness the DARK_STEPS ramp is built on.
+# A pitch-black wallpaper bottoms out at DEPTH_MIN, anything at or above
+# DEPTH_PIVOT mean lightness tops out at DEPTH_MAX -- a lighter dark, still dark.
+DEPTH_MIN, DEPTH_MAX, DEPTH_PIVOT = 0.06, 0.16, 0.85
+# Accent split. mark does UI duty (text, icons, controls) so its chroma is held
+# down and its lightness is contrast-clamped; glow is a light effect, so it only
+# gets the "hot but never neon" chroma ceiling and a fixed lightness.
+MARK_SAT_CAP = 0.55
+MARK_CONTRAST = 4.5
+GLOW_SAT_CAP = 0.90
+GLOW_L = 0.62
+# The pill body renders translucent over the wallpaper (Theme.qml surfAlpha,
+# frost default 0.86), so the accent is clamped against the surface as it
+# actually composites, not against the flat surface swatch.
+SURF_ALPHA = 0.86
 
 
 def analyze(wallpaper):
@@ -114,11 +142,6 @@ def matugen(source_hex):
 def tint(hue, sat, light):
     r, g, b = colorsys.hls_to_rgb(hue % 1.0, max(0.0, min(1.0, light)), max(0.0, min(1.0, sat)))
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
-
-
-def lerp(x, x0, x1, y0, y1):
-    t = max(0.0, min(1.0, (x - x0) / (x1 - x0)))
-    return y0 + t * (y1 - y0)
 
 
 def _linearize(c8):
@@ -175,7 +198,8 @@ def clamp_light(hex_color, target, bg_hex):
     Smallest lightness >= the input's whose tint meets `target` WCAG contrast
     against `bg_hex`; hue/sat are held fixed so only lightness moves, and the
     result is never darker than the input (a lift, never a floor). Mirror of
-    clamp_dark for the always-dark terminal palette.
+    clamp_dark, and the right direction whenever the colour sits ABOVE its
+    background: the always-dark terminal palette, and the accent over the pill.
     """
     if contrast_ratio(hex_color, bg_hex) >= target:
         return hex_color
@@ -247,13 +271,13 @@ def _icon_theme_exists(name):
 def write_gtk(pill):
     """
     Fan the palette out to GTK3/GTK4 settings.ini plus live gsettings, so
-    GTK apps (and libadwaita ones, which ignore settings.ini) flip dark/light
-    with the wallpaper. Only themes actually present on disk are referenced,
+    GTK apps (and libadwaita ones, which ignore settings.ini) sit on the same
+    dark scheme the pill does. Only themes actually present on disk are referenced,
     a probe miss just drops that line instead of pointing GTK at a name that
     won't resolve, and each gsettings call is independent so a missing
     schema on one key never blocks the rest.
     """
-    dark = not pill.get("light", True)
+    dark = True  # Night Glass is dark-only; there is no light palette to track.
 
     gtk_theme = "Adwaita-dark" if dark else "Adwaita"
     if not _gtk_theme_exists(gtk_theme):
@@ -348,13 +372,19 @@ def write_qtct(pill):
 
 def main():
     if len(sys.argv) < 2:
+        print("usage: wallcolors.py <wallpaper-path>\n"
+              "       wallcolors.py --hue <degrees> [mode] [saturation]\n"
+              "  mode: legacy dark/light word, accepted and IGNORED "
+              "(the palette is dark-only)", file=sys.stderr)
         return 1
     if sys.argv[1] == "--hue":
         hue = (float(sys.argv[2]) % 360) / 360.0
-        mode = sys.argv[3] if len(sys.argv) > 3 else "dark"
+        # sys.argv[3] is the legacy dark/light mode word. It is accepted and
+        # ignored: Night Glass has no light palette, but callers still pass it,
+        # so dropping the slot would shift the saturation argument.
         sat = float(sys.argv[4]) if len(sys.argv) > 4 else 0.5
         sat = max(0.0, min(1.0, sat))
-        mean_l = 0.85 if mode == "light" else 0.12
+        mean_l = 0.12
         chromatic = sat > 0.02
     else:
         wallpaper = sys.argv[1]
@@ -366,61 +396,49 @@ def main():
             hue, sat = 0.09, 0.0
     CACHE.mkdir(parents=True, exist_ok=True)
 
-    light = mean_l >= 0.40
-    surf_sat = min(sat, 0.26) if light else min(max(sat, 0.30 if chromatic else 0.0), 0.45)
-    acc_sat = (min(sat + 0.18, 0.85) if light else min(max(sat, 0.30) + 0.12, 0.82)) if chromatic else 0.05
-    if light:
-        base = lerp(mean_l, 0.40, 0.66, 0.80, 0.93)
-        steps, text, acc_l, deep_l, glow_l = LIGHT_STEPS, LIGHT_TEXT, 0.42, 0.30, 0.55
-    else:
-        base = lerp(mean_l, 0.0, 0.40, 0.045, 0.20)
-        steps, text, acc_l, deep_l, glow_l = DARK_STEPS, DARK_TEXT, 0.70, 0.34, 0.86
+    # Dark-only depth: mean lightness picks where in the dark end the ramp
+    # starts, so a bright wallpaper lifts the surface without inverting it.
+    base = DEPTH_MIN + (DEPTH_MAX - DEPTH_MIN) * min(mean_l, DEPTH_PIVOT) / DEPTH_PIVOT
+    surf_sat = min(max(sat, 0.30 if chromatic else 0.0), 0.45)
+    acc_sat = min(max(sat, 0.30) + 0.12, 0.82) if chromatic else 0.05
+    acc_l, deep_l, on_container_l = 0.70, 0.34, 0.86
 
-    pill = {name: tint(hue, surf_sat, base + step) for name, step in zip(SURF_NAMES, steps)}
-    pill["primary"] = tint(hue, acc_sat, acc_l)
+    pill = {name: tint(hue, surf_sat, base + step) for name, step in zip(SURF_NAMES, DARK_STEPS)}
     pill["primary_container"] = tint(hue, min(acc_sat + 0.08, 0.9), deep_l)
-    pill["on_primary_container"] = tint(hue, min(acc_sat, 0.45), glow_l)
-    pill["outline"] = tint(hue, surf_sat, base + (-0.35 if light else 0.35))
-    for key, (lit, st) in zip(TEXT_KEYS, text):
+    pill["on_primary_container"] = tint(hue, min(acc_sat, 0.45), on_container_l)
+    pill["outline"] = tint(hue, surf_sat, base + 0.35)
+    for key, (lit, st) in zip(TEXT_KEYS, DARK_TEXT):
         pill[key] = tint(hue, st, lit)
-    pill["light"] = light
 
-    if light:
-        # The pill body renders translucent (surfAlpha floors at 0.85 in
-        # light mode, see Theme.qml), so text/accent tiers are clamped
-        # against the surface as it actually composites over the wallpaper,
-        # not the flat surface swatch, or contrast collapses on mid-tone walls.
-        wall_mean = tint(hue, sat, mean_l)
-        eff_surface = alpha_composite(pill["surface_container_high"], wall_mean, 0.85)
+    # Accent split. Both tiers share the winning hue; what differs is their job.
+    # The clamp reference is the pill card as it actually composites over the
+    # wallpaper, not the flat swatch, so a bright wall can't quietly eat the
+    # accent's contrast.
+    wall_mean = tint(hue, sat, mean_l)
+    eff_surface = alpha_composite(pill["surface_container_high"], wall_mean, SURF_ALPHA)
 
-        order = ["bright", "cream", "icon_dim", "subtle", "tick_rest", "dim", "faint"]
-        targets = {"bright": 9.0, "cream": 7.0, "icon_dim": 5.0, "subtle": 4.5,
-                   "tick_rest": 4.0, "dim": 3.5, "faint": 2.5}
-        tier_lit = dict(zip(TEXT_KEYS, (lit for lit, st in text)))
-        tier_sat = dict(zip(TEXT_KEYS, (st for lit, st in text)))
+    # mark: UI duty. Chroma capped so it stays a mark and not a highlighter,
+    # then lightness moved until it clears MARK_CONTRAST against eff_surface.
+    # clamp_dark holds acc_l when it already passes and searches downward when
+    # it doesn't -- but the accent sits ABOVE a dark surface, so contrast there
+    # grows with lightness and darkening is the wrong way out. When clamp_dark
+    # comes back short (bright wallpaper lifting eff_surface), lift instead.
+    mark_sat = min(acc_sat, MARK_SAT_CAP)
+    _, mark = clamp_dark(hue, mark_sat, acc_l, MARK_CONTRAST, eff_surface)
+    if contrast_ratio(mark, eff_surface) < MARK_CONTRAST:
+        mark = clamp_light(tint(hue, mark_sat, acc_l), MARK_CONTRAST, eff_surface)
 
-        clamped_l = {}
-        for key in order:
-            l, color = clamp_dark(hue, tier_sat[key], tier_lit[key], targets[key], eff_surface)
-            clamped_l[key] = l
-            pill[key] = color
+    # glow: filament light, never text. It only owes the chroma ceiling -- hot,
+    # but never neon -- at a fixed mid-high lightness so effects that stack it
+    # (gradients, bloom) start from a predictable place.
+    glow = tint(hue, min(acc_sat, GLOW_SAT_CAP), GLOW_L)
 
-        # Restore the darkest-to-lightest tier ordering (bright..faint) if
-        # clamping inverted it: sweep back-to-front, capping each earlier
-        # tier at the darkest lightness seen so far. Only ever darkens
-        # further, so an already-met contrast floor can't be undercut.
-        running_min = None
-        for key in reversed(order):
-            l = clamped_l[key]
-            if running_min is not None and l > running_min:
-                l = running_min
-                pill[key] = tint(hue, tier_sat[key], l)
-                clamped_l[key] = l
-            running_min = l
-
-        _, pill["primary"] = clamp_dark(hue, acc_sat, acc_l, 4.5, eff_surface)
-        # on_primary_container is only used as a fill colour (flame gradient
-        # stop), never as text-on-fill, so it is left out of the clamp.
+    pill["mark"] = mark
+    pill["glow"] = glow
+    # primary is the field every current consumer renders; it tracks mark until
+    # the QML side is rewired onto the split.
+    pill["primary"] = mark
+    pill["light"] = False
 
     (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
     render_fastfetch(pill)
