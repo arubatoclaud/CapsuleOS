@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import "Singletons"
 
 /**
  * Shared base for the morphing settings surfaces: the category index and each
@@ -15,6 +16,11 @@ import QtQuick
  * to another surface. The host routes arrow keys through `kbMove`,
  * `kbAdjust` and `kbActivate`; hover and clicks route through `reportRowHover`
  * and `activateRow`, keeping `kbIndex` and the seam in sync.
+ *
+ * Every derived page also gets write-error surfacing for free: a refused or
+ * failed `Store.set` used to vanish into an early return, so a value that never
+ * landed still looked like it had. The strip below listens to `Store.writeFailed`
+ * and shows the message over the foot of the page for four seconds.
  */
 PillSurface {
     id: root
@@ -123,4 +129,60 @@ PillSurface {
 
     ameForm: rowFocused ? "rowseam" : "off"
     amePoint: rowPoint
+
+    /** Last surfaced write error; cleared four seconds after it arrives. */
+    property string errorNote: ""
+
+    Connections {
+        target: Store
+        function onWriteFailed(id, message) {
+            root.errorNote = message;
+            errorTimer.restart();
+        }
+    }
+
+    Timer {
+        id: errorTimer
+        interval: 4000
+        repeat: false
+        onTriggered: root.errorNote = ""
+    }
+
+    /**
+     * Sits over the foot of the page rather than in the content column, so a
+     * page's own layout and height never shift when an error appears. The tinted
+     * plate is what lets it read as a strip on top of the last row; the text
+     * itself carries the same weight, size and colour as the inline notes the
+     * pages already use.
+     */
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: errorText.implicitHeight + 14 * root.s
+        radius: 9 * root.s
+        color: Qt.alpha(Theme.tileBg, 0.97)
+        border.width: 1
+        border.color: Theme.frameBorder
+        z: 20
+        opacity: root.errorNote.length > 0 ? 1 : 0
+        visible: opacity > 0.01
+        Behavior on opacity { NumberAnimation { duration: Motion.fast } }
+
+        Text {
+            id: errorText
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: 10 * root.s
+            anchors.rightMargin: 10 * root.s
+            text: root.errorNote
+            color: Theme.subtle
+            font.family: Theme.font
+            font.pixelSize: 10 * root.s
+            font.weight: Font.Medium
+            wrapMode: Text.WordWrap
+            lineHeight: 1.25
+        }
+    }
 }
