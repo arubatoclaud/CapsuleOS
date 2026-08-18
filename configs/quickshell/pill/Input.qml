@@ -1,21 +1,19 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Quickshell
 import Quickshell.Io
-import "lib/setInput.js" as SetInput
 import "Singletons"
 
 /**
  * INPUT sub-surface: edits the pointer, keyboard and cursor settings that live
- * in the Hyprland Lua modules, writing each change straight back to its source so
- * the choice survives a restart. Pointer and keyboard fields rewrite input.lua
- * and reload Hyprland; the layout row cycles a curated list of common layouts.
- * Cursor size and theme apply live through `hyprctl setcursor` with no reload,
- * and persist by rewriting the XCURSOR/HYPRCURSOR env lines and the autostart
- * setcursor call. The theme list is scanned from the installed icon themes that
- * carry a `cursors/` folder. Reached from the settings index; morphs back on the
- * back chevron.
+ * in the Hyprland Lua modules. Every row reads and writes through Store, which
+ * owns input.lua/env.lua/autostart.lua, validates against Schema, rewrites the
+ * right file and reloads Hyprland (or, for the cursor, applies live over
+ * `hyprctl setcursor` with no reload) — so this surface carries no write
+ * plumbing of its own. The theme list is scanned locally from the installed
+ * icon themes that carry a `cursors/` folder, since that is a filesystem scan,
+ * not a Schema-backed setting. Reached from the settings index; morphs back on
+ * the back chevron.
  */
 SettingsSurface {
     id: root
@@ -23,60 +21,46 @@ SettingsSurface {
     backSurface: "settings"
     implicitHeight: content.implicitHeight
 
+    readonly property var sensEntry: Schema.settings.sensitivity
+    readonly property var accelEntry: Schema.settings.accelProfile
+    readonly property var kbLayoutEntry: Schema.settings.kbLayout
+    readonly property var rateEntry: Schema.settings.repeatRate
+    readonly property var delayEntry: Schema.settings.repeatDelay
+    readonly property var numlockEntry: Schema.settings.numlock
+    readonly property var sizeEntry: Schema.settings.cursorSize
+
     /**
      * Row registry; scrub rows expose a bump that steps their ScrubValue one
-     * increment. The layout row's vals gain the current layout at the end when it
-     * is not in the curated list, so an exotic layout shows as-is and a click
-     * wraps around to the start of the list.
+     * increment. The layout row's vals gain the current layout at the end when
+     * it is not in the curated list, so an exotic layout shows as-is and a
+     * click wraps around to the start of the list.
      */
     rows: [
         { item: sensRow, kind: "scrub", bump: function (d) { sensScrub.bump(d); } },
-        { item: accelRow, kind: "seg", vals: ["flat", "adaptive"], get: function () { return root.accelProfile; }, set: function (v) { root.accelProfile = v; root.writeInputField("accel_profile", "\"" + v + "\""); } },
-        { item: layoutRow, kind: "seg", vals: root.kbLayoutVals, get: function () { return root.kbLayout; }, set: function (v) { root.setKbLayout(v); } },
+        { item: accelRow, kind: "seg", vals: root.accelEntry.options.map(function (o) { return o.value; }), get: function () { return Store.get("accelProfile"); }, set: function (v) { Store.set("accelProfile", v); } },
+        { item: layoutRow, kind: "seg", vals: root.kbLayoutVals, get: function () { return Store.get("kbLayout"); }, set: function (v) { Store.set("kbLayout", v); } },
         { item: rateRow, kind: "scrub", bump: function (d) { rateScrub.bump(d); } },
         { item: delayRow, kind: "scrub", bump: function (d) { delayScrub.bump(d); } },
-        { item: numlockRow, kind: "toggle", get: function () { return root.numlockOn; }, set: function (v) { root.numlockOn = v; root.writeInputField("numlock_by_default", v ? "true" : "false"); } },
+        { item: numlockRow, kind: "toggle", get: function () { return Store.get("numlock"); }, set: function (v) { Store.set("numlock", v); } },
         { item: sizeRow, kind: "scrub", bump: function (d) { sizeScrub.bump(d); } },
         { item: themeRow, kind: "toggle", get: function () { return root.themeOpen; }, set: function (v) { root.themeOpen = v; } }
     ]
 
-    property string note: ""
-
-    readonly property string inputPath: Quickshell.env("HOME") + "/.config/hypr/modules/input.lua"
-    readonly property string envPath: Quickshell.env("HOME") + "/.config/hypr/modules/env.lua"
-    readonly property string autostartPath: Quickshell.env("HOME") + "/.config/hypr/modules/autostart.lua"
-
-    property real sensitivity: 0
-    property string accelProfile: "flat"
-    property string kbLayout: "de"
-    property int repeatRate: 25
-    property int repeatDelay: 600
-    property bool numlockOn: false
-    property int cursorSize: 24
-    property string cursorTheme: "Bibata-Modern-Ice"
-    property var cursorThemes: []
     property bool themeOpen: false
-
-    property string inputText: ""
-    property string envText: ""
-    property string autostartText: ""
+    property var cursorThemes: []
 
     /** Per-field values captured on each open; the ScrubValue undo glyphs revert to these. */
     property var base: ({})
 
-    readonly property var accelOptions: [
-        { label: "Flat", value: "flat" },
-        { label: "Adaptive", value: "adaptive" }
-    ]
-
-    readonly property var kbLayouts: ["de", "us", "gb", "fr", "es", "it", "tr"]
-    readonly property var kbLayoutVals: kbLayouts.indexOf(kbLayout) >= 0 ? kbLayouts : kbLayouts.concat([kbLayout])
+    /** Curated layouts plus the current one when it is not already in the list, so an exotic layout still shows as-is and the row's cycle wraps back to the start. */
+    readonly property var kbLayoutVals: {
+        var opts = root.kbLayoutEntry.options.map(function (o) { return o.value; });
+        var cur = Store.get("kbLayout");
+        return opts.indexOf(cur) >= 0 ? opts : opts.concat([cur]);
+    }
 
     onActiveChanged: {
         if (active) {
-            inputFile.reload();
-            envFile.reload();
-            autostartFile.reload();
             seed();
             themeProc.running = true;
         } else {
@@ -87,157 +71,19 @@ SettingsSurface {
     }
 
     /**
-     * Seeds every control from the live source files. Numbers fall back to the
-     * defaults when a field is missing so a partially hand-edited config never
-     * leaves a control blank.
+     * Resyncs Store from disk and snapshots the undo baseline for the scrub
+     * rows. Values themselves come straight off Store.get, which already falls
+     * back to Schema.settings[...].def when a field is missing from its file —
+     * no hardcoded fallback constants here anymore.
      */
     function seed() {
-        root.inputText = inputFile.text();
-        root.envText = envFile.text();
-        root.autostartText = autostartFile.text();
-
-        var inp = root.inputText;
-        var sens = parseFloat(SetInput.getField(inp, "sensitivity"));
-        root.sensitivity = isNaN(sens) ? 0 : sens;
-        var ap = SetInput.getField(inp, "accel_profile");
-        root.accelProfile = ap.length > 0 ? ap : "flat";
-        var kl = SetInput.getField(inp, "kb_layout");
-        root.kbLayout = kl.length > 0 ? kl : "de";
-        var rr = parseInt(SetInput.getField(inp, "repeat_rate"), 10);
-        root.repeatRate = isNaN(rr) ? 25 : rr;
-        var rd = parseInt(SetInput.getField(inp, "repeat_delay"), 10);
-        root.repeatDelay = isNaN(rd) ? 600 : rd;
-        root.numlockOn = SetInput.getField(inp, "numlock_by_default") === "true";
-
-        var env = root.envText;
-        var cs = parseInt(SetInput.getField(env, "XCURSOR_SIZE"), 10);
-        root.cursorSize = isNaN(cs) ? 24 : cs;
-        var ct = SetInput.getField(env, "XCURSOR_THEME");
-        root.cursorTheme = ct.length > 0 ? ct : "Bibata-Modern-Ice";
-
+        Store.reload();
         root.base = {
-            sensitivity: root.sensitivity,
-            repeatRate: root.repeatRate,
-            repeatDelay: root.repeatDelay,
-            cursorSize: root.cursorSize
+            sensitivity: Store.get("sensitivity"),
+            repeatRate: Store.get("repeatRate"),
+            repeatDelay: Store.get("repeatDelay"),
+            cursorSize: Store.get("cursorSize")
         };
-    }
-
-    /**
-     * Rewrites one input.lua field to `literal` (already formatted by the caller)
-     * and reloads Hyprland so the change takes effect at once.
-     */
-    function writeInputField(name, literal) {
-        var res = SetInput.setField(root.inputText, name, literal);
-        if (!res.ok)
-            return;
-        root.inputText = res.text;
-        inputWriter.setText(res.text);
-        reloadTimer.restart();
-    }
-
-    function setKbLayout(v) {
-        root.kbLayout = v;
-        root.writeInputField("kb_layout", "\"" + v + "\"");
-    }
-
-    /**
-     * Applies a cursor theme/size pair live via `hyprctl setcursor`, then persists
-     * it by rewriting the XCURSOR/HYPRCURSOR env lines and the autostart setcursor
-     * call. No Hyprland reload is needed for the cursor.
-     */
-    function applyCursor(theme, size) {
-        setcursorProc.theme = theme;
-        setcursorProc.size = size;
-        setcursorProc.running = true;
-
-        var env = root.envText;
-        var e1 = SetInput.setEnv(env, "XCURSOR_THEME", theme);
-        var e2 = SetInput.setEnv(e1.ok ? e1.text : env, "XCURSOR_SIZE", String(size));
-        var e3 = SetInput.setEnv(e2.ok ? e2.text : (e1.ok ? e1.text : env), "HYPRCURSOR_SIZE", String(size));
-        if (e3.ok || e2.ok || e1.ok) {
-            root.envText = e3.ok ? e3.text : (e2.ok ? e2.text : e1.text);
-            envWriter.setText(root.envText);
-        }
-
-        var auto = SetInput.setCursorLine(root.autostartText, theme, size);
-        if (auto.ok) {
-            root.autostartText = auto.text;
-            autostartWriter.setText(auto.text);
-        }
-    }
-
-    function clampSensitivity(v) {
-        return Math.max(-1, Math.min(1, Math.round(v * 10) / 10));
-    }
-
-    FileView {
-        id: inputFile
-        path: root.inputPath
-        blockLoading: true
-        printErrors: false
-    }
-
-    FileView {
-        id: inputWriter
-        path: root.inputPath
-        atomicWrites: true
-        printErrors: false
-    }
-
-    FileView {
-        id: envFile
-        path: root.envPath
-        blockLoading: true
-        printErrors: false
-    }
-
-    FileView {
-        id: envWriter
-        path: root.envPath
-        atomicWrites: true
-        printErrors: false
-    }
-
-    FileView {
-        id: autostartFile
-        path: root.autostartPath
-        blockLoading: true
-        printErrors: false
-    }
-
-    FileView {
-        id: autostartWriter
-        path: root.autostartPath
-        atomicWrites: true
-        printErrors: false
-    }
-
-    /**
-     * Reload is debounced so a scrub drag writes the file per step but reloads
-     * Hyprland once, and captured so a failed reload surfaces as the inline note
-     * instead of vanishing with a detached process.
-     */
-    Timer {
-        id: reloadTimer
-        interval: 250
-        repeat: false
-        onTriggered: reloadProc.running = true
-    }
-
-    Process {
-        id: reloadProc
-        command: ["sh", "-c", "sleep 0.3; hyprctl reload"]
-        onExited: function (exitCode) {
-            root.note = exitCode === 0 ? "" : "Hyprland reload failed. The change is saved but not applied.";
-        }
-    }
-
-    Process {
-        id: setcursorProc
-        property string theme: ""
-        property int size: 24
-        command: ["hyprctl", "setcursor", theme, String(size)]
     }
 
     Process {
@@ -248,110 +94,6 @@ SettingsSurface {
                 var lines = this.text.split("\n").filter(function (l) { return l.trim().length > 0; });
                 root.cursorThemes = lines;
             }
-        }
-    }
-
-    component GroupLabel: Text {
-        topPadding: 16 * root.s
-        bottomPadding: 6 * root.s
-        color: Theme.faint
-        font.family: Theme.font
-        font.pixelSize: 8.5 * root.s
-        font.weight: Font.Bold
-        font.capitalization: Font.AllUppercase
-        font.letterSpacing: 1.2 * root.s
-    }
-
-    /**
-     * One settings line. At rest it is an icon + label + control row; hovering or
-     * keyboard-focusing the row folds its grey caption open below the label so
-     * the tab stays compact by default. The row feeds the surface registry: hover
-     * moves the soul seam and a click anywhere on the line drives its control via
-     * activateRow.
-     */
-    component FieldRow: Item {
-        id: frow
-        property string label: ""
-        property string caption: ""
-        property string icon: ""
-        default property alias control: ctrl.data
-
-        readonly property bool focused: root.focusRowItem === frow
-        readonly property bool expanded: fhover.hovered || frow.focused
-        readonly property real rowH: 30 * root.s
-        readonly property real capH: 14 * root.s
-
-        width: parent ? parent.width : 0
-        height: frow.rowH + (frow.caption.length > 0 ? frow.capH : 0)
-        clip: true
-        Behavior on height { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
-
-        HoverHandler {
-            id: fhover
-            onHoveredChanged: root.reportRowHover(frow, hovered)
-        }
-
-        Rectangle {
-            anchors.fill: parent
-            anchors.topMargin: 3 * root.s
-            anchors.bottomMargin: 3 * root.s
-            radius: 9 * root.s
-            color: (fhover.hovered || frow.focused) ? Theme.frameBg : "transparent"
-            Behavior on color { ColorAnimation { duration: Motion.fast } }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            cursorShape: Qt.PointingHandCursor
-            onClicked: root.activateRow(frow)
-        }
-
-        GlyphIcon {
-            id: rowIcon
-            anchors.left: parent.left
-            anchors.leftMargin: 9 * root.s
-            anchors.verticalCenter: parent.verticalCenter
-            visible: frow.icon.length > 0
-            width: 15 * root.s
-            height: 15 * root.s
-            name: frow.icon
-            color: frow.focused ? Theme.cream : Theme.subtle
-            stroke: 1.8
-        }
-
-        Column {
-            anchors.left: rowIcon.visible ? rowIcon.right : parent.left
-            anchors.leftMargin: 9 * root.s
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 2 * root.s
-
-            Text {
-                text: frow.label
-                color: Theme.cream
-                font.family: Theme.font
-                font.pixelSize: 12.5 * root.s
-                font.weight: Font.Medium
-            }
-
-            Text {
-                visible: frow.caption.length > 0
-                opacity: frow.expanded ? 1 : 0
-                text: frow.caption
-                color: Theme.faint
-                font.family: Theme.font
-                font.pixelSize: 9 * root.s
-                font.weight: Font.Medium
-                Behavior on opacity { NumberAnimation { duration: Motion.fast; easing.type: Motion.easeStandard } }
-            }
-        }
-
-        Item {
-            id: ctrl
-            anchors.right: parent.right
-            anchors.rightMargin: 9 * root.s
-            anchors.verticalCenter: parent.verticalCenter
-            width: childrenRect.width
-            height: childrenRect.height
         }
     }
 
@@ -367,7 +109,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: "\uf245"
+            glyph: ""
             title: "INPUT"
             showBack: true
         }
@@ -379,48 +121,49 @@ SettingsSurface {
             anchors.rightMargin: 12 * root.s
             spacing: 0
 
-            GroupLabel { text: "Pointer" }
+            SettingsGroupLabel { s: root.s; text: "Pointer" }
 
-            FieldRow {
+            SettingsRow {
                 id: sensRow
-                label: "Sensitivity"
-                caption: "Pointer speed offset"
+                surface: root
+                name: root.sensEntry.label
+                sub: root.sensEntry.caption
+                captionOnFocus: true
                 icon: "mouse"
                 ScrubValue {
                     id: sensScrub
                     s: root.s
-                    value: root.sensitivity
+                    value: Store.get("sensitivity")
                     openValue: root.base.sensitivity
-                    from: -1; to: 1; step: 0.1; decimals: 1
-                    onEdited: v => {
-                        root.sensitivity = v;
-                        root.writeInputField("sensitivity", String(v));
-                    }
+                    from: root.sensEntry.from; to: root.sensEntry.to; step: root.sensEntry.step; decimals: 1
+                    onEdited: v => Store.set("sensitivity", v)
                 }
             }
 
-            FieldRow {
+            SettingsRow {
                 id: accelRow
-                label: "Acceleration"
-                caption: "How pointer speed follows motion"
+                surface: root
+                name: root.accelEntry.label
+                sub: root.accelEntry.caption
+                captionOnFocus: true
                 icon: "bolt"
+                last: true
                 SettingsSeg {
                     s: root.s
-                    options: root.accelOptions
-                    value: root.accelProfile
-                    onPicked: (v) => {
-                        root.accelProfile = v;
-                        root.writeInputField("accel_profile", "\"" + v + "\"");
-                    }
+                    options: root.accelEntry.options
+                    value: Store.get("accelProfile")
+                    onPicked: (v) => Store.set("accelProfile", v)
                 }
             }
 
-            GroupLabel { text: "Keyboard" }
+            SettingsGroupLabel { s: root.s; text: "Keyboard" }
 
-            FieldRow {
+            SettingsRow {
                 id: layoutRow
-                label: "Layout"
-                caption: "Click to cycle common layouts"
+                surface: root
+                name: root.kbLayoutEntry.label
+                sub: root.kbLayoutEntry.caption
+                captionOnFocus: true
                 icon: "language"
 
                 Rectangle {
@@ -434,7 +177,7 @@ SettingsSurface {
                     Text {
                         id: layoutLbl
                         anchors.centerIn: parent
-                        text: root.kbLayout
+                        text: Store.get("kbLayout")
                         color: Theme.cream
                         font.family: Theme.font
                         font.pixelSize: 11 * root.s
@@ -443,74 +186,72 @@ SettingsSurface {
                 }
             }
 
-            FieldRow {
+            SettingsRow {
                 id: rateRow
-                label: "Repeat rate"
-                caption: "Key repeats per second when held"
+                surface: root
+                name: root.rateEntry.label
+                sub: root.rateEntry.caption
+                captionOnFocus: true
                 icon: "keyboard"
                 ScrubValue {
                     id: rateScrub
                     s: root.s
-                    value: root.repeatRate
+                    value: Store.get("repeatRate")
                     openValue: root.base.repeatRate
-                    from: 10; to: 80; step: 1; unit: "Hz"
-                    onEdited: v => {
-                        root.repeatRate = v;
-                        root.writeInputField("repeat_rate", String(v));
-                    }
+                    from: root.rateEntry.from; to: root.rateEntry.to; step: root.rateEntry.step; unit: root.rateEntry.unit
+                    onEdited: v => Store.set("repeatRate", v)
                 }
             }
 
-            FieldRow {
+            SettingsRow {
                 id: delayRow
-                label: "Repeat delay"
-                caption: "Hold time before a key repeats"
+                surface: root
+                name: root.delayEntry.label
+                sub: root.delayEntry.caption
+                captionOnFocus: true
                 icon: "stopwatch"
                 ScrubValue {
                     id: delayScrub
                     s: root.s
-                    value: root.repeatDelay
+                    value: Store.get("repeatDelay")
                     openValue: root.base.repeatDelay
-                    from: 150; to: 1000; step: 25; unit: "ms"
-                    onEdited: v => {
-                        root.repeatDelay = v;
-                        root.writeInputField("repeat_delay", String(v));
-                    }
+                    from: root.delayEntry.from; to: root.delayEntry.to; step: root.delayEntry.step; unit: root.delayEntry.unit
+                    onEdited: v => Store.set("repeatDelay", v)
                 }
             }
 
-            FieldRow {
+            SettingsRow {
                 id: numlockRow
-                label: "Numlock"
-                caption: "Numlock on at startup"
+                surface: root
+                name: root.numlockEntry.label
+                sub: root.numlockEntry.caption
+                captionOnFocus: true
                 icon: "lock"
+                last: true
                 LinkToggle {
                     s: root.s
-                    on: root.numlockOn
-                    onToggled: {
-                        root.numlockOn = !root.numlockOn;
-                        root.writeInputField("numlock_by_default", root.numlockOn ? "true" : "false");
-                    }
+                    on: Store.get("numlock")
+                    onToggled: Store.set("numlock", !Store.get("numlock"))
                 }
             }
 
-            GroupLabel { text: "Cursor" }
+            SettingsGroupLabel { s: root.s; text: "Cursor" }
 
-            FieldRow {
+            SettingsRow {
                 id: sizeRow
-                label: "Size"
-                caption: "Cursor size in pixels"
+                surface: root
+                name: root.sizeEntry.label
+                sub: root.sizeEntry.caption
+                captionOnFocus: true
                 icon: "cursor"
+                last: true
                 ScrubValue {
                     id: sizeScrub
                     s: root.s
-                    value: root.cursorSize
+                    value: Store.get("cursorSize")
                     openValue: root.base.cursorSize
-                    from: 12; to: 96; step: 4; unit: "px"
-                    onEdited: v => {
-                        root.cursorSize = v;
-                        root.applyCursor(root.cursorTheme, v);
-                    }
+                    from: root.sizeEntry.from; to: root.sizeEntry.to; step: root.sizeEntry.step; unit: root.sizeEntry.unit
+                    onEdited: v => Store.set("cursorSize", v)
                 }
             }
 
@@ -540,28 +281,14 @@ SettingsSurface {
                     s: root.s
                     label: "Theme"
                     options: root.cursorThemes.map(function (t) { return { label: t, value: t }; })
-                    value: root.cursorTheme
+                    value: Store.get("cursorTheme")
                     open: root.themeOpen
                     onRequestToggle: root.themeOpen = !root.themeOpen
                     onPicked: (v) => {
-                        root.cursorTheme = v;
                         root.themeOpen = false;
-                        root.applyCursor(v, root.cursorSize);
+                        Store.set("cursorTheme", v);
                     }
                 }
-            }
-
-            Text {
-                width: parent.width
-                topPadding: 8 * root.s
-                visible: root.note.length > 0
-                text: root.note
-                color: Theme.subtle
-                font.family: Theme.font
-                font.pixelSize: 10 * root.s
-                font.weight: Font.Medium
-                wrapMode: Text.WordWrap
-                lineHeight: 1.25
             }
 
             Item { width: 1; height: 10 * root.s }

@@ -2,26 +2,30 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtQuick.Shapes
-import Quickshell
-import Quickshell.Io
-import "lib/setAnim.js" as SetAnim
 import "Singletons"
 
 /**
  * ANIMATION sub-surface: toggles Hyprland animations, sets one master speed
  * across every leaf, and shapes the main motion curve by dragging its two bezier
- * control points. animations.lua is read once per pill session (first seed);
- * after that the in-memory properties are the single source of truth, so
- * reopening the tab never re-reads — that would race the writer FileView on the
- * same path and revert a freshly written value. Each change rewrites the file
- * immediately and debounces the hyprctl reload through a Timer, so a fast speed
- * scrub still lands its final value with exactly one reload. The speed scrub and
- * the curve carry a revert baseline snapshotted on that first seed, restored by
- * an undo glyph; it survives leaving and reopening the tab so a curve change
- * stays revertable while you go watch it play. The editor's handle positions are
- * the source of truth — the curve point properties derive from them — so
- * dragging a handle never fights a binding. Reached from the settings index;
- * morphs back on the back chevron.
+ * control points. Every value reads and writes through Store, which owns
+ * animations.lua, validates against Schema, rewrites the right field and
+ * debounces the hyprctl reload — so this surface carries no write plumbing of
+ * its own beyond the curve/speed formatting Store's `anim` backend expects. The
+ * bezier control points stay local properties rather than a live Store binding,
+ * since a drag has to diverge from disk until release; they are (re)seeded from
+ * Store on every open. The speed scrub and the curve carry a revert baseline
+ * snapshotted on that seed, restored by an undo glyph; it survives leaving and
+ * reopening the tab so a curve change stays revertable while you go watch it
+ * play. The editor's handle positions are the source of truth — the curve point
+ * properties derive from them — so dragging a handle never fights a binding.
+ * Reached from the settings index; morphs back on the back chevron.
+ *
+ * The Motion character (`applyMotion`) is a deliberate exception to "everything
+ * writes through Store.set": picking calm/spring/glide is Flags-backed but also
+ * has to rewrite the pillMorph curve and retime every leaf, so a bare
+ * `Store.set("motion", v)` would persist the flag and leave Hyprland on the old
+ * curve. `applyMotion` sets `Flags.motion` directly and then drives the curve
+ * and speed through the same `Store.set` calls the editor and Preset row use.
  */
 SettingsSurface {
     id: root
@@ -36,21 +40,16 @@ SettingsSurface {
      * bump axis.
      */
     rows: {
-        var r = [{ item: enabledRow, kind: "toggle", get: function () { return root.animOn; }, set: function (v) { root.animOn = v; root.writeEnabled(v); } }];
+        var r = [{ item: enabledRow, kind: "toggle", get: function () { return root.animOn; }, set: function (v) { root.writeEnabled(v); } }];
         if (root.animOn) {
-            r.push({ item: motionRow, kind: "seg", vals: ["calm", "spring", "glide"], get: function () { return Flags.motion; }, set: function (v) { root.applyMotion(v); } });
+            r.push({ item: motionRow, kind: "seg", vals: ["calm", "spring", "glide"], get: function () { return Store.get("motion"); }, set: function (v) { root.applyMotion(v); } });
             r.push({ item: speedRow, kind: "scrub", bump: function (d) { speedScrub.bump(d); } });
         }
         return r;
     }
 
-    readonly property string animPath: Quickshell.env("HOME") + "/.config/hypr/modules/animations.lua"
-    readonly property string mainCurve: "pillMorph"
-
-    property bool animOn: true
+    readonly property bool animOn: Store.get("animEnabled")
     property real speed: 3
-    property string animText: ""
-    property bool loaded: false
     property var base: ({})
 
     /** Bezier control points, read 0..1 (y may overshoot); derived from the handles. */
@@ -65,18 +64,34 @@ SettingsSurface {
         { label: "Glide", value: "glide" }
     ]
 
+    /**
+     * Single source of truth for every curve preset — the calm/spring/glide
+     * "character" curves `applyMotion` drives and the Smooth/Snappy/Linear
+     * curve presets the Preset row offers — so the coordinates exist exactly
+     * once instead of the three copies (an `applyMotion` ternary chain, this
+     * table, and `snapToPreset`'s own candidates list) that used to drift.
+     * `motion` entries also carry the paired Hyprland duration; `label` entries
+     * are the ones the Preset row's SettingsSeg offers by name.
+     */
     readonly property var presets: [
-        { label: "Smooth", x1: 0.23, y1: 1.0, x2: 0.32, y2: 1.0 },
-        { label: "Snappy", x1: 0.15, y1: 0.0, x2: 0.1, y2: 1.0 },
-        { label: "Linear", x1: 0.33, y1: 0.33, x2: 0.66, y2: 0.66 }
+        { motion: "calm",   x1: 0.32, y1: 0.72, x2: 0.0,  y2: 1.0,  speed: 3.0 },
+        { motion: "spring", x1: 0.34, y1: 1.56, x2: 0.64, y2: 1.0,  speed: 4.0 },
+        { motion: "glide",  x1: 0.45, y1: 0.05, x2: 0.15, y2: 1.0,  speed: 5.2 },
+        { label: "Smooth",  x1: 0.23, y1: 1.0,  x2: 0.32, y2: 1.0 },
+        { label: "Snappy",  x1: 0.15, y1: 0.0,  x2: 0.1,  y2: 1.0 },
+        { label: "Linear",  x1: 0.33, y1: 0.33, x2: 0.66, y2: 0.66 }
     ]
+
+    function presetByMotion(v) {
+        for (var i = 0; i < root.presets.length; i++)
+            if (root.presets[i].motion === v)
+                return root.presets[i];
+        return null;
+    }
 
     onActiveChanged: {
         if (active) {
-            if (!root.loaded) {
-                animFile.reload();
-                seed();
-            }
+            seed();
         } else {
             focusRowItem = null;
             kbIndex = -1;
@@ -84,47 +99,31 @@ SettingsSurface {
     }
 
     /**
-     * Reads the controls from animations.lua once per pill session. After this
-     * the in-memory properties are the source of truth, so reopening the tab
-     * never re-reads (which would race the writer FileView on the same path and
-     * revert a freshly written value). Also snapshots the revert baseline and
-     * marks the session loaded.
+     * Resyncs Store from disk, seeds the bezier handle properties and the
+     * speed scrub from it, and snapshots the revert baseline. Runs on every
+     * open — safe now that Store's pending-write counters keep this resync from
+     * ever racing a write still landing on the same file.
      */
     function seed() {
-        root.animText = animFile.text();
-        var t = root.animText;
-
-        root.animOn = SetAnim.getEnabled(t) === "true";
-        var sp = parseFloat(SetAnim.getLeafSpeed(t, "global"));
-        root.speed = isNaN(sp) ? 3 : sp;
-
-        var pts = SetAnim.getCurvePoints(t, root.mainCurve);
-        if (pts) {
+        Store.reload();
+        root.speed = Store.get("animSpeed");
+        var pts = String(Store.get("animCurve")).split(",").map(function (n) { return parseFloat(n); });
+        if (pts.length === 4 && pts.every(function (n) { return !isNaN(n); })) {
             root.cx1 = pts[0];
             root.cy1 = pts[1];
             root.cx2 = pts[2];
             root.cy2 = pts[3];
         }
+        editor.syncHandles();
         root.base = { speed: root.speed, cx1: root.cx1, cy1: root.cy1, cx2: root.cx2, cy2: root.cy2 };
-        root.loaded = true;
     }
 
     function writeEnabled(on) {
-        var r = SetAnim.setEnabled(root.animText, on ? "true" : "false");
-        if (!r.ok)
-            return;
-        root.animText = r.text;
-        animWriter.setText(r.text);
-        reloadTimer.restart();
+        Store.set("animEnabled", on);
     }
 
     function writeSpeed(v) {
-        var r = SetAnim.setAllSpeeds(root.animText, String(v));
-        if (!r.ok)
-            return;
-        root.animText = r.text;
-        animWriter.setText(r.text);
-        reloadTimer.restart();
+        Store.set("animSpeed", v);
     }
 
     /**
@@ -137,16 +136,8 @@ SettingsSurface {
      */
     function snapToPreset() {
         var eps = 0.03;
-        var candidates = [
-            { x1: 0.32, y1: 0.72, x2: 0.0,  y2: 1.0 },  // calm
-            { x1: 0.34, y1: 1.56, x2: 0.64, y2: 1.0 },  // spring
-            { x1: 0.45, y1: 0.05, x2: 0.15, y2: 1.0 },  // glide
-            { x1: 0.23, y1: 1.0,  x2: 0.32, y2: 1.0 },  // Smooth
-            { x1: 0.15, y1: 0.0,  x2: 0.1,  y2: 1.0 },  // Snappy
-            { x1: 0.33, y1: 0.33, x2: 0.66, y2: 0.66 }  // Linear
-        ];
-        for (var i = 0; i < candidates.length; i++) {
-            var p = candidates[i];
+        for (var i = 0; i < root.presets.length; i++) {
+            var p = root.presets[i];
             if (Math.abs(root.cx1 - p.x1) <= eps && Math.abs(root.cy1 - p.y1) <= eps
                 && Math.abs(root.cx2 - p.x2) <= eps && Math.abs(root.cy2 - p.y2) <= eps) {
                 root.cx1 = p.x1; root.cy1 = p.y1; root.cx2 = p.x2; root.cy2 = p.y2;
@@ -157,13 +148,7 @@ SettingsSurface {
     }
 
     function writeCurve() {
-        var r = SetAnim.setCurvePoints(root.animText, root.mainCurve,
-            root.cx1.toFixed(2), root.cy1.toFixed(2), root.cx2.toFixed(2), root.cy2.toFixed(2));
-        if (!r.ok)
-            return;
-        root.animText = r.text;
-        animWriter.setText(r.text);
-        reloadTimer.restart();
+        Store.set("animCurve", root.cx1.toFixed(2) + "," + root.cy1.toFixed(2) + "," + root.cx2.toFixed(2) + "," + root.cy2.toFixed(2));
     }
 
     /**
@@ -171,38 +156,24 @@ SettingsSurface {
      * Hyprland, so windows and workspaces settle exactly like the pill does.
      * The curve points mirror Motion.morphCurve and the speed is the matching
      * Hyprland duration: calm lands, spring overshoots, glide stretches. Writes
-     * through the surface's own curve and speed plumbing, so the handles and the
-     * scrub follow what landed on disk. The revert baseline is deliberately left
-     * alone, exactly as the Preset row leaves it: a character pick arms the undo
-     * glyph, so one click takes you back to the curve the tab opened on.
+     * through the surface's own curve and speed plumbing (Store's `anim`
+     * backend), so the handles and the scrub follow what landed on disk. The
+     * revert baseline is deliberately left alone, exactly as the Preset row
+     * leaves it: a character pick arms the undo glyph, so one click takes you
+     * back to the curve the tab opened on. `Flags.motion` is set directly
+     * rather than through `Store.set` — see the header note on why the flag
+     * alone is not enough here.
      */
     function applyMotion(v) {
         Flags.motion = v;
-        root.cx1 = v === "spring" ? 0.34 : v === "glide" ? 0.45 : 0.32;
-        root.cy1 = v === "spring" ? 1.56 : v === "glide" ? 0.05 : 0.72;
-        root.cx2 = v === "spring" ? 0.64 : v === "glide" ? 0.15 : 0.0;
-        root.cy2 = 1.0;
+        var p = root.presetByMotion(v);
+        if (!p)
+            return;
+        root.cx1 = p.x1; root.cy1 = p.y1; root.cx2 = p.x2; root.cy2 = p.y2;
         editor.syncHandles();
         root.writeCurve();
-        root.speed = v === "glide" ? 5.2 : v === "spring" ? 4.0 : 3.0;
+        root.speed = p.speed;
         root.writeSpeed(root.speed);
-    }
-
-    FileView { id: animFile; path: root.animPath; blockLoading: true; printErrors: false }
-    FileView { id: animWriter; path: root.animPath; atomicWrites: true; printErrors: false }
-    Process { id: reloadProc; command: ["setsid", "-f", "sh", "-c", "sleep 0.3; hyprctl reload"] }
-    Timer { id: reloadTimer; interval: 250; repeat: false; onTriggered: reloadProc.running = true }
-
-    component GroupLabel: Text {
-        topPadding: 16 * root.s
-        bottomPadding: 6 * root.s
-        leftPadding: 12 * root.s
-        color: Theme.faint
-        font.family: Theme.font
-        font.pixelSize: 8.5 * root.s
-        font.weight: Font.Bold
-        font.capitalization: Font.AllUppercase
-        font.letterSpacing: 1.2 * root.s
     }
 
     Column {
@@ -222,7 +193,7 @@ SettingsSurface {
             showBack: true
         }
 
-        GroupLabel { text: "Motion" }
+        SettingsGroupLabel { s: root.s; leftPadding: 12 * root.s; text: "Motion" }
 
         SettingsRow {
             id: enabledRow
@@ -235,10 +206,7 @@ SettingsSurface {
             LinkToggle {
                 s: root.s
                 on: root.animOn
-                onToggled: {
-                    root.animOn = !root.animOn;
-                    root.writeEnabled(root.animOn);
-                }
+                onToggled: root.writeEnabled(!root.animOn)
             }
         }
 
@@ -253,7 +221,7 @@ SettingsSurface {
             SettingsSeg {
                 s: root.s
                 options: root.motionOptions
-                value: Flags.motion
+                value: Store.get("motion")
                 onPicked: v => root.applyMotion(v)
             }
         }
@@ -280,7 +248,9 @@ SettingsSurface {
             }
         }
 
-        GroupLabel {
+        SettingsGroupLabel {
+            s: root.s
+            leftPadding: 12 * root.s
             text: "Curve"
             visible: root.animOn
         }
@@ -476,7 +446,7 @@ SettingsSurface {
             last: true
             SettingsSeg {
                 s: root.s
-                options: root.presets.map(function (p) { return { label: p.label, value: p.label }; })
+                options: root.presets.filter(function (p) { return p.label; }).map(function (p) { return { label: p.label, value: p.label }; })
                 value: ""
                 onPicked: (v) => {
                     for (var i = 0; i < root.presets.length; i++) {

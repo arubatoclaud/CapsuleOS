@@ -411,70 +411,6 @@ SettingsSurface {
         command: ["pkill", "-USR2", "-x", "ghostty"]
     }
 
-    component GroupLabel: Text {
-        topPadding: 16 * root.s
-        bottomPadding: 6 * root.s
-        color: Theme.faint
-        font.family: Theme.font
-        font.pixelSize: 8.5 * root.s
-        font.weight: Font.Bold
-        font.capitalization: Font.AllUppercase
-        font.letterSpacing: 1.2 * root.s
-    }
-
-    /**
-     * Collapsible settings group: a tappable header (the group label plus a
-     * chevron) over a body of rows that animates between zero and its content
-     * height, so a long tab shows only the group headers until one is opened.
-     * `open` is the initial state; tapping the header toggles it.
-     */
-    component Group: Column {
-        id: grp
-        property string title: ""
-        property bool open: false
-        default property alias rows: body.data
-
-        width: parent ? parent.width : 0
-        spacing: 0
-
-        Item {
-            width: parent.width
-            height: gl.implicitHeight
-
-            GroupLabel { id: gl; text: grp.title }
-
-            GlyphIcon {
-                anchors.right: parent.right
-                anchors.verticalCenter: gl.verticalCenter
-                width: 15 * root.s
-                height: 15 * root.s
-                name: "chevron-down"
-                color: Theme.faint
-                stroke: 2.0
-                rotation: grp.open ? 0 : -90
-                Behavior on rotation { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: grp.open = !grp.open
-            }
-        }
-
-        Item {
-            width: parent.width
-            height: grp.open ? body.implicitHeight : 0
-            clip: true
-            Behavior on height { NumberAnimation { duration: Motion.fast; easing.type: Easing.OutCubic } }
-
-            Column {
-                id: body
-                width: parent.width
-            }
-        }
-    }
-
     /**
      * One settings line. At rest it is a label + control row; hovering or
      * keyboard-focusing the row folds its grey caption open below the label so a
@@ -580,7 +516,7 @@ SettingsSurface {
             anchors.rightMargin: 12 * root.s
             spacing: 0
 
-            Group { id: winGrp; title: "Window"; open: true
+            SettingsGroup { id: winGrp; s: root.s; title: "Window"; open: true
 
             FieldRow {
                 id: gapsInRow
@@ -698,7 +634,7 @@ SettingsSurface {
 
             }
 
-            Group { id: nightGrp; title: "Night light"
+            SettingsGroup { id: nightGrp; s: root.s; title: "Night light"
 
             FieldRow {
                 id: nlModeRow
@@ -761,7 +697,7 @@ SettingsSurface {
 
             }
 
-            Group { id: shadowGrp; title: "Shadow"
+            SettingsGroup { id: shadowGrp; s: root.s; title: "Shadow"
 
             FieldRow {
                 id: shEnRow
@@ -815,7 +751,7 @@ SettingsSurface {
 
             }
 
-            Group { id: blurGrp; title: "Blur"
+            SettingsGroup { id: blurGrp; s: root.s; title: "Blur"
 
             FieldRow {
                 id: blEnRow
@@ -905,7 +841,7 @@ SettingsSurface {
 
             }
 
-            Group { id: opGrp; title: "Opacity"
+            SettingsGroup { id: opGrp; s: root.s; title: "Opacity"
 
             FieldRow {
                 id: opActRow
@@ -960,7 +896,7 @@ SettingsSurface {
 
             }
 
-            Group { id: pillGrp; title: "Pill"
+            SettingsGroup { id: pillGrp; s: root.s; title: "Pill"
 
             FieldRow {
                 id: pillGapRow
