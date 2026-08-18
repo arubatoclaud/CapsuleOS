@@ -302,24 +302,27 @@ Singleton {
             control: "scrub", type: "real", backend: "flags", key: "pillOpacity", def: 1.0,
             from: 0.55, to: 1.0, step: 0.05, unit: ""
         },
-        pillBlur: {
-            page: "look", group: "pill", order: 3,
-            label: "Pill blur", caption: "Frosts behind the pill. Needs opacity under 100%.",
-            control: "toggle", type: "bool", backend: "flags", key: "pillBlur", def: false
-        },
+        /**
+         * There is no `pillBlur` entry beside this one anymore. Blur behind the
+         * pill is not separately stored: it is the `pill-blur` layer_rule in
+         * decoration.lua, which Store adds or removes as this seg moves, and
+         * `Theme.pillBlur` is the derived value anything on screen reads. The
+         * toggle that used to sit here was a second control over the same piece
+         * of state and could disagree with it (audit P0-2/P0-4).
+         */
         material: {
-            page: "look", group: "pill", order: 4,
-            label: "Material", caption: "Glass, frost or ink for the pill and surfaces",
+            page: "look", group: "pill", order: 3,
+            label: "Material", caption: "Glass and frost blur what's behind the pill; ink is flat opaque",
             control: "seg", type: "string", backend: "flags", key: "material", def: "frost",
             options: [{ label: "Glass", value: "glass" }, { label: "Frost", value: "frost" }, { label: "Ink", value: "ink" }]
         },
         autoHide: {
-            page: "look", group: "pill", order: 5,
+            page: "look", group: "pill", order: 4,
             label: "Auto-hide pill", caption: "Slide away at rest, reveal on the top edge",
             control: "toggle", type: "bool", backend: "flags", key: "autoHide", def: false
         },
         autoHideDelay: {
-            page: "look", group: "pill", order: 6,
+            page: "look", group: "pill", order: 5,
             label: "Delay", caption: "Dwell on the edge to reveal, linger before retracting",
             control: "seg", type: "string", backend: "flags", key: "autoHideDelay", def: "medium",
             options: [{ label: "Off", value: "off" }, { label: "Short", value: "short" }, { label: "Medium", value: "medium" }, { label: "Long", value: "long" }]
@@ -406,9 +409,14 @@ Singleton {
             label: "Enabled", caption: "Animate windows, workspaces and fades",
             control: "toggle", type: "bool", backend: "anim", key: "enabled", def: true
         },
+        /**
+         * The primary motion control (R3): one pick sets the curve and the speed
+         * together, so the Curve group below it is an expert override of what
+         * this row just stamped rather than a second control competing with it.
+         */
         motion: {
             page: "animation", group: "motion", order: 1,
-            label: "Motion", caption: "Calm settles, spring overshoots, glide stretches",
+            label: "Feel", caption: "Sets curve and speed together — calm settles, spring overshoots, glide stretches",
             control: "seg", type: "string", backend: "flags", key: "motion", def: "calm",
             options: [{ label: "Calm", value: "calm" }, { label: "Spring", value: "spring" }, { label: "Glide", value: "glide" }]
         },
@@ -422,7 +430,7 @@ Singleton {
         // ── Animation · Curve ─────────────────────────────────────────────
         animCurve: {
             page: "animation", group: "curve", order: 0,
-            label: "Curve", caption: "Drag the two bezier control points",
+            label: "Curve", caption: "Drag the two bezier control points to override Feel's curve",
             control: "custom", type: "string", backend: "anim", key: "pillMorph", def: "0.32,0.72,0.00,1.00"
         },
         animPreset: {
@@ -479,13 +487,22 @@ Singleton {
         },
         /**
          * The one deliberate alias in the table: this chip drives the same
-         * stored key as `nightLightMode` (Look → Night light) but as a bool,
-         * flipping the mode between "on" and "off". `aliasOf` records that the
-         * other entry owns the key, which is what exempts the pair from the
-         * (backend, key) type guard — and marks it for Task 8's duplicate pass.
+         * stored key as `nightLightMode` (Look → Night light) but as a bool.
+         * `aliasOf` records that the other entry owns the key, which is what
+         * exempts the pair from the (backend, key) type guard.
+         *
+         * A bool cannot express three modes, so Task 8 gave the collapse a
+         * memory instead of a fixed answer: off stores the mode it interrupts
+         * in `Flags.nightPrevMode` and on restores it, so the chip no longer
+         * quietly demotes a scheduled night light to always-warm (audit P0-2).
+         * `nightPrevMode` is deliberately NOT an entry of its own — like the
+         * `gamePrev*` keys it restores from, it is state the shell remembers,
+         * not a setting anyone sets — so nothing in the index or the search can
+         * offer it as a control.
          */
         nightLightQuick: {
             page: "mixer", group: "", order: 2,
+            /** Kept short: this caption is the chip's tooltip line, which does not wrap. */
             label: "Night light", caption: "Warm the screen",
             control: "toggle", type: "bool", backend: "night", key: "nightLightMode", def: false,
             aliasOf: "nightLightMode"

@@ -23,7 +23,7 @@ import "Singletons"
  * Everything else defaults off `settingId`: the Schema entry supplies the
  * control kind and, for segmented rows, the values to cycle, while reads and
  * writes go through Store. A row whose write needs more than a bare `Store.set`
- * (Look's Material rule, Appearance's palette apply) hands over `navSet`; the
+ * (Appearance's palette apply, Animation's Feel) hands over `navSet`; the
  * bespoke lines with no Schema id at all (Display's monitor card, the
  * cursor-theme picker, the index's category rows) state `navKind` or
  * `navTarget` outright. Scrub rows need nothing: `bump` finds the ScrubValue

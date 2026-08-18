@@ -21,6 +21,28 @@ Singleton {
      */
     readonly property string material: Flags.material
     readonly property real baseAlpha: material === "glass" ? 0.62 : material === "ink" ? 1.0 : 0.86
+    /**
+     * Whether the material wants the compositor blurring what sits behind the
+     * pill: glass and frost are translucent and read as frosted glass over the
+     * wallpaper, ink is flat opaque and blurring behind it only costs GPU time.
+     * The ONE definition of that derivation — Store applies it to
+     * decoration.lua's `pill-blur` layer_rule whenever the material changes,
+     * and no flag stores it. It lives here, next to the other
+     * material-derived surface values, because it is a rendering consequence
+     * of the material and not a stored flag of its own (the flag it replaces
+     * was audit P0-4: a second control over one piece of state).
+     *
+     * The predicate is a function as well as a property because Store has to
+     * ask it about a material it is in the middle of storing: a JsonAdapter
+     * property read back in the same turn it was written still reports the
+     * previous value, so `Theme.pillBlur` would answer about the material being
+     * replaced. Store passes the incoming value to `blursBehind` instead, and
+     * reads the property only when it is not writing.
+     */
+    function blursBehind(m) {
+        return m !== "ink";
+    }
+    readonly property bool pillBlur: Theme.blursBehind(Theme.material)
     /** Translucent light surfaces darken over the wallpaper and break text contrast, so light mode floors the alpha at 0.85 regardless of material. */
     readonly property real surfAlpha: (dyn && Dyn.light) ? Math.max(baseAlpha, 0.85) : baseAlpha
 

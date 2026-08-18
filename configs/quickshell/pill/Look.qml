@@ -1,8 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Quickshell.Io
-import "lib/setDeco.js" as SetDeco
 import "Singletons"
 
 /**
@@ -12,18 +10,15 @@ import "Singletons"
  * config, validates against Schema, rewrites the right field and debounces the
  * Hyprland reload (or, for the terminal row, rewrites ghostty's
  * background-opacity and pokes it with SIGUSR2) — so this surface carries no
- * write plumbing of its own beyond the two rows below.
+ * write plumbing of its own at all: no FileView, no writer, no reload timer.
  *
- * `Pill blur` and `Material` are the deliberate exception to "everything
- * writes through Store.set": both also have to add or remove the pill-blur
- * `hl.layer_rule` in decoration.lua, which is not a Schema field Store can
- * route (the live config parser rejects a runtime `layerrule` keyword, so the
- * rule has to be written into the Lua source). A bare `Store.set` on either
- * flag would persist it without touching the rule, so `setPillBlur` and
- * `setMaterial` set the flag through Store and then drive the rule through a
- * small local FileView pair, reading fresh off disk immediately before every
- * write so a Store-routed deco write moments earlier is never clobbered.
- * Task 8 removes the `pillBlur` flag and derives it from Material instead.
+ * The pill-blur toggle that used to sit above Material is gone (audit P0-2):
+ * blur behind the pill was never independent state, it was what a translucent
+ * material implies, and the two controls could be left disagreeing. Material
+ * owns it now — Store adds or removes decoration.lua's `pill-blur` layer_rule
+ * as the material changes, and `seed` asks Store to reconcile the rule with
+ * the material on every open so a hand edit of the Lua cannot leave them
+ * apart.
  *
  * Reached from the settings index; morphs back on the back chevron.
  */
@@ -62,12 +57,9 @@ SettingsSurface {
     readonly property var topGapEntry: Schema.settings.topGap
     readonly property var appGapEntry: Schema.settings.appGap
     readonly property var pillOpacityEntry: Schema.settings.pillOpacity
-    readonly property var pillBlurEntry: Schema.settings.pillBlur
     readonly property var materialEntry: Schema.settings.material
     readonly property var autoHideEntry: Schema.settings.autoHide
     readonly property var autoHideDelayEntry: Schema.settings.autoHideDelay
-
-    readonly property string pillBlurRule: 'hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })\n'
 
     /** Per-field values captured on each open; the ScrubValue undo glyphs revert to these. */
     property var base: ({})
@@ -90,14 +82,11 @@ SettingsSurface {
     function seed() {
         Store.reload();
 
-        // Re-derives the pillBlur flag from decoration.lua's actual layer_rule
-        // state, exactly as before: a crash between writing the rule and
-        // persisting the flag (or a hand edit of decoration.lua) must not leave
-        // the toggle showing a state the rule doesn't back.
-        decoFile.reload();
-        var hasRule = SetDeco.hasNamedRule(decoFile.text(), "pill-blur");
-        if (hasRule !== Store.get("pillBlur"))
-            Store.set("pillBlur", hasRule);
+        // Material is the control, the layer_rule is the state it implies, and
+        // nothing but Store writes either — but a hand edit of decoration.lua
+        // can still separate them, so the rule is put back in line on open. A
+        // no-op (and no file write, no reload) when they already agree.
+        Store.syncPillBlurRule();
 
         root.base = {
             gapsIn: Store.get("gapsIn"),
@@ -128,114 +117,6 @@ SettingsSurface {
         var h = Math.floor(v / 60);
         var m = v % 60;
         return h + ":" + (m < 10 ? "0" + m : m);
-    }
-
-    /**
-     * Flips the pill-blur flag through Store and keeps the Hyprland layer_rule
-     * in sync so the frosted-glass effect behind the pill actually turns on or
-     * off. `pillBlur` is a bare Store flags entry — Store.set alone would
-     * persist the flag without touching decoration.lua's layer_rule, so the
-     * rule toggle stays local until Task 8 derives pillBlur from Material and
-     * removes the flag.
-     */
-    function setPillBlur(on) {
-        Store.set("pillBlur", on);
-        root.applyPillBlur(on);
-    }
-
-    /**
-     * Picks the surface material and keeps the Hyprland side honest: glass and
-     * frost are translucent, so the pill wants the blur layer rule behind it,
-     * while ink is flat opaque and blurring behind it only costs GPU time.
-     */
-    function setMaterial(v) {
-        Store.set("material", v);
-        root.setPillBlur(v !== "ink");
-    }
-
-    /**
-     * Adds or removes the pill-blur layer_rule in decoration.lua and reloads
-     * Hyprland so the frosted-glass effect behind the pill turns on or off at
-     * once. Reads fresh off disk immediately before writing (`decoFile` is
-     * `blockAllReads`, so `reload()` then `text()` is a synchronous fresh read)
-     * so a Store-routed deco write moments earlier — gaps, rounding, blur,
-     * shadow, opacity — is never clobbered by a rule edit built on a stale
-     * snapshot. `decoWriter` is `blockWrites`, so `setText` lands on disk
-     * synchronously before this function returns, closing the Look→Store
-     * direction of the two-writer race on decoration.lua: Store can no longer
-     * read stale (pre-rule) text right after this call. The Store→Look
-     * direction — a Store deco write landing in the instant between this
-     * function's fresh read and its own write — is accepted-transitional
-     * until Task 8 retires this local writer pair along with the `pillBlur`
-     * flag. Store's own resync happens in `decoWriter.onSaved` below, not
-     * here, so it never fires before the write it is meant to observe.
-     */
-    function applyPillBlur(on) {
-        decoFile.reload();
-        var t = decoFile.text();
-        var res;
-        if (on) {
-            if (SetDeco.hasNamedRule(t, "pill-blur")) {
-                Store.reload();
-                return;
-            }
-            res = SetDeco.addNamedRule(t, root.pillBlurRule);
-        } else {
-            res = SetDeco.removeNamedRule(t, "pill-blur");
-        }
-        if (!res.ok) {
-            Store.reload();
-            return;
-        }
-        decoWriter.setText(res.text);
-        reloadTimer.restart();
-    }
-
-    FileView {
-        id: decoFile
-        path: Store.decoPath
-        blockLoading: true
-        blockAllReads: true
-        printErrors: false
-    }
-
-    /**
-     * `blockWrites` makes `setText` land on disk synchronously rather than
-     * asynchronously, so `applyPillBlur`'s rule edit can never be read as
-     * stale by a Store write that starts a moment later. `onSaved` only then
-     * tells Store to resync its own cached text — doing that right after
-     * `setText` instead (as an earlier draft did) would deterministically
-     * cache the pre-write text, since a plain `setText` save is async.
-     */
-    FileView {
-        id: decoWriter
-        path: Store.decoPath
-        atomicWrites: true
-        blockWrites: true
-        printErrors: false
-        onSaved: Store.reload()
-    }
-
-    /**
-     * Reload is debounced so a fast pill-blur/material double-tap writes the
-     * file per step but reloads Hyprland once. A failed reload is surfaced
-     * through the same `Store.writeFailed` note strip every other row's write
-     * uses, rather than a local note only this rule's toggle would show.
-     */
-    Timer {
-        id: reloadTimer
-        interval: 250
-        repeat: false
-        onTriggered: reloadProc.running = true
-    }
-
-    Process {
-        id: reloadProc
-        command: ["sh", "-c", "sleep 0.3; hyprctl reload"]
-        onExited: function (exitCode) {
-            if (exitCode !== 0)
-                Store.writeFailed("material", "Hyprland reload failed. The change is saved but not applied.");
-        }
     }
 
     Column {
@@ -716,26 +597,17 @@ SettingsSurface {
                 }
             }
 
-            SettingsRow {
-                id: pillBlurRow
-                surface: root
-                settingId: "pillBlur"
-                navSet: (v) => root.setPillBlur(v)
-                name: root.pillBlurEntry.label
-                sub: root.pillBlurEntry.caption
-                captionOnFocus: true
-                LinkToggle {
-                    s: root.s
-                    on: Store.get("pillBlur")
-                    onToggled: root.setPillBlur(!Store.get("pillBlur"))
-                }
-            }
-
+            /**
+             * A plain `Store.set` like every other row: Store writes the flag
+             * and, because the material is also the pill's blur, adds or removes
+             * decoration.lua's `pill-blur` layer_rule in the same call. Glass
+             * and frost are translucent and want the frosted glass behind them;
+             * ink is flat opaque, where blurring only costs GPU time.
+             */
             SettingsRow {
                 id: materialRow
                 surface: root
                 settingId: "material"
-                navSet: (v) => root.setMaterial(v)
                 name: root.materialEntry.label
                 sub: root.materialEntry.caption
                 captionOnFocus: true
@@ -743,7 +615,7 @@ SettingsSurface {
                     s: root.s
                     options: root.materialEntry.options
                     value: Store.get("material")
-                    onPicked: v => root.setMaterial(v)
+                    onPicked: v => Store.set("material", v)
                 }
             }
 

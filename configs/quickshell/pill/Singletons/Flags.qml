@@ -31,7 +31,16 @@ Singleton {
     property alias manualSat: adapter.manualSat
     property alias uiFont: adapter.uiFont
     property alias pillOpacity: adapter.pillOpacity
-    property alias pillBlur: adapter.pillBlur
+    /**
+     * There is deliberately no `pillBlur` here. The pill's blur follows its
+     * material, its truth is decoration.lua's `pill-blur` layer_rule (which
+     * Store adds and removes as the material changes), and the derived value
+     * lives once as `Theme.pillBlur`. The old JSON key was a second,
+     * independently-settable copy of that state (audit P0-4). It is NOT
+     * declared on the adapter anymore: a stale `pillBlur` still sitting in an
+     * existing flags.json loads without error, is ignored, and is dropped from
+     * the file on the next write — no migration step needed.
+     */
     property alias autoHide: adapter.autoHide
     property alias autoHideDelay: adapter.autoHideDelay
     property alias topGap: adapter.topGap
@@ -65,6 +74,7 @@ Singleton {
     property alias gamePrevAwake: adapter.gamePrevAwake
     property alias gamePrevProfile: adapter.gamePrevProfile
     property alias nightLightMode: adapter.nightLightMode
+    property alias nightPrevMode: adapter.nightPrevMode
     property alias nightLightTemp: adapter.nightLightTemp
     property alias nightLightOnMin: adapter.nightLightOnMin
     property alias nightLightOffMin: adapter.nightLightOffMin
@@ -105,7 +115,6 @@ Singleton {
             property real manualSat: 0.5
             property string uiFont: ""
             property real pillOpacity: 1.0
-            property bool pillBlur: false
             /** macOS menubar behaviour: the pill retracts off the top edge at rest and releases its reserved band, and a thin hover strip at the screen edge slides it back. */
             property bool autoHide: false
             /** Auto-hide pacing: "off" instant, else short/medium/long scale the reveal dwell and hide linger together. */
@@ -133,6 +142,8 @@ Singleton {
             property bool gamePrevAwake: false
             property string gamePrevProfile: ""
             property string nightLightMode: "off"
+            /** The mode the night-light quick toggle restores when it is switched back on, remembered the moment it switches off — the `gamePrev*` pattern, so flipping the chip off and on again does not silently demote "scheduled" to "on". */
+            property string nightPrevMode: "on"
             property int nightLightTemp: 4000
             property int nightLightOnMin: 1260
             property int nightLightOffMin: 450

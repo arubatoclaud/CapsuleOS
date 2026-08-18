@@ -332,12 +332,20 @@ PillSurface {
                 tipDesc: "Block sleep & screen-off"
                 onToggled: Flags.keepAwake = !Flags.keepAwake
             }
+            /**
+             * A bool over a three-mode setting, so it goes through Store rather
+             * than straight to NightLight: Store remembers the mode this chip
+             * switches away from and restores it on the way back, instead of
+             * always answering "on" and quietly demoting a scheduled night
+             * light the user set in Look (audit P0-2). The read stays a plain
+             * "not off" — the chip is lit for warm-now and for scheduled alike.
+             */
             IconChip {
                 glyph: "sun"
-                on: Flags.nightLightMode !== "off"
-                tipTitle: "Night light"
-                tipDesc: "Warm the screen"
-                onToggled: NightLight.setMode(Flags.nightLightMode === "off" ? "on" : "off")
+                on: Store.get("nightLightQuick")
+                tipTitle: Schema.settings.nightLightQuick.label
+                tipDesc: Schema.settings.nightLightQuick.caption
+                onToggled: Store.set("nightLightQuick", !Store.get("nightLightQuick"))
             }
             IconChip {
                 glyph: "gamepad"

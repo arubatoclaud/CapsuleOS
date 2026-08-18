@@ -17,6 +17,15 @@ Column {
     property real s: 1
     property string title: ""
     property bool open: false
+    /**
+     * Horizontal inset for the HEADER only — the label and the chevron. Pages
+     * differ in where their padding lives: Look and Input inset a whole column
+     * of rows, so their groups sit at 0, while Animation's rows are full width
+     * and carry their own padding, so its group header has to be pushed in to
+     * line up with the standalone labels above it. The body is never inset, so
+     * a group's rows always align with the page's ungrouped ones.
+     */
+    property real hPad: 0
     default property alias rows: body.data
 
     width: parent ? parent.width : 0
@@ -26,10 +35,11 @@ Column {
         width: parent.width
         height: gl.implicitHeight
 
-        SettingsGroupLabel { id: gl; s: grp.s; text: grp.title }
+        SettingsGroupLabel { id: gl; s: grp.s; leftPadding: grp.hPad; text: grp.title }
 
         GlyphIcon {
             anchors.right: parent.right
+            anchors.rightMargin: grp.hPad
             anchors.verticalCenter: gl.verticalCenter
             width: 15 * grp.s
             height: 15 * grp.s

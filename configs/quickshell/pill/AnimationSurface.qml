@@ -5,22 +5,33 @@ import QtQuick.Shapes
 import "Singletons"
 
 /**
- * ANIMATION sub-surface: toggles Hyprland animations, sets one master speed
- * across every leaf, and shapes the main motion curve by dragging its two bezier
- * control points. Every value reads and writes through Store, which owns
- * animations.lua, validates against Schema, rewrites the right field and
- * debounces the hyprctl reload — so this surface carries no write plumbing of
- * its own beyond the curve/speed formatting Store's `anim` backend expects. The
- * bezier control points stay local properties rather than a live Store binding,
- * since a drag has to diverge from disk until release; they are (re)seeded from
- * Store on every open. The speed scrub and the curve carry a revert baseline
- * snapshotted on that seed, restored by an undo glyph; it survives leaving and
- * reopening the tab so a curve change stays revertable while you go watch it
- * play. The editor's handle positions are the source of truth — the curve point
- * properties derive from them — so dragging a handle never fights a binding.
+ * ANIMATION sub-surface: toggles Hyprland animations and picks the motion
+ * Feel, with the exact curve and the ready-made presets folded away underneath.
+ * Every value reads and writes through Store, which owns animations.lua,
+ * validates against Schema, rewrites the right field and debounces the hyprctl
+ * reload — so this surface carries no write plumbing of its own beyond the
+ * curve/speed formatting Store's `anim` backend expects.
+ *
+ * Feel is the primary control (R3, audit P0-2): one pick sets the curve AND the
+ * speed, which is the whole of the page's motion character. The bezier editor
+ * and the Preset strip used to sit open beside it as a second, finer control
+ * over the same curve, so the page offered two answers to one question and the
+ * undo glyph could mean either. They now live in a collapsed `Curve` group —
+ * present for anyone who wants the exact numbers, out of the way of the choice
+ * that actually matters — and picking a Feel RESETS the revert baseline, so the
+ * undo glyph has exactly one meaning: "back to the curve this Feel stamped".
+ *
+ * The bezier control points stay local properties rather than a live Store
+ * binding, since a drag has to diverge from disk until release; they are
+ * (re)seeded from Store on every open. The speed scrub and the curve share the
+ * revert baseline snapshotted on that seed, restored by an undo glyph; it
+ * survives leaving and reopening the tab so a curve change stays revertable
+ * while you go watch it play. The editor's handle positions are the source of
+ * truth — the curve point properties derive from them — so dragging a handle
+ * never fights a binding.
  * Reached from the settings index; morphs back on the back chevron.
  *
- * The Motion character (`applyMotion`) is a deliberate exception to "everything
+ * The Feel character (`applyMotion`) is a deliberate exception to "everything
  * writes through Store.set": picking calm/spring/glide is Flags-backed but also
  * has to rewrite the pillMorph curve and retime every leaf, so a bare
  * `Store.set("motion", v)` would persist the flag and leave Hyprland on the old
@@ -141,12 +152,18 @@ SettingsSurface {
      * The curve points mirror Motion.morphCurve and the speed is the matching
      * Hyprland duration: calm lands, spring overshoots, glide stretches. Writes
      * through the surface's own curve and speed plumbing (Store's `anim`
-     * backend), so the handles and the scrub follow what landed on disk. The
-     * revert baseline is deliberately left alone, exactly as the Preset row
-     * leaves it: a character pick arms the undo glyph, so one click takes you
-     * back to the curve the tab opened on. `Flags.motion` is set directly
-     * rather than through `Store.set` — see the header note on why the flag
-     * alone is not enough here.
+     * backend), so the handles and the scrub follow what landed on disk.
+     *
+     * The revert baseline is RESET to what the pick just stamped, which is the
+     * difference between Feel being the primary control and Feel being one more
+     * way to move the curve (audit P0-2). Feel is a deliberate whole-character
+     * choice, not a nudge: leaving the baseline behind, as this used to and as
+     * the Preset row still does, armed the undo glyph the instant you picked a
+     * character and offered to take you back to a curve you had already
+     * replaced on purpose. Now the glyph appears only once you have drifted
+     * away from the Feel you chose, and means one thing when it does.
+     * `Flags.motion` is set directly rather than through `Store.set` — see the
+     * header note on why the flag alone is not enough here.
      */
     function applyMotion(v) {
         Flags.motion = v;
@@ -158,6 +175,7 @@ SettingsSurface {
         root.writeCurve();
         root.speed = p.speed;
         root.writeSpeed(root.speed);
+        root.base = { speed: root.speed, cx1: root.cx1, cy1: root.cy1, cx2: root.cx2, cy2: root.cy2 };
     }
 
     Column {
@@ -201,8 +219,8 @@ SettingsSurface {
             surface: root
             settingId: "motion"
             navSet: (v) => root.applyMotion(v)
-            name: "Motion"
-            sub: "Calm settles, spring overshoots, glide stretches"
+            name: "Feel"
+            sub: "Sets curve and speed together — calm settles, spring overshoots, glide stretches"
             captionOnFocus: true
             icon: "waves"
             visible: root.animOn
@@ -237,12 +255,20 @@ SettingsSurface {
             }
         }
 
-        SettingsGroupLabel {
+        /**
+         * The exact curve, folded away. Everything in here edits what the Feel
+         * row above already set, so it opens shut: the page reads as one motion
+         * choice with the numbers available underneath, instead of two controls
+         * over the same curve competing for the eye (audit P0-2). Collapsing it
+         * also drops its rows out of keyboard navigation on its own — see
+         * SettingsGroup.
+         */
+        SettingsGroup {
+            id: curveGrp
             s: root.s
-            leftPadding: 12 * root.s
-            text: "Curve"
+            hPad: 12 * root.s
+            title: "Curve"
             visible: root.animOn
-        }
 
         /**
          * Bezier editor. The square maps unit curve-space (0,0 bottom-left to
@@ -454,6 +480,8 @@ SettingsSurface {
                     }
                 }
             }
+        }
+
         }
 
         Item { width: 1; height: 10 * root.s }

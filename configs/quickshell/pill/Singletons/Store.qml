@@ -59,37 +59,38 @@ import "../lib/setAnim.js" as SetAnim
  * the fresher of the two. `reload()` refreshes everything under the same rule,
  * for a page that wants to resync on open.
  *
- * Transitional note: Input and AnimationSurface (Task 3) own no FileViews of
- * their own anymore — Store is their only writer on input.lua/animations.lua.
- * Look (Task 4) is fully migrated for its Schema-routed rows, but still owns
- * a *second* writer pair on decoration.lua (`decoFile`/`decoWriter` in
- * Look.qml) purely for the `pillBlur`/`material` layer_rule side effect below,
- * since a layer_rule is not a Schema field Store can route — decoration.lua
- * genuinely has two writers until Task 8 retires Look's pair. Look's writer
- * is `blockWrites`, so its write always lands before Store's own
- * fresh-read-before-write (`_sync("deco")`, which re-reads the file, not a
- * cache) can observe it — the Look→Store direction of the race is closed.
- * The reverse direction — a Store deco write landing in the instant between
- * Look's fresh read and its own write — is accepted-transitional.
+ * Store is the ONE writer on every file it owns. Every page it serves — Input,
+ * AnimationSurface, Look, IdleLock, Appearance — owns no FileView of its own;
+ * the last exception, Look's local `decoFile`/`decoWriter` pair for the
+ * pill-blur layer_rule, was retired in Task 8 when that rule became Store's
+ * (`syncPillBlurRule`/`_setPillBlurRule` below). Nothing else writes
+ * decoration.lua, input.lua, animations.lua, env.lua, autostart.lua or the
+ * ghostty config, so the fresh-read-before-write above is now guarding only
+ * against hand edits and other tools, not against a sibling of ours.
  *
- * Side-effecting flags — DO NOT route the SIDE EFFECT through `Store.set`.
- * Below, "the flag" being Store-routed or not is called out per entry; what
- * never goes through Store is the accompanying rewrite that touches
- * something no Schema field represents:
+ * Two writes are more than a Schema field, and Store owns both halves:
  *
- *   `pillBlur`, `material` — the flag itself IS Store-routed (Look.qml's
- *       `setPillBlur`/`setMaterial` call `Store.set`, migrated Task 4), but
- *       both also have to add or remove the pill-blur `hl.layer_rule` in
- *       decoration.lua, which stays on Look's own writer pair (see above).
- *       Task 8 deletes `pillBlur`, derives it from `material`, and retires
- *       both the extra writer and this whole entry.
- *   `motion` — still a bare `Flags.motion = v` in AnimationSurface's
- *       `applyMotion`, bypassing Store entirely (not merely unrouted-through
- *       Store for one part of it, unlike `pillBlur`/`material` above),
- *       because it also rewrites the pillMorph bezier and retimes every
- *       animation leaf, which is what actually carries the character down to
- *       Hyprland; the flag alone would leave the compositor on the old
- *       curve. Task 8 makes Feel the primary control.
+ *   `material` — the flag is a plain `flags` write, but the material also
+ *       decides whether decoration.lua carries the `pill-blur` `hl.layer_rule`
+ *       (`Theme.blursBehind`, i.e. anything but ink). A layer_rule is not a
+ *       Schema field — the live config parser rejects a runtime `layerrule` keyword,
+ *       so the rule has to be written into the Lua source — so `set` adds or
+ *       removes it inline after the flag lands. That is the whole of audit
+ *       P0-4: there is no separate `pillBlur` flag to disagree with the rule
+ *       anymore, and the rule has exactly one writer.
+ *   `nightLightQuick` — the mixer chip. Switching it off remembers the mode it
+ *       was in (`Flags.nightPrevMode`) before setting "off"; switching it on
+ *       restores that mode rather than always picking "on", so a scheduled
+ *       night light survives a tap on the chip. See `_setNight`.
+ *
+ * Side-effecting flags — DO NOT route the SIDE EFFECT through `Store.set`:
+ *
+ *   `motion` — a bare `Flags.motion = v` in AnimationSurface's `applyMotion`,
+ *       bypassing Store entirely, because it also rewrites the pillMorph bezier
+ *       and retimes every animation leaf, which is what actually carries the
+ *       character down to Hyprland; the flag alone would leave the compositor
+ *       on the old curve. Both of those halves are `Store.set` calls, so the
+ *       files still have one writer; only the flag itself sidesteps validation.
  *   `paletteMode`, `manualHue`, `manualSat`, `manualDark` — Appearance's
  *       `applyMode`/`applyManual` also run the wallcolors.py process that
  *       regenerates the whole rice colour set and reloads Hyprland and ghostty;
@@ -111,6 +112,13 @@ Singleton {
     readonly property string ghosttyPath: Quickshell.env("HOME") + "/.config/ghostty/config"
     readonly property string hypridlePath: Quickshell.env("HOME") + "/.config/hypr/hypridle.conf"
     readonly property string lockScript: Quickshell.env("HOME") + "/.config/hypr/scripts/lock.sh"
+
+    /**
+     * The pill-blur layer rule, verbatim as it sits in decoration.lua. Blur
+     * behind a shell layer cannot be set as a config field, only as a rule, so
+     * the material's blur half is this line's presence or absence.
+     */
+    readonly property string pillBlurRule: 'hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })\n'
 
     property string _decoText: ""
     property string _inputText: ""
@@ -352,6 +360,10 @@ Singleton {
         switch (e.backend) {
         case "flags":
             Flags[e.key] = v;
+            // The material is also the pill-blur layer_rule's only control, and
+            // the rule is not a Schema field anything could route on its own.
+            if (id === "material")
+                root._setPillBlurRule(Theme.blursBehind(v));
             break;
         case "idle":
             Flags[e.key] = v;
@@ -427,13 +439,30 @@ Singleton {
 
     /**
      * Night light goes through NightLight's own setters so the debounced conf
-     * write and the live hyprsunset push stay in one place. The quick chip is a
-     * bool over the same mode key: on picks "on", off picks "off", which is the
-     * mixer's behaviour today, kept identical here until Task 8 respecifies it.
+     * write and the live hyprsunset push stay in one place.
+     *
+     * The quick chip is a bool over the same mode key, and a bool cannot express
+     * three modes: it used to write "on" whichever mode it interrupted, so
+     * flipping a scheduled night light off and straight back on silently
+     * demoted it to always-warm and the Look page's seg had moved under the
+     * user (audit P0-2's night-light half). It now remembers instead — off
+     * stores the mode it is leaving in `Flags.nightPrevMode`, on restores it —
+     * the same shape as the `gamePrev*` keys game mode restores from. The
+     * memory is only ever a mode the chip itself switched away from, so a mode
+     * picked in Look and then turned off there is not resurrected by the chip;
+     * "on" is the fallback, which is exactly the old behaviour for a user who
+     * never used scheduled.
      */
     function _setNight(id, e, v) {
         if (id === "nightLightQuick") {
-            NightLight.setMode(v ? "on" : "off");
+            if (v) {
+                var prev = Flags.nightPrevMode;
+                NightLight.setMode(prev === "on" || prev === "scheduled" ? prev : "on");
+            } else {
+                if (Flags.nightLightMode !== "off")
+                    Flags.nightPrevMode = Flags.nightLightMode;
+                NightLight.setMode("off");
+            }
             return true;
         }
         if (e.key === "nightLightMode")
@@ -480,6 +509,50 @@ Singleton {
             opacityRefresh.running = true;
         }
         return true;
+    }
+
+    /**
+     * The pill-blur `hl.layer_rule` in decoration.lua, added or removed so it
+     * matches `on`. Returns true when the file actually changed: `addNamedRule`
+     * and `removeNamedRule` both report `ok: false` when the text already reads
+     * the way it was asked to, which is what keeps a no-op call (the common case
+     * on every Look open) from writing the file and reloading Hyprland for
+     * nothing. Reads fresh off disk first like every other deco write, and rides
+     * the same debounced reload, so a fast material double-tap writes per step
+     * and reloads once.
+     *
+     * Empty text means the read failed, not that decoration.lua is empty, and
+     * `addNamedRule` appends to whatever it is given — it would happily write a
+     * file containing nothing but this rule. The field writers fail closed on
+     * their own (a field they cannot find is a refusal), so this is the one deco
+     * write that has to check.
+     */
+    function _setPillBlurRule(on) {
+        root._sync("deco");
+        if (root._decoText.length === 0)
+            return false;
+        var res = on
+            ? SetDeco.addNamedRule(root._decoText, root.pillBlurRule)
+            : SetDeco.removeNamedRule(root._decoText, "pill-blur");
+        if (!res.ok)
+            return false;
+        root._decoText = res.text;
+        root._decoPending += 1;
+        decoWriter.setText(res.text);
+        root._reloadId = "material";
+        reloadTimer.restart();
+        return true;
+    }
+
+    /**
+     * Brings the layer_rule back in line with the current material. The material
+     * is the control and the rule is the state it implies, so anything that can
+     * separate them — a hand edit of decoration.lua, a crash between the flag
+     * write and the rule write — is corrected the next time a surface that shows
+     * the material opens. A no-op when they already agree.
+     */
+    function syncPillBlurRule() {
+        return root._setPillBlurRule(Theme.pillBlur);
     }
 
     /**
