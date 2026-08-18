@@ -484,8 +484,8 @@ SettingsSurface {
              */
             SettingsRow {
                 surface: root
-                name: "Preset"
-                sub: "Drop in a ready-made curve"
+                name: Schema.settings.animPreset.label
+                sub: Schema.settings.animPreset.caption
                 captionOnFocus: true
                 icon: "waves"
                 last: true
