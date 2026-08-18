@@ -46,7 +46,15 @@ import Quickshell
 Singleton {
     id: root
 
-    /** The settings index, in the order the rows appear today. */
+    /**
+     * The settings index, in the audit's order. This array IS the index:
+     * `Settings.qml` is a Repeater over it, so adding a category is an entry
+     * here plus its surface, never another hand-copied row block.
+     *
+     * `id` is also the surface id the settings stack routes on, which is why
+     * the wallpaper page is `wallpaperSettings` rather than `wallpaper` — the
+     * latter is already the wallpaper BROWSER surface (and its ipc door).
+     */
     readonly property var pages: [
         { id: "appearance", title: "Appearance", caption: "Clock, accent palette, scale", icon: "sparkles" },
         { id: "look", title: "Windows", caption: "Gaps, corners, borders, blur, shadow, layout", icon: "app-window" },
@@ -55,16 +63,25 @@ Singleton {
         { id: "animation", title: "Motion", caption: "Animation speed and feel", icon: "waves" },
         { id: "keybinds", title: "Keybinds", caption: "Rebind, add, set commands", icon: "keyboard" },
         { id: "workspaces", title: "Workspaces", caption: "Special spaces and their keys", icon: "layers" },
-        { id: "idlelock", title: "Idle / Lock", caption: "Auto-lock, screen off, suspend", icon: "lock" }
+        { id: "recording", title: "Recording", caption: "Frame rate, quality, audio, save folder", icon: "video" },
+        { id: "wallpaperSettings", title: "Wallpaper", caption: "Source folder, random target", icon: "image" },
+        { id: "session", title: "Session", caption: "Focus, idle, lock, suspend", icon: "lock" }
     ]
 
     /**
      * Page ids that hold settings but are NOT settings pages: surfaces
      * elsewhere in the shell that own a setting today. They are legal `page`
      * values and deliberately absent from `pages`, which drives the index.
-     * The homes for these are decided when the new pages land.
+     *
+     * Only the mixer is left. Recording and Wallpaper became index pages of
+     * their own here, and the calendar's weather town moved into
+     * Appearance › Widgets — every one of those surfaces keeps its control, but
+     * as a POINTER at the page that now owns the setting, the way the mixer's
+     * chips have always worked. What remains on `mixer` is the pair that is
+     * genuinely the mixer's: `nightLightQuick`, the bool alias of Display's
+     * three-mode night light, and `vibrance`, a fader Devices persists itself.
      */
-    readonly property var outsidePages: ["mixer", "recorder", "wallpaper", "calendar"]
+    readonly property var outsidePages: ["mixer"]
 
     /**
      * Named groups per page, in the order they appear on screen. A page absent
@@ -73,11 +90,12 @@ Singleton {
      */
     readonly property var groupOrder: ({
         look: ["window", "layout", "shadow", "blur", "opacity"],
-        display: ["night"],
+        display: ["night", "advanced"],
         input: ["pointer", "keyboard", "cursor"],
         animation: ["motion", "curve"],
-        appearance: ["chrome", "theme"],
-        recorder: ["options", "audio"]
+        appearance: ["chrome", "theme", "widgets"],
+        recording: ["options", "audio"],
+        session: ["focus", "idle"]
     })
 
     readonly property var settings: ({
@@ -123,20 +141,14 @@ Singleton {
             control: "custom", type: "real", backend: "flags", key: "manualSat", def: 0.5,
             from: 0, to: 1, step: 0.01, unit: ""
         },
-        randomScope: {
-            page: "appearance", group: "", order: 7,
-            label: "Random wallpaper", caption: "",
-            control: "seg", type: "string", backend: "flags", key: "randomScope", def: "all",
-            options: [{ label: "All screens", value: "all" }, { label: "Cursor screen", value: "cursor" }]
-        },
         uiScale: {
-            page: "appearance", group: "", order: 8,
+            page: "appearance", group: "", order: 7,
             label: "UI scale", caption: "",
             control: "seg", type: "real", backend: "flags", key: "uiScale", def: 1.0,
             options: [{ label: "90%", value: 0.9 }, { label: "100%", value: 1.0 }, { label: "110%", value: 1.1 }, { label: "125%", value: 1.25 }]
         },
         uiFont: {
-            page: "appearance", group: "", order: 9,
+            page: "appearance", group: "", order: 8,
             label: "Font", caption: "",
             control: "nav", type: "string", backend: "flags", key: "uiFont", def: ""
         },
@@ -188,6 +200,21 @@ Singleton {
             label: "Material", caption: "Glass and frost blur what's behind the pill; ink is flat opaque",
             control: "seg", type: "string", backend: "flags", key: "material", def: "frost",
             options: [{ label: "Glass", value: "glass" }, { label: "Frost", value: "frost" }, { label: "Ink", value: "ink" }]
+        },
+
+        // ── Appearance · Widgets ─────────────────────────────────────────
+        /**
+         * The calendar's weather town, given a home in the settings tree. The
+         * calendar keeps its inline editor — the town is most naturally changed
+         * while looking at the forecast — but both editors are now spelled the
+         * same way, `flags.weatherCity` through Store, so neither can hold a
+         * value the other disagrees with. `custom` because a free-text town is
+         * not a seg, a toggle or a scrub; SettingsTextEdit draws it.
+         */
+        weatherCity: {
+            page: "appearance", group: "widgets", order: 0,
+            label: "Weather town", caption: "Empty falls back to IP geolocation",
+            control: "custom", type: "string", backend: "flags", key: "weatherCity", def: ""
         },
 
         // ── Look · Window ─────────────────────────────────────────────────
@@ -316,10 +343,18 @@ Singleton {
             label: "Scale", caption: "Logical scale of the selected monitor",
             control: "custom", type: "string", backend: "app", key: "", def: ""
         },
+        /**
+         * Out of the monitor card and into Display's collapsed `Advanced` group
+         * (audit P1-10): it is the one control on the card that reorganizes the
+         * whole desktop, and it sat one careless tap away from Resolution. It is
+         * also the one that Apply could not undo — a mode change has a 12-second
+         * revert watchdog behind it, a main swap has nothing — so it is now
+         * folded away by default and asks twice before it moves anything.
+         */
         displayMain: {
-            page: "display", group: "", order: 3,
+            page: "display", group: "advanced", order: 0,
             label: "Set as main", caption: "Move workspace 1 to this monitor",
-            control: "custom", type: "string", backend: "app", key: "", def: ""
+            control: "custom", type: "string", backend: "app", key: "", def: "", danger: true
         },
 
         // ── Display · Night light ──────────────────────────────────────────
@@ -459,40 +494,60 @@ Singleton {
             control: "custom", type: "string", backend: "app", key: "", def: ""
         },
 
-        // ── Idle / Lock ───────────────────────────────────────────────────
+        // ── Session · Focus ───────────────────────────────────────────────
+        /**
+         * The three focus flags the mixer's chips flip. The chips stay exactly
+         * where they are — a Control-Center pointer at a setting, reachable
+         * without walking the settings tree — but the setting itself is named,
+         * captioned and owned HERE, which is what the index and its search read.
+         */
+        dnd: {
+            page: "session", group: "focus", order: 0,
+            label: "Do not disturb", caption: "Silence notifications",
+            control: "toggle", type: "bool", backend: "flags", key: "dnd", def: false
+        },
+        keepAwake: {
+            page: "session", group: "focus", order: 1,
+            label: "Keep awake", caption: "Block sleep & screen-off",
+            control: "toggle", type: "bool", backend: "flags", key: "keepAwake", def: false
+        },
+        gameMode: {
+            page: "session", group: "focus", order: 2,
+            label: "Game mode", caption: "Strip effects, quiet the desktop",
+            control: "toggle", type: "bool", backend: "flags", key: "gameMode", def: false
+        },
+
+        // ── Session · Idle ────────────────────────────────────────────────
         idleLockMin: {
-            page: "idlelock", group: "", order: 0,
+            page: "session", group: "idle", order: 0,
             label: "Auto-lock", caption: "Lock the screen after idle",
             control: "seg", type: "int", backend: "idle", key: "idleLockMin", def: 5,
             options: [{ label: "Off", value: 0 }, { label: "1 min", value: 1 }, { label: "3 min", value: 3 },
                 { label: "5 min", value: 5 }, { label: "10 min", value: 10 }, { label: "15 min", value: 15 }]
         },
         idleScreenOffMin: {
-            page: "idlelock", group: "", order: 1,
+            page: "session", group: "idle", order: 1,
             label: "Screen off", caption: "Blank the display after idle",
             control: "seg", type: "int", backend: "idle", key: "idleScreenOffMin", def: 10,
             options: [{ label: "Off", value: 0 }, { label: "3 min", value: 3 }, { label: "5 min", value: 5 },
                 { label: "10 min", value: 10 }, { label: "15 min", value: 15 }]
         },
+        /**
+         * Deliberately NOT in the Idle group: locking and blanking are undone by
+         * moving the mouse, suspending is not, so it sits below the fold on its
+         * own with danger styling and a two-step confirm. `danger: true` is what
+         * the page keys that treatment off.
+         */
         idleSuspendMin: {
-            page: "idlelock", group: "", order: 2,
+            page: "session", group: "", order: 0,
             label: "Suspend", caption: "Sleep the machine after idle",
             control: "seg", type: "int", backend: "idle", key: "idleSuspendMin", def: 0,
             options: [{ label: "Off", value: 0 }, { label: "15 min", value: 15 },
-                { label: "30 min", value: 30 }, { label: "60 min", value: 60 }]
+                { label: "30 min", value: 30 }, { label: "60 min", value: 60 }],
+            danger: true
         },
 
         // ── Mixer quick toggles (outside the settings section) ────────────
-        dnd: {
-            page: "mixer", group: "", order: 0,
-            label: "Do not disturb", caption: "Silence notifications",
-            control: "toggle", type: "bool", backend: "flags", key: "dnd", def: false
-        },
-        keepAwake: {
-            page: "mixer", group: "", order: 1,
-            label: "Keep awake", caption: "Block sleep & screen-off",
-            control: "toggle", type: "bool", backend: "flags", key: "keepAwake", def: false
-        },
         /**
          * The one deliberate alias in the table: this chip drives the same
          * stored key as `nightLightMode` (Look → Night light) but as a bool.
@@ -509,16 +564,11 @@ Singleton {
          * offer it as a control.
          */
         nightLightQuick: {
-            page: "mixer", group: "", order: 2,
+            page: "mixer", group: "", order: 0,
             /** Kept short: this caption is the chip's tooltip line, which does not wrap. */
             label: "Night light", caption: "Warm the screen",
             control: "toggle", type: "bool", backend: "night", key: "nightLightMode", def: false,
             aliasOf: "nightLightMode"
-        },
-        gameMode: {
-            page: "mixer", group: "", order: 3,
-            label: "Game mode", caption: "Strip effects, quiet the desktop",
-            control: "toggle", type: "bool", backend: "flags", key: "gameMode", def: false
         },
         /**
          * Screen vibrance: a mixer fader, not a flags key. Devices owns it and
@@ -527,66 +577,85 @@ Singleton {
          * than to any of the file backends the pinned enum names.
          */
         vibrance: {
-            page: "mixer", group: "", order: 4,
+            page: "mixer", group: "", order: 1,
             label: "Vibrance", caption: "Screen colour saturation",
             control: "custom", type: "int", backend: "app", key: "vibrance", def: 40,
             from: 0, to: 100, step: 1, unit: "%"
         },
 
-        // ── Recorder drawer + audio + save location ───────────────────────
+        // ── Recording ─────────────────────────────────────────────────────
+        /**
+         * The recorder's own drawer keeps every one of these rows — you set the
+         * frame rate where you press record — but it is a POINTER now, reading
+         * these labels and options and writing through Store, so the settings
+         * page and the drawer cannot describe the same setting differently.
+         *
+         * `recordFps`/`recordQuality`/`recordCursor`/`recordMic`/`recordDesktop`
+         * are `rec` (ScreenRec wrapper properties, which mirror into Flags);
+         * `recordCountdown` and `recordDir` are the two ScreenRec does not
+         * write, so they are `flags`. ScreenRec exposes the countdown READ as
+         * `preroll` so nothing outside that singleton reaches into Flags for it
+         * (audit P2-12) — the write still lands through this `flags` entry.
+         */
+        /** ScreenRec.outDir is readonly and derives from this; the folder picker writes Flags. */
+        recordDir: {
+            page: "recording", group: "", order: 0,
+            label: "Save to", caption: "Empty falls back to ~/Videos/Recordings",
+            control: "custom", type: "string", backend: "flags", key: "recordDir", def: ""
+        },
         recordFps: {
-            page: "recorder", group: "options", order: 0,
-            label: "Frame rate", caption: "",
+            page: "recording", group: "options", order: 0,
+            label: "Frame rate", caption: "Frames captured per second",
             control: "seg", type: "int", backend: "rec", key: "fps", def: 60,
             options: [{ label: "30", value: 30 }, { label: "60", value: 60 }, { label: "120", value: 120 }, { label: "144", value: 144 }]
         },
         recordQuality: {
-            page: "recorder", group: "options", order: 1,
-            label: "Quality", caption: "",
+            page: "recording", group: "options", order: 1,
+            label: "Quality", caption: "Higher costs bitrate and disk",
             control: "seg", type: "string", backend: "rec", key: "quality", def: "high",
             options: [{ label: "Med", value: "medium" }, { label: "High", value: "high" },
                 { label: "Ultra", value: "ultra" }, { label: "Lossless", value: "lossless" }]
         },
         recordCursor: {
-            page: "recorder", group: "options", order: 2,
-            label: "Capture cursor", caption: "",
+            page: "recording", group: "options", order: 2,
+            label: "Capture cursor", caption: "Draw the pointer into the video",
             control: "toggle", type: "bool", backend: "rec", key: "captureCursor", def: true
         },
         recordCountdown: {
-            page: "recorder", group: "options", order: 3,
-            label: "Countdown", caption: "",
+            page: "recording", group: "options", order: 3,
+            label: "Countdown", caption: "Pre-roll before recording starts",
             control: "seg", type: "int", backend: "flags", key: "recordCountdown", def: 5,
             options: [{ label: "Off", value: 0 }, { label: "3s", value: 3 }, { label: "5s", value: 5 }, { label: "10s", value: 10 }]
         },
         recordMic: {
-            page: "recorder", group: "audio", order: 0,
-            label: "Microphone", caption: "",
+            page: "recording", group: "audio", order: 0,
+            label: "Microphone", caption: "Record the input device",
             control: "toggle", type: "bool", backend: "rec", key: "micOn", def: true
         },
         recordDesktop: {
-            page: "recorder", group: "audio", order: 1,
-            label: "Desktop", caption: "",
+            page: "recording", group: "audio", order: 1,
+            label: "Desktop", caption: "Record what the speakers play",
             control: "toggle", type: "bool", backend: "rec", key: "desktopOn", def: true
         },
-        /** ScreenRec.outDir is readonly and derives from this; the folder picker writes Flags. */
-        recordDir: {
-            page: "recorder", group: "", order: 0,
-            label: "Save to", caption: "Empty falls back to ~/Videos/Recordings",
-            control: "custom", type: "string", backend: "flags", key: "recordDir", def: ""
-        },
 
-        // ── Wallpaper folder ──────────────────────────────────────────────
+        // ── Wallpaper ─────────────────────────────────────────────────────
+        /**
+         * The wallpaper browser keeps the folder edit in its header — that is
+         * where you are standing when the folder turns out to be wrong — and
+         * this is the same key from the settings side. `randomScope` moved here
+         * from Appearance with it: it is the Super+B random target, which is a
+         * wallpaper decision, not a look-of-the-shell one.
+         */
         wallpaperDir: {
-            page: "wallpaper", group: "", order: 0,
+            page: "wallpaperSettings", group: "", order: 0,
             label: "Wallpaper folder", caption: "Empty autodetects the last resolved folder",
             control: "custom", type: "string", backend: "flags", key: "wallpaperDir", def: ""
         },
-
-        // ── Calendar weather town ─────────────────────────────────────────
-        weatherCity: {
-            page: "calendar", group: "", order: 0,
-            label: "Weather town", caption: "Empty falls back to IP geolocation",
-            control: "custom", type: "string", backend: "flags", key: "weatherCity", def: ""
+        randomScope: {
+            page: "wallpaperSettings", group: "", order: 1,
+            label: "Random wallpaper", caption: "Which screens Super+B repaints",
+            control: "seg", type: "string", backend: "flags", key: "randomScope", def: "all",
+            options: [{ label: "All screens", value: "all" }, { label: "Cursor screen", value: "cursor" }]
         }
     })
 

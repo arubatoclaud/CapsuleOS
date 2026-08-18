@@ -25,7 +25,7 @@ import "Singletons"
  * Hyprland client rectangles to slurp (prepareWindow) so a click snaps to a
  * window and a drag draws a freeform region, captured as a static rectangle.
  * Either resolves to ScreenRec.targetReady(token), at which point the
- * Flags.recordCountdown countdown runs (the bar fills over it, tap cancels) and
+ * ScreenRec.preroll countdown runs (the bar fills over it, tap cancels) and
  * then gsr starts. Zero countdown starts at once; a cancelled pick aborts
  * cleanly. Pressing while recording stops and saves. Audio faders drive the
  * default Pipewire sink and source levels, matching what gsr captures via its
@@ -627,52 +627,46 @@ PillSurface {
                     topPadding: 2 * root.s
                     bottomPadding: 10 * root.s
 
+                    /**
+                     * The drawer is a POINTER at Settings › Recording, not a
+                     * second copy of it: every row takes its label and its
+                     * option strip from the Schema entry the settings page
+                     * draws, and every write goes through Store, so the two
+                     * surfaces cannot name or validate the same setting
+                     * differently. Only the layout is the drawer's own.
+                     */
                     ORow {
-                        name: "Frame rate"
+                        name: Schema.settings.recordFps.label
                         first: true
                         MiniSeg {
-                            options: [
-                                { label: "30", value: 30 },
-                                { label: "60", value: 60 },
-                                { label: "120", value: 120 },
-                                { label: "144", value: 144 }
-                            ]
-                            value: ScreenRec.fps
-                            onPicked: (v) => ScreenRec.fps = v
+                            options: Schema.settings.recordFps.options
+                            value: Store.get("recordFps")
+                            onPicked: (v) => Store.set("recordFps", v)
                         }
                     }
                     ORow {
-                        name: "Quality"
+                        name: Schema.settings.recordQuality.label
                         MiniSeg {
-                            options: [
-                                { label: "Med", value: "medium" },
-                                { label: "High", value: "high" },
-                                { label: "Ultra", value: "ultra" },
-                                { label: "Lossless", value: "lossless" }
-                            ]
-                            value: ScreenRec.quality
-                            onPicked: (v) => ScreenRec.quality = v
+                            options: Schema.settings.recordQuality.options
+                            value: Store.get("recordQuality")
+                            onPicked: (v) => Store.set("recordQuality", v)
                         }
                     }
                     ORow {
-                        name: "Capture cursor"
+                        name: Schema.settings.recordCursor.label
                         LinkToggle {
                             s: root.s
-                            on: ScreenRec.captureCursor
-                            onToggled: ScreenRec.captureCursor = !ScreenRec.captureCursor
+                            on: Store.get("recordCursor")
+                            onToggled: Store.set("recordCursor", !Store.get("recordCursor"))
                         }
                     }
+                    /** Reads the stored pre-roll through ScreenRec, never Flags (audit P2-12). */
                     ORow {
-                        name: "Countdown"
+                        name: Schema.settings.recordCountdown.label
                         MiniSeg {
-                            options: [
-                                { label: "Off", value: 0 },
-                                { label: "3s", value: 3 },
-                                { label: "5s", value: 5 },
-                                { label: "10s", value: 10 }
-                            ]
-                            value: Flags.recordCountdown
-                            onPicked: (v) => Flags.recordCountdown = v
+                            options: Schema.settings.recordCountdown.options
+                            value: ScreenRec.preroll
+                            onPicked: (v) => Store.set("recordCountdown", v)
                         }
                     }
                 }
@@ -708,8 +702,8 @@ PillSurface {
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
                         visible: root.counting
-                        width: parent.width * (root.counting && Flags.recordCountdown > 0
-                            ? (Flags.recordCountdown - root.countdown + 1) / Flags.recordCountdown : 0)
+                        width: parent.width * (root.counting && ScreenRec.preroll > 0
+                            ? (ScreenRec.preroll - root.countdown + 1) / ScreenRec.preroll : 0)
                         color: Qt.alpha(Theme.vermLit, 0.18)
                         Behavior on width { NumberAnimation { duration: 950; easing.type: Easing.Linear } }
                     }

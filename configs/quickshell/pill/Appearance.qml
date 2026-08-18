@@ -10,8 +10,11 @@ import "Singletons"
  * (static flame, dynamic per-wallpaper, or a manually chosen hue), the UI
  * scale and font, and — moved here from Windows in the settings restructure —
  * the pill's own chrome (Shell chrome: gaps, opacity, auto-hide) and Material
- * (Theme). Reached from the settings index and morphs back to it via the back
- * chevron in the header strip, popping the settings stack.
+ * (Theme). Widgets holds what the pill's own readouts need: the weather town,
+ * which the calendar also edits in place. `Random wallpaper` left for the
+ * Wallpaper page — it names a wallpaper target, not a look. Reached from the
+ * settings index and morphs back to it via the back chevron in the header
+ * strip, popping the settings stack.
  *
  * Every row but the manual-palette editor reads and writes through Store, which validates
  * against Schema and assigns the matching Flags key — so this surface carries
@@ -43,9 +46,9 @@ SettingsSurface {
     readonly property var secEntry: Schema.settings.clockSeconds
     readonly property var vizEntry: Schema.settings.musicViz
     readonly property var paletteEntry: Schema.settings.paletteMode
-    readonly property var randomEntry: Schema.settings.randomScope
     readonly property var scaleEntry: Schema.settings.uiScale
     readonly property var fontEntry: Schema.settings.uiFont
+    readonly property var weatherEntry: Schema.settings.weatherCity
 
     readonly property var topGapEntry: Schema.settings.topGap
     readonly property var appGapEntry: Schema.settings.appGap
@@ -404,21 +407,6 @@ SettingsSurface {
         }
 
         SettingsRow {
-            id: randomRow
-            surface: root
-            settingId: "randomScope"
-            name: root.randomEntry.label
-            icon: "monitor"
-
-            SettingsSeg {
-                s: root.s
-                options: root.randomEntry.options
-                value: Store.get("randomScope")
-                onPicked: (v) => Store.set("randomScope", v)
-            }
-        }
-
-        SettingsRow {
             id: scaleRow
             surface: root
             settingId: "uiScale"
@@ -561,6 +549,40 @@ SettingsSurface {
                 options: root.materialEntry.options
                 value: Store.get("material")
                 onPicked: v => Store.set("material", v)
+            }
+        }
+
+        }
+
+        SettingsGroup { id: widgetsGrp; s: root.s; hPad: 12 * root.s; title: "Widgets"
+
+        /**
+         * The calendar's weather town, given a home in the settings tree. The
+         * calendar keeps its own inline editor — the town is most naturally
+         * changed while looking at a forecast for the wrong one — and both are
+         * now the same write, `weatherCity` through Store, so neither can hold a
+         * value the other disagrees with. The claim is a `toggle` whose getter
+         * is always false: Return starts the edit and nothing here pretends to
+         * be on or off.
+         */
+        SettingsRow {
+            id: townRow
+            surface: root
+            navKind: "toggle"
+            navGet: () => false
+            navSet: (v) => { if (v) townEdit.begin(); }
+            name: root.weatherEntry.label
+            sub: root.weatherEntry.caption
+            captionOnFocus: true
+            last: true
+
+            SettingsTextEdit {
+                id: townEdit
+                s: root.s
+                value: Store.get("weatherCity")
+                placeholder: Weather.city.length > 0 ? Weather.city : "auto"
+                fieldWidth: 150 * root.s
+                onCommitted: (t) => Store.set("weatherCity", t)
             }
         }
 

@@ -66,6 +66,22 @@ Singleton {
     property bool desktopOn: Flags.recordDesktop
     onDesktopOnChanged: Flags.recordDesktop = desktopOn
 
+    /**
+     * The STORED pre-roll length in seconds — not `countdown` below, which is
+     * the live tick-down. Every reader of the setting goes through here: the
+     * recorder's drawer, the Recording page's strip, the action bar's fill and
+     * `beginCountdown` itself, none of which reach into Flags for it anymore
+     * (audit P2-12).
+     *
+     * Read-only on purpose, unlike the wrapper properties above. Those five are
+     * `rec` entries in Schema and Store writes them right here; the countdown is
+     * a `flags` entry, so its one writer is Store setting `Flags.recordCountdown`
+     * and this binding carries the new value straight back out. A second,
+     * settable copy of it is exactly the kind of duplicate control the audit
+     * came for.
+     */
+    readonly property int preroll: Flags.recordCountdown
+
     property bool recording: false
     property bool recorderOpen: false
     property string currentFile: ""
@@ -105,7 +121,7 @@ Singleton {
      */
     function beginCountdown(token) {
         pendingTarget = token;
-        var n = Flags.recordCountdown;
+        var n = root.preroll;
         if (n > 0) {
             countdown = n;
             cdTimer.restart();

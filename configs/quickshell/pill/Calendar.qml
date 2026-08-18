@@ -281,9 +281,14 @@ PillSurface {
 
                 /**
                  * IP geolocation only ever resolves to the ISP city, so the town
-                 * is editable in place: tap to type, which sets Flags.weatherCity
+                 * is editable in place: tap to type, which sets `weatherCity`
                  * and re-geocodes through Open-Meteo for the exact spot. Blank it
                  * to fall back to auto IP detection.
+                 *
+                 * The setting is named and captioned in Appearance › Widgets
+                 * now, and this editor is its second door — so it reads and
+                 * writes the same way, through Store, rather than assigning the
+                 * flag behind the settings tree's back.
                  */
                 Item {
                     id: cityBox
@@ -315,7 +320,7 @@ PillSurface {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: {
-                            cityField.text = Flags.weatherCity;
+                            cityField.text = Store.get("weatherCity");
                             cityBox.editing = true;
                             cityField.forceActiveFocus();
                             cityField.selectAll();
@@ -341,7 +346,7 @@ PillSurface {
                         selectByMouse: true
                         selectionColor: Theme.verm
                         onAccepted: {
-                            Flags.weatherCity = text.trim();
+                            Store.set("weatherCity", text.trim());
                             cityBox.editing = false;
                         }
                         Keys.onEscapePressed: cityBox.editing = false

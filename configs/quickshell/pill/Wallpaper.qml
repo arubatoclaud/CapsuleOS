@@ -529,9 +529,13 @@ PillSurface {
 
     /**
      * Current wallpaper folder as a quiet header caption. A click swaps the
-     * label for an inline path edit seeded from flags.json: Return commits the
-     * override (empty restores autodetect), Escape cancels. The field holds
+     * label for an inline path edit seeded from the stored override: Return
+     * commits it (empty restores autodetect), Escape cancels. The field holds
      * focus while editing, so its keys never reach the strip's type-to-search.
+     *
+     * The setting is named and captioned on the Wallpaper settings page now,
+     * and this is its second door — so it goes through Store like that page
+     * does, rather than assigning the flag behind the settings tree's back.
      */
     Item {
         id: folderRow
@@ -573,7 +577,7 @@ PillSurface {
             selectionColor: Theme.verm
             Keys.onPressed: (e) => {
                 if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
-                    Flags.wallpaperDir = dirField.text.trim();
+                    Store.set("wallpaperDir", dirField.text.trim());
                     root.editingDir = false;
                     e.accepted = true;
                 } else if (e.key === Qt.Key_Escape) {
@@ -604,7 +608,7 @@ PillSurface {
             cursorShape: Qt.PointingHandCursor
             onClicked: {
                 root.editingDir = true;
-                dirField.text = Flags.wallpaperDir;
+                dirField.text = Store.get("wallpaperDir");
                 Qt.callLater(dirField.forceActiveFocus);
             }
         }

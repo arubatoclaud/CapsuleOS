@@ -60,7 +60,7 @@ import "../lib/setAnim.js" as SetAnim
  * for a page that wants to resync on open.
  *
  * Store is the ONE writer on every file it owns. Every page it serves — Input,
- * AnimationSurface, Look, IdleLock, Appearance — owns no FileView of its own;
+ * AnimationSurface, Look, SessionSurface, Appearance — owns no FileView of its own;
  * the last exception, Look's local `decoFile`/`decoWriter` pair for the
  * pill-blur layer_rule, was retired in Task 8 when that rule became Store's
  * (`syncPillBlurRule`/`_setPillBlurRule` below). Nothing else writes

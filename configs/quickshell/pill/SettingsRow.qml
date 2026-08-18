@@ -27,6 +27,13 @@ Item {
     property string icon: ""
     property string name: ""
     property string sub: ""
+    /**
+     * Caption colour. Faint is the caption's usual job — it explains, it does
+     * not speak — but a row carrying a two-step confirm has to say "Tap again
+     * to confirm" in the caption's slot and be believed, so the danger rows
+     * tint it. Nothing else overrides it.
+     */
+    property color subColor: Theme.faint
     property bool last: false
     property bool captionOnFocus: false
     default property alias control: controlSlot.data
@@ -124,8 +131,9 @@ Item {
             visible: srow.sub.length > 0
             opacity: !srow.captionOnFocus || srow.focused || srowHover.hovered ? 1 : 0
             text: srow.sub
-            color: Theme.faint
+            color: srow.subColor
             font.family: Theme.font
+            Behavior on color { ColorAnimation { duration: Motion.fast } }
             font.pixelSize: 10.5 * srow.s
             wrapMode: Text.WordWrap
             lineHeight: 1.2

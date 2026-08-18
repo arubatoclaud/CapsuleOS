@@ -318,19 +318,26 @@ PillSurface {
                 tip: "Input device"
                 onToggled: root.openPicker = root.openPicker === "in" ? "" : "in"
             }
+            /**
+             * Control-Center pointers, not owners: the settings themselves are
+             * named, captioned and grouped on the Session page, and these chips
+             * read the same Schema entry and write through the same Store call
+             * that page does. A chip can flip a setting; it cannot describe one
+             * differently.
+             */
             IconChip {
                 glyph: "dnd"
-                on: Flags.dnd
-                tipTitle: "Do not disturb"
-                tipDesc: "Silence notifications"
-                onToggled: Flags.dnd = !Flags.dnd
+                on: Store.get("dnd")
+                tipTitle: Schema.settings.dnd.label
+                tipDesc: Schema.settings.dnd.caption
+                onToggled: Store.set("dnd", !Store.get("dnd"))
             }
             IconChip {
                 glyph: "awake"
-                on: Flags.keepAwake
-                tipTitle: "Keep awake"
-                tipDesc: "Block sleep & screen-off"
-                onToggled: Flags.keepAwake = !Flags.keepAwake
+                on: Store.get("keepAwake")
+                tipTitle: Schema.settings.keepAwake.label
+                tipDesc: Schema.settings.keepAwake.caption
+                onToggled: Store.set("keepAwake", !Store.get("keepAwake"))
             }
             /**
              * A bool over a three-mode setting, so it goes through Store rather
@@ -349,10 +356,10 @@ PillSurface {
             }
             IconChip {
                 glyph: "gamepad"
-                on: Flags.gameMode
-                tipTitle: "Game mode"
-                tipDesc: "Strip effects, quiet the desktop"
-                onToggled: Flags.gameMode = !Flags.gameMode
+                on: Store.get("gameMode")
+                tipTitle: Schema.settings.gameMode.label
+                tipDesc: Schema.settings.gameMode.caption
+                onToggled: Store.set("gameMode", !Store.get("gameMode"))
             }
         }
     }

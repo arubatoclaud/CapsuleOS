@@ -4,9 +4,18 @@ import QtQuick
 import "Singletons"
 
 /**
- * SETTINGS index: a short list of categories. Each row carries its kanji,
- * name and caption, and morphs the pill into that category's sub-surface.
- * Arrow keys move the focused row with the glowing seam and Return opens it.
+ * SETTINGS index: the list of categories, drawn straight from `Schema.pages`.
+ *
+ * This used to be one hand-copied block per category — icon, name, caption and
+ * a chevron, eight times over — with the same strings spelled a second time in
+ * Schema for the search to read. The Repeater below is the whole index now: a
+ * category is an entry in `Schema.pages` plus its surface, and its title and
+ * caption can only ever read one way because there is only one copy of them.
+ *
+ * Each row still claims its own nav slot through `navTarget` (the page id,
+ * which is also the surface id the settings stack routes on), so arrow keys
+ * move the focused row with the glowing seam and Return opens it exactly as
+ * before.
  */
 SettingsSurface {
     id: root
@@ -26,140 +35,28 @@ SettingsSurface {
             title: "SETTINGS"
         }
 
-        SettingsRow {
-            id: appearanceRow
-            surface: root
-            navTarget: "appearance"
-            icon: "sparkles"
-            name: "Appearance"
-            sub: "Clock, accent palette, scale"
+        Repeater {
+            model: Schema.pages
 
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === appearanceRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
+            SettingsRow {
+                id: pageRow
+                required property var modelData
+                required property int index
 
-        SettingsRow {
-            id: lookRow
-            surface: root
-            navTarget: "look"
-            icon: "app-window"
-            name: "Windows"
-            sub: "Gaps, corners, borders, blur, shadow, layout"
+                surface: root
+                navTarget: pageRow.modelData.id
+                icon: pageRow.modelData.icon
+                name: pageRow.modelData.title
+                sub: pageRow.modelData.caption
+                last: pageRow.index === Schema.pages.length - 1
 
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === lookRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
-
-        SettingsRow {
-            id: displayRow
-            surface: root
-            navTarget: "display"
-            icon: "monitor"
-            name: "Display"
-            sub: "Resolution, refresh, scale"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === displayRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
-
-        SettingsRow {
-            id: inputRow
-            surface: root
-            navTarget: "input"
-            icon: "mouse"
-            name: "Input"
-            sub: "Pointer, keyboard, cursor"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === inputRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
-
-        SettingsRow {
-            id: animationRow
-            surface: root
-            navTarget: "animation"
-            icon: "waves"
-            name: "Motion"
-            sub: "Animation speed and feel"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === animationRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
-
-        SettingsRow {
-            id: keybindsRow
-            surface: root
-            navTarget: "keybinds"
-            icon: "keyboard"
-            name: "Keybinds"
-            sub: "Rebind, add, set commands"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === keybindsRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
-
-        SettingsRow {
-            id: workspacesRow
-            surface: root
-            navTarget: "workspaces"
-            icon: "layers"
-            name: "Workspaces"
-            sub: "Special spaces and their keys"
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === workspacesRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
-            }
-        }
-
-        SettingsRow {
-            id: idleRow
-            surface: root
-            navTarget: "idlelock"
-            icon: "lock"
-            name: "Idle / Lock"
-            sub: "Auto-lock, screen off, suspend"
-            last: true
-
-            GlyphIcon {
-                width: 16 * root.s
-                height: 16 * root.s
-                name: "chevron-right"
-                color: root.focusRowItem === idleRow ? Theme.cream : Theme.iconDim
-                stroke: 2.2
+                GlyphIcon {
+                    width: 16 * root.s
+                    height: 16 * root.s
+                    name: "chevron-right"
+                    color: root.focusRowItem === pageRow ? Theme.cream : Theme.iconDim
+                    stroke: 2.2
+                }
             }
         }
     }

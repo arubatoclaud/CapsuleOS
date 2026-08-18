@@ -12,7 +12,10 @@ import "Singletons"
  * main monitor wears a star, clicking a tile selects it and dragging one snaps
  * it left/right/above/below the other monitor as a pending move. Below the map
  * a single card edits the selected output: resolution, refresh and scale from
- * availableModes, plus a Set as main toggle on non-main outputs.
+ * availableModes. Set as main is no longer one of the card's rows: it moved
+ * down into the collapsed `Advanced` group behind a two-step confirm, because
+ * it rearranges the whole desktop and is the one change here Apply cannot take
+ * back (audit P1-10).
  *
  * Apply hands mode/position/scale to display-apply.sh, which snapshots the old
  * spec, evals the new one through `hl.monitor` and arms a detached 12s watchdog
@@ -23,10 +26,11 @@ import "Singletons"
  * outputs, so a stale file must never swallow a save). Leaving the surface
  * with a change still pending reverts it right away instead of letting the
  * watchdog fire later with no countdown visible. A main swap needs no revert:
- * on Apply it points the two workspace_rule loops at the two real outputs
+ * it points the two workspace_rule loops at the two real outputs
  * (ground truth for who is main: the loop that carries workspace 1), drags
  * the live workspaces to their new monitors and marks the output primary for
- * XWayland via xrandr.
+ * XWayland via xrandr. That swap runs the moment the confirm lands rather than
+ * waiting for Apply, which is exactly why it asks twice first.
  *
  * monitors.lua is held as in-memory text after the first read and every rewrite
  * goes through it, so a main swap and a later Keep in the same session never
@@ -36,7 +40,7 @@ import "Singletons"
  *
  * Below the card sits the Night light group (moved here from Windows in the
  * settings restructure): mode, warmth and the scheduled on/off times, all
- * Store's `night` backend and unaffected by the move.
+ * Store's `night` backend and unaffected by the move. Advanced sits under it.
  */
 SettingsSurface {
     id: root
@@ -63,6 +67,27 @@ SettingsSurface {
     readonly property var selMon: monitorByName(selName)
     readonly property bool selIsMain: selMon !== null && selMon.name === mainName
 
+    /**
+     * The two-step gate guarding Set as main. Keyed by the output name, so
+     * arming it for DP-1 and then tapping while HDMI-A-1 is selected asks about
+     * HDMI-A-1 rather than moving the desktop onto it.
+     */
+    property SettingsConfirm mainGate: SettingsConfirm {}
+    readonly property bool mainArmed: root.selName.length > 0 && root.mainGate.armed === "main:" + root.selName
+
+    /**
+     * One tap on Set as main. Unlike a mode change there is no watchdog behind
+     * this and no Apply step in front of it — the workspaces move the moment it
+     * runs — so the first tap only arms, and the second inside three seconds is
+     * what actually swaps.
+     */
+    function requestMain() {
+        if (!root.selMon || root.selIsMain)
+            return;
+        if (root.mainGate.request("main:" + root.selMon.name))
+            root.applyMainSwap(root.selMon.name);
+    }
+
     readonly property var scaleOptions: [
         { label: "1.0", value: 1 },
         { label: "1.25", value: 1.25 },
@@ -74,11 +99,16 @@ SettingsSurface {
     readonly property var nightLightTempEntry: Schema.settings.nightLightTemp
     readonly property var nightLightOnMinEntry: Schema.settings.nightLightOnMin
     readonly property var nightLightOffMinEntry: Schema.settings.nightLightOffMin
+    readonly property var displayMainEntry: Schema.settings.displayMain
 
     /** Per-field values captured on each open; the night-light ScrubValue undo glyphs revert to these. */
     property var base: ({})
 
     onActiveChanged: {
+        // An arm never survives a close in either direction: leaving the page is
+        // an answer of "no", and coming back to it should not find a question
+        // already half-asked.
+        root.mainGate.clear();
         if (active) {
             cancelCountdown();
             readProc.running = true;
@@ -98,6 +128,9 @@ SettingsSurface {
             kbIndex = -1;
         }
     }
+
+    /** Selecting another monitor is a new question too. */
+    onSelNameChanged: root.mainGate.clear()
 
     onSelMonChanged: if (selMon) card.syncToCurrent()
 
@@ -274,7 +307,6 @@ SettingsSurface {
             return;
         }
         var res = Mon.setWorkspaceLoops(luaNow(), name, other.name);
-        card.pendingMain = false;
         if (!res.ok) {
             note = "Could not rewrite the workspace rules in monitors.lua.";
             return;
@@ -374,8 +406,6 @@ SettingsSurface {
         var mon = root.selMon;
         if (!mon || root.pendingOut.length > 0)
             return;
-        if (card.pendingMain && !root.selIsMain)
-            applyMainSwap(mon.name);
         if (!card.dirty)
             return;
         var res = card.resolutions[Math.min(card.resIndex, card.resolutions.length - 1)];
@@ -685,7 +715,6 @@ SettingsSurface {
                 property int resIndex: 0
                 property int rateIndex: 0
                 property real pickScale: 1
-                property bool pendingMain: false
 
                 readonly property var resolutions: root.selMon ? root.resolutionsFor(root.selMon) : []
                 readonly property var rates: resolutions.length > 0 ? resolutions[Math.min(resIndex, resolutions.length - 1)].rates : []
@@ -705,7 +734,7 @@ SettingsSurface {
                     var p = root.pendingXY(mon);
                     return p !== null && (p.x !== mon.x || p.y !== mon.y);
                 }
-                readonly property bool applyReady: dirty || (pendingMain && !root.selIsMain)
+                readonly property bool applyReady: dirty
 
                 /**
                  * Seed the pickers from the selected monitor's live mode: the
@@ -734,7 +763,6 @@ SettingsSurface {
                     card.resIndex = ri;
                     card.rateIndex = card.nearestIn(resos.length > 0 ? resos[ri].rates : [], mon.refresh);
                     card.pickScale = mon.scale;
-                    card.pendingMain = false;
                     if (root.pendingMove)
                         root.pendingMove = null;
                     root.openPicker = "";
@@ -872,43 +900,6 @@ SettingsSurface {
                                 options: root.scaleOptions
                                 value: card.pickScale
                                 onPicked: (v) => card.pickScale = v
-                            }
-                        }
-                    }
-
-                    CardRow {
-                        id: mainRow
-                        glyphText: "★"
-                        visible: root.selMon !== null && !root.selIsMain
-
-                        SettingsNav {
-                            item: mainRow
-                            surface: root
-                            navKind: "toggle"
-                            navGet: () => card.pendingMain
-                            navSet: (v) => card.pendingMain = v
-                        }
-
-                        Item {
-                            width: parent.width
-                            height: 26 * root.s
-
-                            Text {
-                                anchors.left: parent.left
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: "Set as main"
-                                color: Theme.cream
-                                font.family: Theme.font
-                                font.pixelSize: 11 * root.s
-                                font.weight: Font.DemiBold
-                            }
-
-                            LinkToggle {
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                s: root.s
-                                on: card.pendingMain
-                                onToggled: card.pendingMain = !card.pendingMain
                             }
                         }
                     }
@@ -1086,6 +1077,74 @@ SettingsSurface {
                     from: root.nightLightOffMinEntry.from; to: root.nightLightOffMinEntry.to; step: root.nightLightOffMinEntry.step
                     fmt: root.fmtClock
                     onEdited: v => Store.set("nightLightOffMin", v)
+                }
+            }
+
+            }
+
+            /**
+             * Advanced: the one control here that rearranges the whole desktop
+             * rather than one monitor's picture. It used to sit in the card, a
+             * careless tap below Scale, and it is the only change on this page
+             * Apply cannot take back — a mode change has a 12-second revert
+             * watchdog behind it, a main swap has nothing (audit P1-10). So it
+             * is folded away by default and asks twice.
+             *
+             * `navGet` is deliberately always false: Return (or a right arrow)
+             * arms, and pressing again confirms, so the keyboard walks the same
+             * two steps the mouse does instead of pretending to hold a state.
+             */
+            SettingsGroup { id: advGrp; s: root.s; title: "Advanced"
+
+            SettingsRow {
+                id: mainRow
+                surface: root
+                navKind: "toggle"
+                navGet: () => false
+                navSet: (v) => { if (v) root.requestMain(); else root.mainGate.clear(); }
+                name: root.displayMainEntry.label
+                sub: root.mainArmed
+                    ? "Tap again to move workspace 1 to " + root.selName
+                    : (root.selMon === null ? "Select a monitor above"
+                        : (root.selIsMain ? root.selName + " is already the main monitor"
+                            : root.displayMainEntry.caption))
+                subColor: root.mainArmed ? Theme.vermLit : Theme.faint
+                last: true
+
+                Rectangle {
+                    id: mainBtn
+                    width: mainLabel.implicitWidth + 22 * root.s
+                    height: 24 * root.s
+                    radius: 8 * root.s
+                    visible: root.selMon !== null && !root.selIsMain
+                    color: root.mainArmed
+                        ? Qt.alpha(Theme.verm, mainArea.containsMouse ? 0.5 : 0.38)
+                        : (mainArea.containsMouse
+                            ? Qt.alpha(Theme.verm, 0.2)
+                            : Qt.alpha(Theme.verm, 0.12))
+                    border.width: 1
+                    border.color: Qt.alpha(Theme.vermLit, root.mainArmed ? 0.75 : 0.45)
+                    Behavior on color { ColorAnimation { duration: Motion.fast } }
+                    Behavior on border.color { ColorAnimation { duration: Motion.fast } }
+
+                    Text {
+                        id: mainLabel
+                        anchors.centerIn: parent
+                        text: root.mainArmed ? "Confirm" : "Set as main"
+                        color: Theme.vermLit
+                        font.family: Theme.font
+                        font.pixelSize: 10 * root.s
+                        font.weight: Font.DemiBold
+                        font.letterSpacing: 0.3 * root.s
+                    }
+
+                    MouseArea {
+                        id: mainArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.requestMain()
+                    }
                 }
             }
 

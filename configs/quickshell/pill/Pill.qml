@@ -58,7 +58,8 @@ Item {
      */
     readonly property var settingsFamily: ({
         settings: 1, appearance: 1, look: 1, display: 1, input: 1,
-        animation: 1, idlelock: 1, fontpicker: 1, keybinds: 1, workspaces: 1
+        animation: 1, recording: 1, wallpaperSettings: 1, session: 1,
+        fontpicker: 1, keybinds: 1, workspaces: 1
     })
 
     /**
@@ -73,7 +74,9 @@ Item {
         display:    () => ldDisplay,
         input:      () => ldInput,
         animation:  () => ldAnimation,
-        idlelock:   () => ldIdlelock,
+        recording:  () => ldRecording,
+        wallpaperSettings: () => ldWallpaperSettings,
+        session:    () => ldSession,
         fontpicker: () => ldFontpicker
     })
 
@@ -254,8 +257,11 @@ Item {
         display:    { size: () => Qt.size(settingsW, surfaceItem(ldDisplay).implicitHeight + 29 * s), ame: () => surfaceItem(ldDisplay) },
         input:      { size: () => Qt.size(settingsW, surfaceItem(ldInput).implicitHeight + 29 * s), ame: () => surfaceItem(ldInput) },
         look:       { size: () => Qt.size(settingsW, surfaceItem(ldLook).implicitHeight + 29 * s), ame: () => surfaceItem(ldLook) },
-        idlelock:   { size: () => Qt.size(settingsW, surfaceItem(ldIdlelock).implicitHeight + 29 * s), ame: () => surfaceItem(ldIdlelock) },
         animation:  { size: () => Qt.size(settingsW, surfaceItem(ldAnimation).implicitHeight + 29 * s), ame: () => surfaceItem(ldAnimation) },
+        recording:  { size: () => Qt.size(settingsW, surfaceItem(ldRecording).implicitHeight + 29 * s), ame: () => surfaceItem(ldRecording) },
+        /** `wallpaperSettings`, not `wallpaper`: that key is the browser strip above. */
+        wallpaperSettings: { size: () => Qt.size(settingsW, surfaceItem(ldWallpaperSettings).implicitHeight + 29 * s), ame: () => surfaceItem(ldWallpaperSettings) },
+        session:    { size: () => Qt.size(settingsW, surfaceItem(ldSession).implicitHeight + 29 * s), ame: () => surfaceItem(ldSession) },
         fontpicker: { size: () => Qt.size(settingsW, surfaceItem(ldFontpicker).implicitHeight + 29 * s), ame: () => surfaceItem(ldFontpicker) }
     })
 
@@ -2179,12 +2185,38 @@ Item {
     }
 
     Loader {
-        id: ldIdlelock
+        id: ldRecording
         active: false
         anchors.fill: parent
-        sourceComponent: IdleLock {
+        sourceComponent: RecordingSurface {
             s: pill.s
-            open: pill.settingsTop === "idlelock"
+            open: pill.settingsTop === "recording"
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.openSettingsPage(name)
+        }
+    }
+
+    Loader {
+        id: ldWallpaperSettings
+        active: false
+        anchors.fill: parent
+        sourceComponent: WallpaperSettings {
+            s: pill.s
+            open: pill.settingsTop === "wallpaperSettings"
+            morphCloseness: pill.morphCloseness
+            onRequestClose: pill.requestClose()
+            onRequestSurface: (name) => pill.openSettingsPage(name)
+        }
+    }
+
+    Loader {
+        id: ldSession
+        active: false
+        anchors.fill: parent
+        sourceComponent: SessionSurface {
+            s: pill.s
+            open: pill.settingsTop === "session"
             morphCloseness: pill.morphCloseness
             onRequestClose: pill.requestClose()
             onRequestSurface: (name) => pill.openSettingsPage(name)
