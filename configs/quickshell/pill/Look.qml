@@ -310,7 +310,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: ""
+            glyph: "\uf1fc"
             title: "LOOK"
             showBack: true
         }

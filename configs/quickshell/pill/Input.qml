@@ -109,7 +109,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: ""
+            glyph: "\uf245"
             title: "INPUT"
             showBack: true
         }
