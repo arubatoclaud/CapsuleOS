@@ -81,7 +81,10 @@ import "../lib/setAnim.js" as SetAnim
  *   `nightLightQuick` — the mixer chip. Switching it off remembers the mode it
  *       was in (`Flags.nightPrevMode`) before setting "off"; switching it on
  *       restores that mode rather than always picking "on", so a scheduled
- *       night light survives a tap on the chip. See `_setNight`.
+ *       night light survives a tap on the chip. Every non-off write of
+ *       `nightLightMode` refreshes that memory too — otherwise it goes stale
+ *       against Look's seg and the chip restores a mode already replaced. See
+ *       `_setNight`.
  *
  * Side-effecting flags — DO NOT route the SIDE EFFECT through `Store.set`:
  *
@@ -362,8 +365,12 @@ Singleton {
             Flags[e.key] = v;
             // The material is also the pill-blur layer_rule's only control, and
             // the rule is not a Schema field anything could route on its own.
-            if (id === "material")
-                root._setPillBlurRule(Theme.blursBehind(v));
+            // The flag has landed by now, so a rule that could not be written is
+            // reported rather than returned as a failure of the whole set: the
+            // material did change, and the next reconcile (startup, or a Look
+            // open) puts the rule back in line.
+            if (id === "material" && root._setPillBlurRule(Theme.blursBehind(v)) === "failed")
+                root.writeFailed(id, "Material saved, but the pill blur couldn't be applied.");
             break;
         case "idle":
             Flags[e.key] = v;
@@ -447,11 +454,16 @@ Singleton {
      * demoted it to always-warm and the Look page's seg had moved under the
      * user (audit P0-2's night-light half). It now remembers instead — off
      * stores the mode it is leaving in `Flags.nightPrevMode`, on restores it —
-     * the same shape as the `gamePrev*` keys game mode restores from. The
-     * memory is only ever a mode the chip itself switched away from, so a mode
-     * picked in Look and then turned off there is not resurrected by the chip;
-     * "on" is the fallback, which is exactly the old behaviour for a user who
-     * never used scheduled.
+     * the same shape as the `gamePrev*` keys game mode restores from.
+     *
+     * The memory tracks EVERY non-off mode write, not just the chip's own, which
+     * is the difference between remembering and going stale: with only the chip
+     * writing it, chip-off while scheduled → Look picks "on" → Look picks "off"
+     * → chip-on restored "scheduled", a mode the user had already replaced. So
+     * the mode write below refreshes it too, and the memory means "the last mode
+     * the night light was actually in". "off" is never stored, and "on" is the
+     * fallback for an empty or corrupted memory — which is exactly the old
+     * behaviour for a user who never used scheduled.
      */
     function _setNight(id, e, v) {
         if (id === "nightLightQuick") {
@@ -465,9 +477,11 @@ Singleton {
             }
             return true;
         }
-        if (e.key === "nightLightMode")
+        if (e.key === "nightLightMode") {
+            if (v !== "off")
+                Flags.nightPrevMode = v;
             NightLight.setMode(v);
-        else if (e.key === "nightLightTemp")
+        } else if (e.key === "nightLightTemp")
             NightLight.setTemp(v);
         else if (e.key === "nightLightOnMin")
             NightLight.setOnMin(v);
@@ -513,13 +527,24 @@ Singleton {
 
     /**
      * The pill-blur `hl.layer_rule` in decoration.lua, added or removed so it
-     * matches `on`. Returns true when the file actually changed: `addNamedRule`
-     * and `removeNamedRule` both report `ok: false` when the text already reads
-     * the way it was asked to, which is what keeps a no-op call (the common case
-     * on every Look open) from writing the file and reloading Hyprland for
-     * nothing. Reads fresh off disk first like every other deco write, and rides
-     * the same debounced reload, so a fast material double-tap writes per step
-     * and reloads once.
+     * matches `on`. Returns one of three codes, because "nothing was written"
+     * and "nothing could be written" are not the same answer:
+     *
+     *   "written"   — the file changed and a reload is armed.
+     *   "unchanged" — it already read that way. `addNamedRule` and
+     *                 `removeNamedRule` both report `ok: false` in that case,
+     *                 which is what keeps a no-op call (the common case on every
+     *                 Look open and on startup) from writing the file and
+     *                 reloading Hyprland for nothing.
+     *   "failed"    — decoration.lua could not be read, so nothing was attempted.
+     *
+     * Both helpers key off the rule's NAME, so this is idempotent per name: a
+     * hand-edited or reformatted `pill-blur` rule is rewritten in place rather
+     * than duplicated, and the matching remove takes every copy away.
+     *
+     * Reads fresh off disk first like every other deco write, and rides the same
+     * debounced reload, so a fast material double-tap writes per step and reloads
+     * once.
      *
      * Empty text means the read failed, not that decoration.lua is empty, and
      * `addNamedRule` appends to whatever it is given — it would happily write a
@@ -530,26 +555,28 @@ Singleton {
     function _setPillBlurRule(on) {
         root._sync("deco");
         if (root._decoText.length === 0)
-            return false;
+            return "failed";
         var res = on
-            ? SetDeco.addNamedRule(root._decoText, root.pillBlurRule)
+            ? SetDeco.addNamedRule(root._decoText, "pill-blur", root.pillBlurRule)
             : SetDeco.removeNamedRule(root._decoText, "pill-blur");
         if (!res.ok)
-            return false;
+            return "unchanged";
         root._decoText = res.text;
         root._decoPending += 1;
         decoWriter.setText(res.text);
         root._reloadId = "material";
         reloadTimer.restart();
-        return true;
+        return "written";
     }
 
     /**
      * Brings the layer_rule back in line with the current material. The material
      * is the control and the rule is the state it implies, so anything that can
-     * separate them — a hand edit of decoration.lua, a crash between the flag
-     * write and the rule write — is corrected the next time a surface that shows
-     * the material opens. A no-op when they already agree.
+     * separate them — a hand edit of decoration.lua, a fresh install whose
+     * decoration.lua predates the material, a crash between the flag write and
+     * the rule write — is corrected here. Runs once at startup (below) and again
+     * whenever a surface that shows the material opens. A no-op when they
+     * already agree, so the usual outcome is no write and no reload.
      */
     function syncPillBlurRule() {
         return root._setPillBlurRule(Theme.pillBlur);
@@ -817,5 +844,36 @@ Singleton {
 
     Process { id: ghosttyReload; command: ["pkill", "-USR2", "-x", "ghostty"] }
 
-    Component.onCompleted: root.reload()
+    /**
+     * Once per session, as early as it can be done correctly. With the material
+     * as the only control of the blur, nothing else reconciles a decoration.lua
+     * that never carried the `pill-blur` rule — a fresh install, or the file
+     * reset from the repo — so the compositor would sit out of step with the
+     * stored material until the user happened to open Look.
+     *
+     * Two orderings have to hold. The reload comes first because it is what
+     * loads decoration.lua, and `_setPillBlurRule` refuses on empty text.
+     * `Flags.loaded` comes first because that FileView loads asynchronously: a
+     * reconcile that beat it would read the adapter's DEFAULT material and
+     * write the compositor to match a value the user never chose (turning blur
+     * back on under ink, on every single startup). Whichever of the two
+     * singletons finishes second runs it.
+     *
+     * The usual outcome is no write and no reload — the rule already agrees with
+     * the material, both helpers report "nothing to do", and the file is not
+     * touched.
+     */
+    Component.onCompleted: {
+        root.reload();
+        if (Flags.loaded)
+            root.syncPillBlurRule();
+    }
+
+    Connections {
+        target: Flags
+        function onLoadedChanged() {
+            if (Flags.loaded)
+                root.syncPillBlurRule();
+        }
+    }
 }

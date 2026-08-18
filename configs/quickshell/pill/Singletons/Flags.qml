@@ -79,6 +79,21 @@ Singleton {
     property alias nightLightOnMin: adapter.nightLightOnMin
     property alias nightLightOffMin: adapter.nightLightOffMin
 
+    /**
+     * False until flags.json has actually been read — or written out from the
+     * defaults, for a fresh install that has no file yet. The FileView's load is
+     * asynchronous, so a singleton that comes up alongside this one and reads a
+     * value straight away can see the ADAPTER DEFAULT rather than the user's
+     * stored value. That is harmless for a binding, which re-evaluates when the
+     * load lands, but not for a one-shot that writes the world to match a flag:
+     * it would reconcile against a value the user never chose. Those wait for
+     * this (see Store's pill-blur reconcile). A load that fails for any other
+     * reason leaves it false — skipping a reconcile is always safer than running
+     * one from defaults.
+     */
+    readonly property bool loaded: root._loaded
+    property bool _loaded: false
+
     FileView {
         id: file
         path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos/flags.json"
@@ -88,9 +103,14 @@ Singleton {
 
         onFileChanged: reload()
         onAdapterUpdated: writeAdapter()
+        onLoaded: root._loaded = true
         onLoadFailed: function(error) {
-            if (error === FileViewError.FileNotFound)
+            // No file yet: the defaults become the stored state, and they are
+            // then as authoritative as anything read off disk.
+            if (error === FileViewError.FileNotFound) {
                 writeAdapter();
+                root._loaded = true;
+            }
         }
 
         JsonAdapter {

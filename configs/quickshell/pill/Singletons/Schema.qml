@@ -305,10 +305,12 @@ Singleton {
         /**
          * There is no `pillBlur` entry beside this one anymore. Blur behind the
          * pill is not separately stored: it is the `pill-blur` layer_rule in
-         * decoration.lua, which Store adds or removes as this seg moves, and
-         * `Theme.pillBlur` is the derived value anything on screen reads. The
-         * toggle that used to sit here was a second control over the same piece
-         * of state and could disagree with it (audit P0-2/P0-4).
+         * decoration.lua, which Store adds or removes as this seg moves. The
+         * blur is drawn by the compositor from that rule, so nothing on screen
+         * reads it — `Theme.pillBlur` is the one derived form of it, and its one
+         * reader is Store's reconciler. The toggle that used to sit here was a
+         * second control over the same piece of state and could disagree with
+         * it (audit P0-2/P0-4).
          */
         material: {
             page: "look", group: "pill", order: 3,

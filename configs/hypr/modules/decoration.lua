@@ -52,3 +52,14 @@ hl.config({
         },
     },
 })
+
+--[[
+    Blur behind the pill, owned by the pill's Material setting rather than by
+    hand. Blur for a shell layer cannot be set as a config field, only as a
+    layer rule, so the presence or absence of a rule named "pill-blur" below IS
+    the pill's blur state — no flag stores it. The shell adds the rule for glass
+    and frost, removes it for ink, and reconciles it against the stored material
+    at startup, so a hand edit here is undone: change Material instead. Shipped
+    present because the default material (frost) blurs.
+]]
+hl.layer_rule({ name = "pill-blur", match = { namespace = "pill" }, blur = true, ignore_alpha = 0.5 })

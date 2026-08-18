@@ -131,12 +131,12 @@ function hasNamedRule(text, ruleName) {
 }
 
 /**
- * Removes the whole `hl.layer_rule({ ... })` call named `ruleName`, together
- * with one trailing newline and the single blank line `addNamedRule` puts in
- * front of an appended rule, leaving the rest of the file byte-identical.
+ * Cuts the FIRST `hl.layer_rule({ ... })` call named `ruleName`, together with
+ * one trailing newline and the single blank line `addNamedRule` puts in front
+ * of an appended rule, leaving the rest of the file byte-identical.
  * Returns `{ text, ok }`; ok is false (text unchanged) when no such rule exists.
  */
-function removeNamedRule(text, ruleName) {
+function _cutNamedRule(text, ruleName) {
     var r = findNamedRule(text, ruleName);
     if (!r)
         return { text: text, ok: false };
@@ -150,14 +150,55 @@ function removeNamedRule(text, ruleName) {
 }
 
 /**
- * Appends `block` (a complete `hl.layer_rule({...})` string) at the end of the
- * file, separated by a blank line, unless that exact block is already present.
- * Returns `{ text, ok }`; ok is false (text unchanged) when the block already
- * exists.
+ * Removes EVERY `hl.layer_rule` call named `ruleName`. Cutting them all rather
+ * than the first is what makes this the exact inverse of `addNamedRule`: both
+ * key off the name, so however many copies a file has ended up with, one add
+ * leaves exactly one and one remove leaves none.
+ * Returns `{ text, ok }`; ok is false (text unchanged) when no such rule exists.
  */
-function addNamedRule(text, block) {
-    if (text.indexOf(block) !== -1)
-        return { text: text, ok: false };
-    var sep = text.length === 0 || text.charAt(text.length - 1) === "\n" ? "\n" : "\n\n";
-    return { text: text + sep + block, ok: true };
+function removeNamedRule(text, ruleName) {
+    var out = text;
+    while (true) {
+        var cut = _cutNamedRule(out, ruleName);
+        if (!cut.ok)
+            break;
+        out = cut.text;
+    }
+    return { text: out, ok: out !== text };
+}
+
+/**
+ * Ensures the file carries exactly one `hl.layer_rule` named `ruleName`, reading
+ * byte-for-byte like `block` (a complete `hl.layer_rule({...})` string, trailing
+ * newline optional).
+ *
+ * Matching is by NAME, not by the whole rule text. The earlier form compared
+ * `block` against the file as a substring, so a rule of that name differing by
+ * one byte — a hand-tuned field, reflowed whitespace, a later edit of the
+ * canonical block — was not seen and a second copy was appended; `removeNamedRule`
+ * then matched by name and took only one away, leaving the rule (and its effect)
+ * behind after it was asked for the state to be gone. Now a differing rule is
+ * rewritten in place, keeping its position in the file, and any further copies
+ * of the same name are cut, so this converges on one rule from any starting
+ * state — including a file an older add path already duplicated.
+ *
+ * Returns `{ text, ok }`; ok is false (text unchanged) when the file already
+ * carries exactly that one rule, which is what keeps the common no-op call from
+ * writing the file and reloading the compositor for nothing.
+ */
+function addNamedRule(text, ruleName, block) {
+    var body = block.replace(/\n+$/, "");
+    var r = findNamedRule(text, ruleName);
+    if (!r) {
+        var sep = text.length === 0 || text.charAt(text.length - 1) === "\n" ? "\n" : "\n\n";
+        return { text: text + sep + body + "\n", ok: true };
+    }
+    var out = text;
+    if (text.slice(r.start, r.end) !== body)
+        out = text.slice(0, r.start) + body + text.slice(r.end);
+    var kept = r.start + body.length;
+    var dup = removeNamedRule(out.slice(kept), ruleName);
+    if (dup.ok)
+        out = out.slice(0, kept) + dup.text;
+    return { text: out, ok: out !== text };
 }
