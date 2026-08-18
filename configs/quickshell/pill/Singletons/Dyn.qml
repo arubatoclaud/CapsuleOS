@@ -31,7 +31,38 @@ Singleton {
     readonly property string faint: adapter.faint
     readonly property string iconDim: adapter.icon_dim
     readonly property string tickRest: adapter.tick_rest
-    readonly property bool light: adapter.light
+
+    /**
+     * Night Glass accent split. `mark` is the UI accent the palette guarantees
+     * 4.5:1 against the pill surface; `glow` is the filament light that effects
+     * stack and is never text. Both fall back to the pre-split fields, because
+     * the cache is only rewritten on the next wallpaper change and a
+     * colors.json written before the split has neither key. The guard is on
+     * length, not on undefined: an absent key leaves the JsonAdapter property
+     * at its default and matugen can also write an empty string, so only a
+     * non-empty value counts as present.
+     */
+    readonly property string mark: adapter.mark.length > 0 ? adapter.mark : primary
+    readonly property string glow: adapter.glow.length > 0 ? adapter.glow : primaryContainer
+
+    /**
+     * True when the wallpaper is bright enough that the palette has lifted the
+     * surface to the top of its band. wallcolors.py is dark-only now and maps
+     * wallpaper mean lightness onto the surface's HSL lightness in
+     * [DEPTH_MIN, DEPTH_MAX] = [0.06, 0.16], so the surface lightness IS the
+     * wallpaper-brightness signal that the dropped `light` flag used to carry;
+     * > 0.13 is the brightest fifth of that band. Theme floors the glass alpha
+     * on it so a bright wallpaper cannot composite through the pill and eat
+     * the mark's contrast (see Theme.surfAlpha).
+     *
+     * Gated on the raw `mark` field because the threshold only means something
+     * inside the Night Glass band: a pre-split colors.json comes off the old
+     * [0.045, 0.20] ramp, where 0.13 is an ordinary dark surface, and reading
+     * it through this threshold would floor the alpha on palettes that never
+     * asked for it. No mark field, no claim.
+     */
+    readonly property bool brightSurface: adapter.mark.length > 0 && surface.length > 0
+                                          && Qt.color(surface).hslLightness > 0.13
 
     FileView {
         id: file
@@ -61,7 +92,10 @@ Singleton {
             property string faint: "#5d6570"
             property string icon_dim: "#b8c2cf"
             property string tick_rest: "#aab6c6"
-            property bool light: false
+            // Empty by default so a pre-split colors.json falls back above
+            // instead of pinning the curated hexes onto a wallpaper palette.
+            property string mark: ""
+            property string glow: ""
         }
     }
 }
