@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
-import Quickshell
 import Quickshell.Io
 import "lib/setDeco.js" as SetDeco
 import "Singletons"
@@ -221,8 +220,15 @@ SettingsSurface {
      * `blockAllReads`, so `reload()` then `text()` is a synchronous fresh read)
      * so a Store-routed deco write moments earlier — gaps, rounding, blur,
      * shadow, opacity — is never clobbered by a rule edit built on a stale
-     * snapshot, then tells Store to resync so its own cached text picks up
-     * the change too.
+     * snapshot. `decoWriter` is `blockWrites`, so `setText` lands on disk
+     * synchronously before this function returns, closing the Look→Store
+     * direction of the two-writer race on decoration.lua: Store can no longer
+     * read stale (pre-rule) text right after this call. The Store→Look
+     * direction — a Store deco write landing in the instant between this
+     * function's fresh read and its own write — is accepted-transitional
+     * until Task 8 retires this local writer pair along with the `pillBlur`
+     * flag. Store's own resync happens in `decoWriter.onSaved` below, not
+     * here, so it never fires before the write it is meant to observe.
      */
     function applyPillBlur(on) {
         decoFile.reload();
@@ -243,7 +249,6 @@ SettingsSurface {
         }
         decoWriter.setText(res.text);
         reloadTimer.restart();
-        Store.reload();
     }
 
     FileView {
@@ -254,11 +259,21 @@ SettingsSurface {
         printErrors: false
     }
 
+    /**
+     * `blockWrites` makes `setText` land on disk synchronously rather than
+     * asynchronously, so `applyPillBlur`'s rule edit can never be read as
+     * stale by a Store write that starts a moment later. `onSaved` only then
+     * tells Store to resync its own cached text — doing that right after
+     * `setText` instead (as an earlier draft did) would deterministically
+     * cache the pre-write text, since a plain `setText` save is async.
+     */
     FileView {
         id: decoWriter
         path: Store.decoPath
         atomicWrites: true
+        blockWrites: true
         printErrors: false
+        onSaved: Store.reload()
     }
 
     /**
@@ -295,7 +310,7 @@ SettingsSurface {
 
         SettingsHeader {
             s: root.s
-            glyph: ""
+            glyph: ""
             title: "LOOK"
             showBack: true
         }

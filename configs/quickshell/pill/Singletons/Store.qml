@@ -59,24 +59,37 @@ import "../lib/setAnim.js" as SetAnim
  * the fresher of the two. `reload()` refreshes everything under the same rule,
  * for a page that wants to resync on open.
  *
- * Transitional note: Look, Input and AnimationSurface still own their own
- * FileViews on these same three files until they migrate. Store's writers are
- * constructed but nothing calls them yet, so exactly one writer per file is live
- * at every task boundary.
+ * Transitional note: Input and AnimationSurface (Task 3) own no FileViews of
+ * their own anymore — Store is their only writer on input.lua/animations.lua.
+ * Look (Task 4) is fully migrated for its Schema-routed rows, but still owns
+ * a *second* writer pair on decoration.lua (`decoFile`/`decoWriter` in
+ * Look.qml) purely for the `pillBlur`/`material` layer_rule side effect below,
+ * since a layer_rule is not a Schema field Store can route — decoration.lua
+ * genuinely has two writers until Task 8 retires Look's pair. Look's writer
+ * is `blockWrites`, so its write always lands before Store's own
+ * fresh-read-before-write (`_sync("deco")`, which re-reads the file, not a
+ * cache) can observe it — the Look→Store direction of the race is closed.
+ * The reverse direction — a Store deco write landing in the instant between
+ * Look's fresh read and its own write — is accepted-transitional.
  *
- * Side-effecting flags — DO NOT route these through `Store.set` yet. Their
- * `flags` entry is a bare key, but the page that owns them today runs a side
- * effect Store does not, so a Store write would persist the flag and leave the
- * system on the old value. Each is resolved by the task that migrates its page:
+ * Side-effecting flags — DO NOT route the SIDE EFFECT through `Store.set`.
+ * Below, "the flag" being Store-routed or not is called out per entry; what
+ * never goes through Store is the accompanying rewrite that touches
+ * something no Schema field represents:
  *
- *   `pillBlur`, `material` — Look's `applyPillBlur`/`setMaterial` also add or
- *       remove the pill-blur `hl.layer_rule` in decoration.lua. Task 4 moves the
- *       page; Task 8 deletes `pillBlur` and derives it from `material`.
- *   `motion` — AnimationSurface's `applyMotion` also rewrites the pillMorph
- *       bezier and retimes every animation leaf, which is what actually carries
- *       the character down to Hyprland; the flag alone would leave the
- *       compositor on the old curve. Task 3 migrates the page, Task 8 makes
- *       Feel the primary control.
+ *   `pillBlur`, `material` — the flag itself IS Store-routed (Look.qml's
+ *       `setPillBlur`/`setMaterial` call `Store.set`, migrated Task 4), but
+ *       both also have to add or remove the pill-blur `hl.layer_rule` in
+ *       decoration.lua, which stays on Look's own writer pair (see above).
+ *       Task 8 deletes `pillBlur`, derives it from `material`, and retires
+ *       both the extra writer and this whole entry.
+ *   `motion` — still a bare `Flags.motion = v` in AnimationSurface's
+ *       `applyMotion`, bypassing Store entirely (not merely unrouted-through
+ *       Store for one part of it, unlike `pillBlur`/`material` above),
+ *       because it also rewrites the pillMorph bezier and retimes every
+ *       animation leaf, which is what actually carries the character down to
+ *       Hyprland; the flag alone would leave the compositor on the old
+ *       curve. Task 8 makes Feel the primary control.
  *   `paletteMode`, `manualHue`, `manualSat`, `manualDark` — Appearance's
  *       `applyMode`/`applyManual` also run the wallcolors.py process that
  *       regenerates the whole rice colour set and reloads Hyprland and ghostty;
