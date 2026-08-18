@@ -4,9 +4,9 @@ import QtQuick
 import "Singletons"
 
 /**
- * Numeric value control for the settings tabs. At rest it is just the number, so
- * a column of them stays clean instead of a grid of boxes. Hover wakes a faint
- * accent backdrop and the ghost − / + glyphs. One control-wide handler does the
+ * Numeric value control for the settings tabs. At rest the undo and ± glyph slots
+ * are reserved but faded out, leaving just the number—clean and minimal. Hover wakes
+ * a faint accent backdrop and reveals the ghost − / + glyphs. One control-wide handler does the
  * work: drag the number left or right to scrub, or tap near the − / + end to
  * step exactly. The whole control is the target, so it reads minimal but stays
  * easy to grab. Every path runs through `snap`, so the emitted value is always

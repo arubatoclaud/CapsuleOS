@@ -28,6 +28,7 @@ apply)
     scale=$5
     mode=${mode//[^A-Za-z0-9_.@:x+-]/}
     position=${position//[^A-Za-z0-9_.@:x+-]/}
+    scale=${scale//[^0-9.]/}
     if [ ! -e "$old_file" ]; then
         snapshot_old || exit 1
     fi
