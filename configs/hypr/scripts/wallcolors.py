@@ -92,7 +92,12 @@ GLOW_SAT_CAP = 0.90
 GLOW_L = 0.62
 # The pill body renders translucent over the wallpaper (Theme.qml surfAlpha,
 # frost default 0.86), so the accent is clamped against the surface as it
-# actually composites, not against the flat surface swatch.
+# actually composites, not against the flat surface swatch. The MARK_CONTRAST
+# contract is therefore stated against the *frost* composite: it holds exactly
+# on frost and with margin on ink (alpha 1.0), while glass (0.62) lets far more
+# wallpaper through and trades legibility for translucency by design. The
+# pipeline cannot see the runtime material flag, so guarding glass is the
+# renderer's job, not this file's.
 SURF_ALPHA = 0.86
 
 
@@ -170,36 +175,17 @@ def alpha_composite(fg_hex, bg_hex, alpha):
     )
 
 
-def clamp_dark(hue, sat, l_max, target, surface_hex):
-    """
-    Largest lightness <= l_max whose tint still meets `target` WCAG contrast
-    against `surface_hex`; hue/sat are held fixed so only lightness moves, and
-    the result is never lighter than the input (a floor, never a lift).
-    """
-    color = tint(hue, sat, l_max)
-    if contrast_ratio(color, surface_hex) >= target:
-        return l_max, color
-    lo, hi = 0.0, l_max
-    color = tint(hue, sat, lo)
-    if contrast_ratio(color, surface_hex) < target:
-        return lo, color  # best effort: even black falls short of target
-    for _ in range(40):
-        mid = (lo + hi) / 2
-        c = tint(hue, sat, mid)
-        if contrast_ratio(c, surface_hex) >= target:
-            lo = mid
-        else:
-            hi = mid
-    return lo, tint(hue, sat, lo)
-
-
 def clamp_light(hex_color, target, bg_hex):
     """
     Smallest lightness >= the input's whose tint meets `target` WCAG contrast
     against `bg_hex`; hue/sat are held fixed so only lightness moves, and the
-    result is never darker than the input (a lift, never a floor). Mirror of
-    clamp_dark, and the right direction whenever the colour sits ABOVE its
-    background: the always-dark terminal palette, and the accent over the pill.
+    result is never darker than the input (a lift, never a floor). This is the
+    right direction whenever the colour sits ABOVE its background, which in a
+    dark-only palette is always: the terminal's ANSI foregrounds over base00,
+    and the accent over the pill surface.
+
+    Best-effort escape: if even white falls short of `target` it returns white,
+    so the caller ships a sub-target colour. Unreachable at SURF_ALPHA = 0.86.
     """
     if contrast_ratio(hex_color, bg_hex) >= target:
         return hex_color
@@ -418,20 +404,24 @@ def main():
     eff_surface = alpha_composite(pill["surface_container_high"], wall_mean, SURF_ALPHA)
 
     # mark: UI duty. Chroma capped so it stays a mark and not a highlighter,
-    # then lightness moved until it clears MARK_CONTRAST against eff_surface.
-    # clamp_dark holds acc_l when it already passes and searches downward when
-    # it doesn't -- but the accent sits ABOVE a dark surface, so contrast there
-    # grows with lightness and darkening is the wrong way out. When clamp_dark
-    # comes back short (bright wallpaper lifting eff_surface), lift instead.
+    # then lifted until it clears MARK_CONTRAST against eff_surface. The lift is
+    # the only correct direction here: the palette is dark-only, so the accent
+    # always sits ABOVE its background, contrast grows with lightness, and
+    # darkening (clamp_dark) would walk away from the target -- on a bright
+    # wallpaper it bottoms out at its near-black best-effort branch. clamp_light
+    # no-ops when acc_l already passes, so this one call covers both cases.
     mark_sat = min(acc_sat, MARK_SAT_CAP)
-    _, mark = clamp_dark(hue, mark_sat, acc_l, MARK_CONTRAST, eff_surface)
-    if contrast_ratio(mark, eff_surface) < MARK_CONTRAST:
-        mark = clamp_light(tint(hue, mark_sat, acc_l), MARK_CONTRAST, eff_surface)
+    mark = clamp_light(tint(hue, mark_sat, acc_l), MARK_CONTRAST, eff_surface)
 
-    # glow: filament light, never text. It only owes the chroma ceiling -- hot,
-    # but never neon -- at a fixed mid-high lightness so effects that stack it
-    # (gradients, bloom) start from a predictable place.
-    glow = tint(hue, min(acc_sat, GLOW_SAT_CAP), GLOW_L)
+    # glow: filament light, never text. It rides the same saturation ramp as the
+    # accent but under its own, higher ceiling -- hot, but never neon -- at a
+    # fixed mid-high lightness so effects that stack it (gradients, bloom) start
+    # from a predictable place. Deliberately NOT derived from acc_sat: that
+    # would re-impose the accent's 0.82 and make GLOW_SAT_CAP decorative. The
+    # achromatic branch is carried over verbatim so a greyscale wallpaper still
+    # gets a grey glow instead of an invented hue.
+    glow_sat = min(max(sat, 0.30) + 0.12, GLOW_SAT_CAP) if chromatic else 0.05
+    glow = tint(hue, glow_sat, GLOW_L)
 
     pill["mark"] = mark
     pill["glow"] = glow
