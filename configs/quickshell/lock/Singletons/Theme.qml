@@ -16,7 +16,14 @@ Singleton {
     readonly property color cream:  dyn ? Dyn.cream : "#d5dce6"
     readonly property color bright: dyn ? Dyn.bright : "#f2f6fb"
     readonly property color dim:    dyn ? Dyn.dim : "#7d8797"
-    readonly property string font:  "Inter"
+    /**
+     * Snapshot of the system families, not a binding: Qt.fontFamilies() is
+     * not notifiable. The lock has no FontLoader of its own (unlike the
+     * pill), so this snapshot is taken once at startup, same idiom as the
+     * pill's Theme.qml without the refresh hook it needs for a live drop.
+     */
+    property var fontFamilies: Qt.fontFamilies()
+    readonly property string font: (Flags.uiFont.length > 0 && fontFamilies.indexOf(Flags.uiFont) >= 0) ? Flags.uiFont : "Inter"
 
     /**
      * Sonoma frost. The capsule and the avatar are white glass floating over a
