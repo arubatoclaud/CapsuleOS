@@ -90,7 +90,7 @@ SettingsSurface {
             showBack: true
         }
 
-        SettingsGroup { id: focusGrp; s: root.s; hPad: 12 * root.s; title: "Focus"; open: true
+        SettingsGroup { id: focusGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("session", "focus"); open: true
 
         SettingsRow {
             id: dndRow
@@ -143,7 +143,7 @@ SettingsSurface {
 
         }
 
-        SettingsGroup { id: idleGrp; s: root.s; hPad: 12 * root.s; title: "Idle"; open: true
+        SettingsGroup { id: idleGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("session", "idle"); open: true
 
         SettingsRow {
             id: lockRow

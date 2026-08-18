@@ -30,6 +30,22 @@ function setField(text, name, valueLiteral) {
 }
 
 /**
+ * Reads the value of an `hl.env("KEY", "<value>")` call, unquoted. env.lua is a
+ * list of those calls, not a `name = value` table, so `getField` never matches a
+ * line in it — reading an env-backed setting with `getField` silently returns ""
+ * and the caller falls back to its default no matter what the file holds. This is
+ * the read mirror of `setEnv`, and the two have to agree on the syntax.
+ * Returns "" when the key's env call is absent.
+ */
+function getEnv(text, key) {
+    var re = new RegExp("hl\\.env\\(\\s*\"" + escapeRe(key) + "\"\\s*,\\s*\"([^\"]*)\"");
+    var m = re.exec(text);
+    if (!m)
+        return "";
+    return m[1].trim();
+}
+
+/**
  * Replaces the second argument of a `hl.env("KEY", "<old>")` call with the raw
  * value, re-quoted. Returns `{ text, ok }`; ok is false when the key's env call is
  * absent.

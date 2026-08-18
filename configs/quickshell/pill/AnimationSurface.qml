@@ -49,6 +49,9 @@ SettingsSurface {
     implicitHeight: content.implicitHeight
 
     readonly property bool animOn: Store.get("animEnabled")
+    readonly property var enabledEntry: Schema.settings.animEnabled
+    readonly property var motionEntry: Schema.settings.motion
+    readonly property var speedEntry: Schema.settings.animSpeed
     readonly property var reduceMotionEntry: Schema.settings.reduceMotion
     property real speed: 3
     property var base: ({})
@@ -58,12 +61,6 @@ SettingsSurface {
     property real cy1: 1.0
     property real cx2: 0.32
     property real cy2: 1.0
-
-    readonly property var motionOptions: [
-        { label: "Calm", value: "calm" },
-        { label: "Spring", value: "spring" },
-        { label: "Glide", value: "glide" }
-    ]
 
     /**
      * Single source of truth for every curve preset — the calm/spring/glide
@@ -201,15 +198,15 @@ SettingsSurface {
             showBack: true
         }
 
-        SettingsGroupLabel { s: root.s; leftPadding: 12 * root.s; text: "Motion" }
+        SettingsGroupLabel { s: root.s; leftPadding: 12 * root.s; text: Schema.groupTitle("animation", "motion") }
 
         SettingsRow {
             id: enabledRow
             surface: root
             settingId: "animEnabled"
             navSet: (v) => root.writeEnabled(v)
-            name: "Animate windows"
-            sub: "Animate windows, workspaces and fades"
+            name: root.enabledEntry.label
+            sub: root.enabledEntry.caption
             captionOnFocus: true
             icon: "sparkles"
             LinkToggle {
@@ -224,14 +221,14 @@ SettingsSurface {
             surface: root
             settingId: "motion"
             navSet: (v) => root.applyMotion(v)
-            name: Schema.settings.motion.label
-            sub: "Sets curve and speed together — calm settles, spring overshoots, glide stretches"
+            name: root.motionEntry.label
+            sub: root.motionEntry.caption
             captionOnFocus: true
             icon: "waves"
             visible: root.animOn
             SettingsSeg {
                 s: root.s
-                options: root.motionOptions
+                options: root.motionEntry.options
                 value: Store.get("motion")
                 onPicked: v => root.applyMotion(v)
             }
@@ -241,8 +238,8 @@ SettingsSurface {
             id: speedRow
             surface: root
             settingId: "animSpeed"
-            name: Schema.settings.animSpeed.label
-            sub: "Duration in deciseconds — lower is snappier"
+            name: root.speedEntry.label
+            sub: root.speedEntry.caption
             captionOnFocus: true
             icon: "bolt"
             visible: root.animOn
@@ -286,7 +283,7 @@ SettingsSurface {
         SettingsGroup {
             s: root.s
             hPad: 12 * root.s
-            title: "Curve"
+            title: Schema.groupTitle("animation", "curve")
             visible: root.animOn
 
             /**

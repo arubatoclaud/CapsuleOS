@@ -7,7 +7,8 @@ import "Singletons"
 /**
  * FONT sub-surface: a searchable list of every installed family, each row
  * rendering its own name as a live preview so the user reads the shape before
- * picking. A click writes the family to Flags.uiFont, which Theme.font reads back
+ * picking. A click writes the family through `Store.set("uiFont", ...)` — the
+ * same door every other setting uses — and Theme.font reads the stored flag back
  * through a validated ternary so the whole shell re-renders at once; the leading
  * reset row writes "" to fall back to the bundled Inter. The current pick carries
  * the vermilion tint. Reached from Appearance (or via deep link) and pops back to
@@ -41,8 +42,8 @@ SettingsSurface {
     /**
      * Deduped, sorted family list with the reset entry prepended, then narrowed by
      * a case-insensitive substring on the live query. The reset row carries an
-     * empty family so a click clears Flags.uiFont; the search never hides it, so the
-     * fallback stays one tap away.
+     * empty family so a click clears the stored font; the search never hides it, so
+     * the fallback stays one tap away.
      */
     readonly property var families: {
         var seen = {};
@@ -69,8 +70,15 @@ SettingsSurface {
         return rows;
     }
 
+    /**
+     * The font is a Schema entry (`uiFont`), so the pick goes through Store like
+     * every other setting rather than assigning the flag behind the settings
+     * tree's back — same storage either way, but the validation, the failure
+     * signal and `wrote("uiFont")` all come with it. The empty family is the
+     * reset row and is a legal value: it means "back to Inter".
+     */
     function pick(family) {
-        Flags.uiFont = family;
+        Store.set("uiFont", family);
     }
 
     /** Slide the keyboard highlight by dir (+1 down, -1 up), clamped and kept in view. */

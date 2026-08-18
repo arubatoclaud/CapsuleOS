@@ -440,7 +440,7 @@ SettingsSurface {
             }
         }
 
-        SettingsGroup { id: chromeGrp; s: root.s; hPad: 12 * root.s; title: "Shell chrome"
+        SettingsGroup { id: chromeGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("appearance", "chrome")
 
         SettingsRow {
             id: pillGapRow
@@ -527,7 +527,7 @@ SettingsSurface {
 
         }
 
-        SettingsGroup { id: themeGrp; s: root.s; hPad: 12 * root.s; title: "Theme"
+        SettingsGroup { id: themeGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("appearance", "theme")
 
         /**
          * A plain `Store.set` like every other row: Store writes the flag
@@ -554,7 +554,7 @@ SettingsSurface {
 
         }
 
-        SettingsGroup { id: widgetsGrp; s: root.s; hPad: 12 * root.s; title: "Widgets"
+        SettingsGroup { id: widgetsGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("appearance", "widgets")
 
         /**
          * The calendar's weather town, given a home in the settings tree. The

@@ -86,7 +86,7 @@ SettingsSurface {
             }
         }
 
-        SettingsGroup { id: optionsGrp; s: root.s; hPad: 12 * root.s; title: "Options"; open: true
+        SettingsGroup { id: optionsGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("recording", "options"); open: true
 
         SettingsRow {
             id: fpsRow
@@ -150,7 +150,7 @@ SettingsSurface {
 
         }
 
-        SettingsGroup { id: audioGrp; s: root.s; hPad: 12 * root.s; title: "Audio"; open: true
+        SettingsGroup { id: audioGrp; s: root.s; hPad: 12 * root.s; title: Schema.groupTitle("recording", "audio"); open: true
 
         SettingsRow {
             id: micRow

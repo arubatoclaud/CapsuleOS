@@ -109,7 +109,7 @@ SettingsSurface {
             anchors.rightMargin: 12 * root.s
             spacing: 0
 
-            SettingsGroupLabel { s: root.s; text: "Pointer" }
+            SettingsGroupLabel { s: root.s; text: Schema.groupTitle("input", "pointer") }
 
             SettingsRow {
                 id: sensRow
@@ -161,7 +161,7 @@ SettingsSurface {
                 }
             }
 
-            SettingsGroupLabel { s: root.s; text: "Keyboard" }
+            SettingsGroupLabel { s: root.s; text: Schema.groupTitle("input", "keyboard") }
 
             SettingsRow {
                 id: layoutRow
@@ -245,7 +245,7 @@ SettingsSurface {
                 }
             }
 
-            SettingsGroupLabel { s: root.s; text: "Cursor" }
+            SettingsGroupLabel { s: root.s; text: Schema.groupTitle("input", "cursor") }
 
             SettingsRow {
                 id: sizeRow

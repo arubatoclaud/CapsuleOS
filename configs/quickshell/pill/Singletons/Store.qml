@@ -19,10 +19,10 @@ import "../lib/setAnim.js" as SetAnim
  *
  *   flags  — a plain `Flags.<key>` assignment (the JSON state file).
  *   idle   — the three hypridle timeouts: writes the Flags key, then regenerates
- *            the whole hypridle.conf and restarts the service. `buildIdleConf`
- *            lives here rather than on the page because a singleton cannot call
- *            into a transient surface, and the surface is about to stop owning
- *            the write.
+ *            the whole hypridle.conf and restarts the service once that conf has
+ *            actually landed. `buildIdleConf` lives here rather than on the
+ *            page because the write belongs to Store and a singleton cannot
+ *            call into a transient surface for it.
  *   deco   — decoration.lua. A dotted key (`blur.size`, `shadow.range`) is
  *            scoped to that Lua block so a name shared by sibling blocks
  *            (`enabled`) lands in the right one. The two opacity fields also get
@@ -51,13 +51,13 @@ import "../lib/setAnim.js" as SetAnim
  * than watched. A watcher would re-read while an atomic write of ours was still
  * in flight and hand the next write a stale base, dropping the value just saved.
  * Instead every file-backed write re-reads that one file immediately before it
- * applies the field edit, so an edit made by hand, by another tool, or by a page
- * that has not migrated yet is the base the rewrite starts from and survives it
- * rather than being silently reverted. The re-read is skipped only while one of
- * Store's own writes to that file is still landing — tracked per file, `setText`
- * in and `saved`/`saveFailed` out — because in that window the in-memory text is
- * the fresher of the two. `reload()` refreshes everything under the same rule,
- * for a page that wants to resync on open.
+ * applies the field edit, so an edit made by hand or by another tool is the base
+ * the rewrite starts from and survives it rather than being silently reverted.
+ * The re-read is skipped only while one of Store's own writes to that file is
+ * still landing — tracked per file, `setText` in and `saved`/`saveFailed` out —
+ * because in that window the in-memory text is the fresher of the two.
+ * `reload()` refreshes everything under the same rule, for a page that wants to
+ * resync on open.
  *
  * Store is the ONE writer on every file it owns. Every page it serves — Input,
  * AnimationSurface, Look, SessionSurface, Appearance — owns no FileView of its own;
@@ -97,12 +97,23 @@ import "../lib/setAnim.js" as SetAnim
  *   `paletteMode`, `manualHue`, `manualSat`, `manualDark` — Appearance's
  *       `applyMode`/`applyManual` also run the wallcolors.py process that
  *       regenerates the whole rice colour set and reloads Hyprland and ghostty;
- *       the flag alone changes nothing on screen. Task 5 migrates the page.
+ *       the flag alone changes nothing on screen. `applyMode` therefore routes
+ *       the `paletteMode` flag through `Store.set` and then drives the process
+ *       itself; the three manual knobs are `control: "custom"` in Schema and
+ *       write Flags directly, each edit calling `applyManual` to debounce the
+ *       same repaint. The side effect stays on the page either way — Store
+ *       validates and stores, it does not run the rice.
  */
 Singleton {
     id: root
 
-    /** A value landed on its backend. */
+    /**
+     * A value landed on its backend. Part of the pinned interface and kept
+     * deliberately though nothing listens today: every control reads its value
+     * back through `get`, so a page needs no write notification of its own —
+     * this is the door for anything outside the settings tree that has to react
+     * to a setting changing without polling for it.
+     */
     signal wrote(string id)
     /** A write was refused or failed; `message` is user-facing. */
     signal writeFailed(string id, string message)
@@ -130,10 +141,17 @@ Singleton {
     property string _autostartText: ""
     property string _ghosttyText: ""
 
+    /**
+     * The three Lua texts, readable but not writable from outside. Nothing reads
+     * them any more — after the migration no page parses raw Lua, they all ask
+     * `get(id)` — but they are the pinned Store interface the plan specified, and
+     * a bespoke editor that wants to inspect a file Store owns has no other door.
+     * Kept deliberately, not by accident. `envText` was the one that was never
+     * pinned and never used, so it is gone.
+     */
     readonly property string decoText: root._decoText
     readonly property string inputText: root._inputText
     readonly property string animText: root._animText
-    readonly property string envText: root._envText
 
     /**
      * Writes of ours still landing, per file. A `setText` is asynchronous, so
@@ -155,12 +173,14 @@ Singleton {
     /**
      * Re-reads one backing file so the next rewrite starts from what is actually
      * on disk. Called at the top of every file-backed write, which is what keeps
-     * a hand edit, another tool, or an unmigrated page's write from being
-     * reverted by a rewrite built on a stale snapshot. Skipped while one of our
-     * own writes to that file is still in flight, since the in-memory text is
-     * then the fresher of the two. The readers are `blockAllReads`, without which
-     * this whole function is a no-op: `reload()` alone is asynchronous and the
-     * following `text()` would hand back the very snapshot being escaped.
+     * a hand edit or another tool's write from being reverted by a rewrite built
+     * on a stale snapshot — Store is the only writer of ours on these files (see
+     * the header), so no sibling of ours is left for it to guard against. Skipped
+     * while one of our own writes to that file is still in flight, since the
+     * in-memory text is then the fresher of the two. The readers are
+     * `blockAllReads`, without which this whole function is a no-op: `reload()`
+     * alone is asynchronous and the following `text()` would hand back the very
+     * snapshot being escaped.
      */
     function _sync(which) {
         if (which === "deco") {
@@ -262,6 +282,22 @@ Singleton {
         return false;
     }
 
+    /**
+     * A writer came back failed. The disk write is asynchronous by design — `set`
+     * validates, hands the new text to the writer and returns true, so the control
+     * follows the value the user chose instead of waiting on the filesystem — which
+     * makes this the ONLY place a permissions or disk error can still reach them.
+     * Without it a failed save was a `console.warn` under a UI that had already
+     * reported success, exactly the swallowed write this Store exists to end
+     * (audit P0-3). It names the FILE rather than the setting: by the time the save
+     * fails the id that started it may be several writes ago, and the strip shows
+     * only the message anyway.
+     */
+    function _saveFailed(file) {
+        console.warn("Store: writing " + file + " failed");
+        root.writeFailed(file, "Couldn't write " + file + " — the change wasn't saved.");
+    }
+
     // ── reads ─────────────────────────────────────────────────────────────
 
     /** Parses a raw Lua/config string into the entry's declared type. */
@@ -310,8 +346,12 @@ Singleton {
                 ? root._parse(e, SetDeco.getField(root._decoText, e.key))
                 : root._parse(e, SetDeco.getBlockField(root._decoText, e.key.slice(0, dot), e.key.slice(dot + 1)));
         case "input":
+            // env.lua is `hl.env("KEY", "value")` calls, input.lua is a `name = value`
+            // table: reading an env key with the field parser matches nothing and hands
+            // back the Schema default whatever the file holds, which is what pinned the
+            // cursor rows to 24 / Bibata-Modern-Ice however they were written.
             return root._isEnvKey(e.key)
-                ? root._parse(e, SetInput.getField(root._envText, e.key))
+                ? root._parse(e, SetInput.getEnv(root._envText, e.key))
                 : root._parse(e, SetInput.getField(root._inputText, e.key));
         case "anim":
             if (e.key === "enabled")
@@ -373,9 +413,12 @@ Singleton {
                 root.writeFailed(id, "Material saved, but the pill blur couldn't be applied.");
             break;
         case "idle":
+            // The restart is armed by the writer's `saved`, not here: the write is
+            // asynchronous, so restarting alongside it would reload the conf that
+            // is still on disk — the OLD one — and on a failed write it would
+            // reload the stale conf and call that success.
             Flags[e.key] = v;
             idleWriter.setText(root.buildIdleConf());
-            hypridleRestart.running = true;
             break;
         case "night":
             if (!root._setNight(id, e, v))
@@ -605,8 +648,8 @@ Singleton {
         root._sync("env");
 
         if (e.key === "XCURSOR_THEME" || e.key === "XCURSOR_SIZE") {
-            var theme = e.key === "XCURSOR_THEME" ? String(v) : SetInput.getField(root._envText, "XCURSOR_THEME");
-            var size = e.key === "XCURSOR_SIZE" ? v : parseInt(SetInput.getField(root._envText, "XCURSOR_SIZE"), 10);
+            var theme = e.key === "XCURSOR_THEME" ? String(v) : SetInput.getEnv(root._envText, "XCURSOR_THEME");
+            var size = e.key === "XCURSOR_SIZE" ? v : parseInt(SetInput.getEnv(root._envText, "XCURSOR_SIZE"), 10);
             if (theme.length === 0)
                 theme = Schema.settings.cursorTheme.def;
             if (isNaN(size))
@@ -738,7 +781,7 @@ Singleton {
         onSaved: root._decoPending = Math.max(0, root._decoPending - 1)
         onSaveFailed: {
             root._decoPending = Math.max(0, root._decoPending - 1);
-            console.warn("Store: writing decoration.lua failed");
+            root._saveFailed("decoration.lua");
         }
     }
 
@@ -751,7 +794,7 @@ Singleton {
         onSaved: root._inputPending = Math.max(0, root._inputPending - 1)
         onSaveFailed: {
             root._inputPending = Math.max(0, root._inputPending - 1);
-            console.warn("Store: writing input.lua failed");
+            root._saveFailed("input.lua");
         }
     }
 
@@ -764,7 +807,7 @@ Singleton {
         onSaved: root._animPending = Math.max(0, root._animPending - 1)
         onSaveFailed: {
             root._animPending = Math.max(0, root._animPending - 1);
-            console.warn("Store: writing animations.lua failed");
+            root._saveFailed("animations.lua");
         }
     }
 
@@ -777,7 +820,7 @@ Singleton {
         onSaved: root._envPending = Math.max(0, root._envPending - 1)
         onSaveFailed: {
             root._envPending = Math.max(0, root._envPending - 1);
-            console.warn("Store: writing env.lua failed");
+            root._saveFailed("env.lua");
         }
     }
 
@@ -790,7 +833,7 @@ Singleton {
         onSaved: root._autostartPending = Math.max(0, root._autostartPending - 1)
         onSaveFailed: {
             root._autostartPending = Math.max(0, root._autostartPending - 1);
-            console.warn("Store: writing autostart.lua failed");
+            root._saveFailed("autostart.lua");
         }
     }
 
@@ -803,12 +846,24 @@ Singleton {
         onSaved: root._ghosttyPending = Math.max(0, root._ghosttyPending - 1)
         onSaveFailed: {
             root._ghosttyPending = Math.max(0, root._ghosttyPending - 1);
-            console.warn("Store: writing the ghostty config failed");
+            root._saveFailed("the ghostty config");
         }
     }
 
-    /** hypridle.conf is regenerated whole from Flags, so it needs no read-back. */
-    FileView { id: idleWriter; path: root.hypridlePath; atomicWrites: true; printErrors: false }
+    /**
+     * hypridle.conf is regenerated whole from Flags, so it needs no read-back and
+     * no pending counter. The service restart hangs off `saved` so hypridle only
+     * ever reloads a conf that actually landed; a failed write surfaces instead of
+     * being followed by a restart on the previous file's contents.
+     */
+    FileView {
+        id: idleWriter
+        path: root.hypridlePath
+        atomicWrites: true
+        printErrors: false
+        onSaved: hypridleRestart.running = true
+        onSaveFailed: root._saveFailed("hypridle.conf")
+    }
 
     /**
      * The Hyprland reload is debounced so a scrub drag writes the file on every

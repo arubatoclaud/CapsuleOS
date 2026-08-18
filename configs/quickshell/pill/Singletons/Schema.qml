@@ -58,7 +58,7 @@ Singleton {
     readonly property var pages: [
         { id: "appearance", title: "Appearance", caption: "Clock, accent palette, scale", icon: "sparkles" },
         { id: "look", title: "Windows", caption: "Gaps, corners, borders, blur, shadow, layout", icon: "app-window" },
-        { id: "display", title: "Display", caption: "Resolution, refresh, scale", icon: "monitor" },
+        { id: "display", title: "Display", caption: "Resolution, refresh, scale, night light", icon: "monitor" },
         { id: "input", title: "Input", caption: "Pointer, keyboard, cursor", icon: "mouse" },
         { id: "animation", title: "Motion", caption: "Animation speed and feel", icon: "waves" },
         { id: "keybinds", title: "Keybinds", caption: "Rebind, add, set commands", icon: "keyboard" },
@@ -97,6 +97,33 @@ Singleton {
         recording: ["options", "audio"],
         session: ["focus", "idle"]
     })
+
+    /**
+     * The visible title of each group in `groupOrder`. The pages bind their group
+     * headers from here rather than carrying the string themselves, which is what
+     * lets the settings search match a group by name: a search hit is built from a
+     * Schema entry, and "Night light" or "Transparency" is a fact about the entry's
+     * group that used to exist only as a literal inside the page — so searching for
+     * the feature by its own name found nothing on the page that owns it.
+     * Every group listed in `groupOrder` needs a title here; `check()` says so.
+     */
+    readonly property var groupTitles: ({
+        look: { window: "Window", layout: "Layout", shadow: "Shadow", blur: "Blur", opacity: "Transparency" },
+        display: { night: "Night light", advanced: "Advanced" },
+        input: { pointer: "Pointer", keyboard: "Keyboard", cursor: "Cursor" },
+        animation: { motion: "Motion", curve: "Curve" },
+        appearance: { chrome: "Shell chrome", theme: "Theme", widgets: "Widgets" },
+        recording: { options: "Options", audio: "Audio" },
+        session: { focus: "Focus", idle: "Idle" }
+    })
+
+    /** The visible title of one group, or "" for an ungrouped entry or unknown pair. */
+    function groupTitle(page, group) {
+        if (typeof group !== "string" || group.length === 0)
+            return "";
+        var g = root.groupTitles[page];
+        return g !== undefined && typeof g[group] === "string" ? g[group] : "";
+    }
 
     readonly property var settings: ({
 
@@ -540,7 +567,7 @@ Singleton {
          */
         idleSuspendMin: {
             page: "session", group: "", order: 0,
-            label: "Suspend", caption: "Sleep the machine after idle",
+            label: "Suspend after", caption: "Sleep the machine after idle",
             control: "seg", type: "int", backend: "idle", key: "idleSuspendMin", def: 0,
             options: [{ label: "Off", value: 0 }, { label: "15 min", value: 15 },
                 { label: "30 min", value: 30 }, { label: "60 min", value: 60 }],
@@ -550,7 +577,7 @@ Singleton {
         // ── Mixer quick toggles (outside the settings section) ────────────
         /**
          * The one deliberate alias in the table: this chip drives the same
-         * stored key as `nightLightMode` (Look → Night light) but as a bool.
+         * stored key as `nightLightMode` (Display → Night light) but as a bool.
          * `aliasOf` records that the other entry owns the key, which is what
          * exempts the pair from the (backend, key) type guard.
          *
@@ -802,6 +829,25 @@ Singleton {
                 warn("groupOrder['" + gpages[g] + "']", "not a known page");
             else if (!Array.isArray(root.groupOrder[gpages[g]]) || root.groupOrder[gpages[g]].length === 0)
                 warn("groupOrder['" + gpages[g] + "']", "must be a non-empty array of group ids");
+            else
+                for (var gi = 0; gi < root.groupOrder[gpages[g]].length; gi++) {
+                    var gid = root.groupOrder[gpages[g]][gi];
+                    if (root.groupTitle(gpages[g], gid).length === 0)
+                        warn("groupTitles['" + gpages[g] + "']", "no title for group '" + gid + "'");
+                }
+        }
+
+        var tpages = Object.keys(root.groupTitles);
+        for (var t = 0; t < tpages.length; t++) {
+            var known = root.groupOrder[tpages[t]];
+            if (known === undefined) {
+                warn("groupTitles['" + tpages[t] + "']", "page has no groupOrder");
+                continue;
+            }
+            var tids = Object.keys(root.groupTitles[tpages[t]]);
+            for (var ti = 0; ti < tids.length; ti++)
+                if (known.indexOf(tids[ti]) === -1)
+                    warn("groupTitles['" + tpages[t] + "']", "titles unknown group '" + tids[ti] + "'");
         }
 
         return bad;

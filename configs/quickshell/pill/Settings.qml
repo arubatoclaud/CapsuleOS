@@ -51,11 +51,14 @@ SettingsSurface {
     }
 
     /**
-     * Every Schema entry whose label, caption or page title contains the live
-     * query, case-insensitively. `control: "custom"` rows with no Store key of
-     * their own (the monitor card, the keybind editor and the like) are still
-     * plain entries here — a hit just opens the page a click on it always
-     * opened.
+     * Every Schema entry whose label, caption, group title or page title contains
+     * the live query, case-insensitively. The group title is in the haystack
+     * because a feature's name is often the group's, not the row's: night light is
+     * four rows called Mode, Warmth, Turns on and Turns off, and without their
+     * group they were unfindable by the only name the user knows them by.
+     * `control: "custom"` rows with no Store key of their own (the monitor card,
+     * the keybind editor and the like) are still plain entries here — a hit just
+     * opens the page a click on it always opened.
      */
     readonly property var results: {
         var q = root.query.trim().toLowerCase();
@@ -66,7 +69,8 @@ SettingsSurface {
         for (var i = 0; i < ids.length; i++) {
             var e = Schema.settings[ids[i]];
             var title = root.pageTitleFor(e.page);
-            var hay = (e.label + " " + e.caption + " " + title).toLowerCase();
+            var hay = (e.label + " " + e.caption + " " + Schema.groupTitle(e.page, e.group)
+                + " " + title).toLowerCase();
             if (hay.indexOf(q) < 0)
                 continue;
             out.push({

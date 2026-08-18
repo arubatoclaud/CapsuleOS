@@ -108,7 +108,7 @@ SettingsSurface {
             anchors.rightMargin: 12 * root.s
             spacing: 0
 
-            SettingsGroup { id: winGrp; s: root.s; title: "Window"; open: true
+            SettingsGroup { id: winGrp; s: root.s; title: Schema.groupTitle("look", "window"); open: true
 
             SettingsRow {
                 id: gapsInRow
@@ -198,7 +198,7 @@ SettingsSurface {
 
             }
 
-            SettingsGroup { id: layoutGrp; s: root.s; title: "Layout"
+            SettingsGroup { id: layoutGrp; s: root.s; title: Schema.groupTitle("look", "layout")
 
             SettingsRow {
                 id: layoutRow
@@ -218,7 +218,7 @@ SettingsSurface {
 
             }
 
-            SettingsGroup { id: shadowGrp; s: root.s; title: "Shadow"
+            SettingsGroup { id: shadowGrp; s: root.s; title: Schema.groupTitle("look", "shadow")
 
             SettingsRow {
                 id: shEnRow
@@ -274,7 +274,7 @@ SettingsSurface {
 
             }
 
-            SettingsGroup { id: blurGrp; s: root.s; title: "Blur"
+            SettingsGroup { id: blurGrp; s: root.s; title: Schema.groupTitle("look", "blur")
 
             SettingsRow {
                 id: blEnRow
@@ -366,7 +366,7 @@ SettingsSurface {
 
             }
 
-            SettingsGroup { id: opGrp; s: root.s; title: "Transparency"
+            SettingsGroup { id: opGrp; s: root.s; title: Schema.groupTitle("look", "opacity")
 
             SettingsRow {
                 id: opActRow

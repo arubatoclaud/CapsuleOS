@@ -1004,7 +1004,7 @@ SettingsSurface {
                 lineHeight: 1.25
             }
 
-            SettingsGroup { id: nightGrp; s: root.s; title: "Night light"
+            SettingsGroup { id: nightGrp; s: root.s; title: Schema.groupTitle("display", "night")
 
             SettingsRow {
                 id: nlModeRow
@@ -1094,7 +1094,7 @@ SettingsSurface {
              * arms, and pressing again confirms, so the keyboard walks the same
              * two steps the mouse does instead of pretending to hold a state.
              */
-            SettingsGroup { id: advGrp; s: root.s; title: "Advanced"
+            SettingsGroup { id: advGrp; s: root.s; title: Schema.groupTitle("display", "advanced")
 
             SettingsRow {
                 id: mainRow

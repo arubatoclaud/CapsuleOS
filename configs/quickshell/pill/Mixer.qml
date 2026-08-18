@@ -344,7 +344,7 @@ PillSurface {
              * than straight to NightLight: Store remembers the mode this chip
              * switches away from and restores it on the way back, instead of
              * always answering "on" and quietly demoting a scheduled night
-             * light the user set in Look (audit P0-2). The read stays a plain
+             * light the user set in Display (audit P0-2). The read stays a plain
              * "not off" — the chip is lit for warm-now and for scheduled alike.
              */
             IconChip {
