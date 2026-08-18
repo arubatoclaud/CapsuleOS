@@ -13,8 +13,7 @@ import "Singletons"
  * (Theme). Reached from the settings index and morphs back to it via the back
  * chevron in the header strip, popping the settings stack.
  *
- * Every row but the manual-palette editor and the Shell chrome/Theme rows'
- * shared Look.qml plumbing reads and writes through Store, which validates
+ * Every row but the manual-palette editor reads and writes through Store, which validates
  * against Schema and assigns the matching Flags key — so this surface carries
  * no write plumbing of its own beyond the palette rows below.
  *
