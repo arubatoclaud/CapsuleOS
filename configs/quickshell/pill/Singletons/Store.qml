@@ -47,20 +47,40 @@ import "../lib/setAnim.js" as SetAnim
  * that owns its own file (monitors.lua, binds.lua, workspace rules, the preset
  * picker). Those are deliberately NOT routable: `set` warns and returns false.
  *
- * The three Lua texts are read once at construction and are the in-memory source
- * of truth afterwards. They are deliberately not watched: a watcher would re-read
- * the file while an atomic write of ours was still in flight and hand the next
- * write a stale base, dropping the value that was just saved. `reload()` is the
- * explicit re-read for a page that wants to resync on open.
+ * The file-backed texts are read at construction and refreshed on demand rather
+ * than watched. A watcher would re-read while an atomic write of ours was still
+ * in flight and hand the next write a stale base, dropping the value just saved.
+ * Instead every file-backed write re-reads that one file immediately before it
+ * applies the field edit, so an edit made by hand, by another tool, or by a page
+ * that has not migrated yet is the base the rewrite starts from and survives it
+ * rather than being silently reverted. The re-read is skipped only while one of
+ * Store's own writes to that file is still landing — tracked per file, `setText`
+ * in and `saved`/`saveFailed` out — because in that window the in-memory text is
+ * the fresher of the two. `reload()` refreshes everything under the same rule,
+ * for a page that wants to resync on open.
  *
  * Transitional note: Look, Input and AnimationSurface still own their own
  * FileViews on these same three files until they migrate. Store's writers are
  * constructed but nothing calls them yet, so exactly one writer per file is live
- * at every task boundary. Two `flags` keys also still carry a side effect Look
- * owns and Store does not: `pillBlur` and `material` add or remove the pill-blur
- * `hl.layer_rule` in decoration.lua. Routing either through Store today would
- * persist the flag without the rule, so Look keeps writing them until that
- * side effect moves here with the rest of the page.
+ * at every task boundary.
+ *
+ * Side-effecting flags — DO NOT route these through `Store.set` yet. Their
+ * `flags` entry is a bare key, but the page that owns them today runs a side
+ * effect Store does not, so a Store write would persist the flag and leave the
+ * system on the old value. Each is resolved by the task that migrates its page:
+ *
+ *   `pillBlur`, `material` — Look's `applyPillBlur`/`setMaterial` also add or
+ *       remove the pill-blur `hl.layer_rule` in decoration.lua. Task 4 moves the
+ *       page; Task 8 deletes `pillBlur` and derives it from `material`.
+ *   `motion` — AnimationSurface's `applyMotion` also rewrites the pillMorph
+ *       bezier and retimes every animation leaf, which is what actually carries
+ *       the character down to Hyprland; the flag alone would leave the
+ *       compositor on the old curve. Task 3 migrates the page, Task 8 makes
+ *       Feel the primary control.
+ *   `paletteMode`, `manualHue`, `manualSat`, `manualDark` — Appearance's
+ *       `applyMode`/`applyManual` also run the wallcolors.py process that
+ *       regenerates the whole rice colour set and reloads Hyprland and ghostty;
+ *       the flag alone changes nothing on screen. Task 5 migrates the page.
  */
 Singleton {
     id: root
@@ -91,23 +111,75 @@ Singleton {
     readonly property string animText: root._animText
     readonly property string envText: root._envText
 
+    /**
+     * Writes of ours still landing, per file. A `setText` is asynchronous, so
+     * between the call and the writer's `saved` the file on disk is still the
+     * old one; re-reading in that window would resurrect the value we just
+     * replaced. While a counter is above zero the in-memory text is authoritative
+     * and `_sync` leaves it alone.
+     */
+    property int _decoPending: 0
+    property int _inputPending: 0
+    property int _animPending: 0
+    property int _envPending: 0
+    property int _autostartPending: 0
+    property int _ghosttyPending: 0
+
     /** The id whose write armed the pending Hyprland reload, so a failed reload can name it. */
     property string _reloadId: ""
 
+    /**
+     * Re-reads one backing file so the next rewrite starts from what is actually
+     * on disk. Called at the top of every file-backed write, which is what keeps
+     * a hand edit, another tool, or an unmigrated page's write from being
+     * reverted by a rewrite built on a stale snapshot. Skipped while one of our
+     * own writes to that file is still in flight, since the in-memory text is
+     * then the fresher of the two. The readers are `blockAllReads`, without which
+     * this whole function is a no-op: `reload()` alone is asynchronous and the
+     * following `text()` would hand back the very snapshot being escaped.
+     */
+    function _sync(which) {
+        if (which === "deco") {
+            if (root._decoPending > 0)
+                return;
+            decoFile.reload();
+            root._decoText = decoFile.text();
+        } else if (which === "input") {
+            if (root._inputPending > 0)
+                return;
+            inputFile.reload();
+            root._inputText = inputFile.text();
+        } else if (which === "anim") {
+            if (root._animPending > 0)
+                return;
+            animFile.reload();
+            root._animText = animFile.text();
+        } else if (which === "env") {
+            if (root._envPending > 0)
+                return;
+            envFile.reload();
+            root._envText = envFile.text();
+        } else if (which === "autostart") {
+            if (root._autostartPending > 0)
+                return;
+            autostartFile.reload();
+            root._autostartText = autostartFile.text();
+        } else if (which === "ghostty") {
+            if (root._ghosttyPending > 0)
+                return;
+            ghosttyFile.reload();
+            root._ghosttyText = ghosttyFile.text();
+        }
+    }
+
     /** Re-reads every backing file. For a page that wants to resync on open. */
     function reload() {
-        decoFile.reload();
-        inputFile.reload();
-        animFile.reload();
-        envFile.reload();
-        autostartFile.reload();
-        ghosttyFile.reload();
-        root._decoText = decoFile.text();
-        root._inputText = inputFile.text();
-        root._animText = animFile.text();
-        root._envText = envFile.text();
-        root._autostartText = autostartFile.text();
-        root._ghosttyText = ghosttyFile.text();
+        root._sync("deco");
+        root._sync("input");
+        root._sync("anim");
+        root._sync("env");
+        root._sync("autostart");
+        root._sync("ghostty");
     }
 
     // ── validation ────────────────────────────────────────────────────────
@@ -372,6 +444,7 @@ Singleton {
      * alpha until their next focus change.
      */
     function _setDeco(id, e, v) {
+        root._sync("deco");
         var lit = root._lit(e, v);
         var dot = e.key.indexOf(".");
         var res = dot < 0
@@ -380,6 +453,7 @@ Singleton {
         if (!res.ok)
             return false;
         root._decoText = res.text;
+        root._decoPending += 1;
         decoWriter.setText(res.text);
         root._reloadId = id;
         reloadTimer.restart();
@@ -403,15 +477,19 @@ Singleton {
      */
     function _setInput(id, e, v) {
         if (!root._isEnvKey(e.key)) {
+            root._sync("input");
             var res = SetInput.setField(root._inputText, e.key, root._lit(e, v));
             if (!res.ok)
                 return false;
             root._inputText = res.text;
+            root._inputPending += 1;
             inputWriter.setText(res.text);
             root._reloadId = id;
             reloadTimer.restart();
             return true;
         }
+
+        root._sync("env");
 
         if (e.key === "XCURSOR_THEME" || e.key === "XCURSOR_SIZE") {
             var theme = e.key === "XCURSOR_THEME" ? String(v) : SetInput.getField(root._envText, "XCURSOR_THEME");
@@ -427,6 +505,7 @@ Singleton {
         if (!er.ok)
             return false;
         root._envText = er.text;
+        root._envPending += 1;
         envWriter.setText(er.text);
         return true;
     }
@@ -438,6 +517,7 @@ Singleton {
      * others.
      */
     function _applyCursor(theme, size) {
+        root._sync("autostart");
         setcursorProc.command = ["hyprctl", "setcursor", theme, String(size)];
         setcursorProc.running = true;
 
@@ -448,12 +528,14 @@ Singleton {
         var any = e1.ok || e2.ok || e3.ok;
         if (any) {
             root._envText = e3.ok ? e3.text : (e2.ok ? e2.text : e1.text);
+            root._envPending += 1;
             envWriter.setText(root._envText);
         }
 
         var auto = SetInput.setCursorLine(root._autostartText, theme, String(size));
         if (auto.ok) {
             root._autostartText = auto.text;
+            root._autostartPending += 1;
             autostartWriter.setText(auto.text);
         }
         return any || auto.ok;
@@ -465,6 +547,7 @@ Singleton {
      * one named bezier's two control points carried as "x1,y1,x2,y2".
      */
     function _setAnim(id, e, v) {
+        root._sync("anim");
         var res;
         if (e.key === "enabled") {
             res = SetAnim.setEnabled(root._animText, v ? "true" : "false");
@@ -480,6 +563,7 @@ Singleton {
         if (!res.ok)
             return false;
         root._animText = res.text;
+        root._animPending += 1;
         animWriter.setText(res.text);
         root._reloadId = id;
         reloadTimer.restart();
@@ -500,6 +584,7 @@ Singleton {
             return true;
         }
         if (e.key === "background-opacity") {
+            root._sync("ghostty");
             var line = "background-opacity = " + v.toFixed(2);
             var t = root._ghosttyText;
             if (/^\s*background-opacity\s*=.*$/m.test(t))
@@ -507,6 +592,7 @@ Singleton {
             else
                 t += (t.length > 0 && !t.endsWith("\n") ? "\n" : "") + line + "\n";
             root._ghosttyText = t;
+            root._ghosttyPending += 1;
             ghosttyWriter.setText(t);
             ghosttySignalTimer.restart();
             return true;
@@ -516,18 +602,99 @@ Singleton {
 
     // ── backing files ─────────────────────────────────────────────────────
 
-    FileView { id: decoFile; path: root.decoPath; blockLoading: true; printErrors: false }
-    FileView { id: decoWriter; path: root.decoPath; atomicWrites: true; printErrors: false }
-    FileView { id: inputFile; path: root.inputPath; blockLoading: true; printErrors: false }
-    FileView { id: inputWriter; path: root.inputPath; atomicWrites: true; printErrors: false }
-    FileView { id: animFile; path: root.animPath; blockLoading: true; printErrors: false }
-    FileView { id: animWriter; path: root.animPath; atomicWrites: true; printErrors: false }
-    FileView { id: envFile; path: root.envPath; blockLoading: true; printErrors: false }
-    FileView { id: envWriter; path: root.envPath; atomicWrites: true; printErrors: false }
-    FileView { id: autostartFile; path: root.autostartPath; blockLoading: true; printErrors: false }
-    FileView { id: autostartWriter; path: root.autostartPath; atomicWrites: true; printErrors: false }
-    FileView { id: ghosttyFile; path: root.ghosttyPath; blockLoading: true; printErrors: false }
-    FileView { id: ghosttyWriter; path: root.ghosttyPath; atomicWrites: true; printErrors: false }
+    /**
+     * A reader and a writer per file. The readers are `blockLoading` so a
+     * `reload()` immediately before a rewrite yields the current disk contents
+     * synchronously; each writer counts its own in-flight saves back down so
+     * `_sync` knows when the file on disk has caught up with our text. A save
+     * that fails still has to decrement, or the guard would latch and Store
+     * would never re-read that file again.
+     *
+     * `blockAllReads` is what makes the re-read actually work: `blockLoading`
+     * alone only blocks the FIRST load, so after that a `reload()` runs async and
+     * `text()` hands back the previous contents — the rewrite would then be built
+     * on the stale snapshot it was trying to escape. `blockAllReads` blocks every
+     * read, so `reload()` then `text()` is a synchronous fresh read.
+     */
+    FileView { id: decoFile; path: root.decoPath; blockLoading: true; blockAllReads: true; printErrors: false }
+    FileView {
+        id: decoWriter
+        path: root.decoPath
+        atomicWrites: true
+        printErrors: false
+        onSaved: root._decoPending = Math.max(0, root._decoPending - 1)
+        onSaveFailed: {
+            root._decoPending = Math.max(0, root._decoPending - 1);
+            console.warn("Store: writing decoration.lua failed");
+        }
+    }
+
+    FileView { id: inputFile; path: root.inputPath; blockLoading: true; blockAllReads: true; printErrors: false }
+    FileView {
+        id: inputWriter
+        path: root.inputPath
+        atomicWrites: true
+        printErrors: false
+        onSaved: root._inputPending = Math.max(0, root._inputPending - 1)
+        onSaveFailed: {
+            root._inputPending = Math.max(0, root._inputPending - 1);
+            console.warn("Store: writing input.lua failed");
+        }
+    }
+
+    FileView { id: animFile; path: root.animPath; blockLoading: true; blockAllReads: true; printErrors: false }
+    FileView {
+        id: animWriter
+        path: root.animPath
+        atomicWrites: true
+        printErrors: false
+        onSaved: root._animPending = Math.max(0, root._animPending - 1)
+        onSaveFailed: {
+            root._animPending = Math.max(0, root._animPending - 1);
+            console.warn("Store: writing animations.lua failed");
+        }
+    }
+
+    FileView { id: envFile; path: root.envPath; blockLoading: true; blockAllReads: true; printErrors: false }
+    FileView {
+        id: envWriter
+        path: root.envPath
+        atomicWrites: true
+        printErrors: false
+        onSaved: root._envPending = Math.max(0, root._envPending - 1)
+        onSaveFailed: {
+            root._envPending = Math.max(0, root._envPending - 1);
+            console.warn("Store: writing env.lua failed");
+        }
+    }
+
+    FileView { id: autostartFile; path: root.autostartPath; blockLoading: true; blockAllReads: true; printErrors: false }
+    FileView {
+        id: autostartWriter
+        path: root.autostartPath
+        atomicWrites: true
+        printErrors: false
+        onSaved: root._autostartPending = Math.max(0, root._autostartPending - 1)
+        onSaveFailed: {
+            root._autostartPending = Math.max(0, root._autostartPending - 1);
+            console.warn("Store: writing autostart.lua failed");
+        }
+    }
+
+    FileView { id: ghosttyFile; path: root.ghosttyPath; blockLoading: true; blockAllReads: true; printErrors: false }
+    FileView {
+        id: ghosttyWriter
+        path: root.ghosttyPath
+        atomicWrites: true
+        printErrors: false
+        onSaved: root._ghosttyPending = Math.max(0, root._ghosttyPending - 1)
+        onSaveFailed: {
+            root._ghosttyPending = Math.max(0, root._ghosttyPending - 1);
+            console.warn("Store: writing the ghostty config failed");
+        }
+    }
+
+    /** hypridle.conf is regenerated whole from Flags, so it needs no read-back. */
     FileView { id: idleWriter; path: root.hypridlePath; atomicWrites: true; printErrors: false }
 
     /**
