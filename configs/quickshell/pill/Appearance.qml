@@ -7,23 +7,33 @@ import "Singletons"
 
 /**
  * APPEARANCE sub-surface: the clock format and seconds, the palette mode
- * (static flame, dynamic per-wallpaper, or a manually chosen hue), the UI scale
- * and a reduce-motion switch. Reached from the settings index and morphs back to it via the back
+ * (static flame, dynamic per-wallpaper, or a manually chosen hue), the UI
+ * scale and font, and — moved here from Windows in the settings restructure —
+ * the pill's own chrome (Shell chrome: gaps, opacity, auto-hide) and Material
+ * (Theme). Reached from the settings index and morphs back to it via the back
  * chevron in the header strip, popping the settings stack.
  *
- * Every row but the manual-palette editor reads and writes through Store,
- * which validates against Schema and assigns the matching Flags key — so this
- * surface carries no write plumbing of its own beyond the palette rows below.
+ * Every row but the manual-palette editor and the Shell chrome/Theme rows'
+ * shared Look.qml plumbing reads and writes through Store, which validates
+ * against Schema and assigns the matching Flags key — so this surface carries
+ * no write plumbing of its own beyond the palette rows below.
  *
  * `Palette` is the deliberate exception: choosing Manual or Dynamic also has
  * to run the wallcolors.py repaint process (rebuilding the whole rice colour
  * set and reloading Hyprland and the terminal), which is not a Schema field
  * Store can route. `applyMode` sets the `paletteMode` flag through Store and
- * then drives the process locally — the same shape as Look.qml's
- * `setPillBlur`/`setMaterial`. The manual hue strip, tone seg and hex field
- * write `manualHue`/`manualSat`/`manualDark` straight to Flags — Schema marks
- * them `control: "custom"` and they stay off Store exactly as before, each
- * edit calling `applyManual()` to debounce the same repaint.
+ * then drives the process locally. The manual hue strip, tone seg and hex
+ * field write `manualHue`/`manualSat`/`manualDark` straight to Flags — Schema
+ * marks them `control: "custom"` and they stay off Store exactly as before,
+ * each edit calling `applyManual()` to debounce the same repaint.
+ *
+ * Material is a plain `Store.set("material", v)` like every other row: Store
+ * writes the flag and, because the material is also the pill's blur, adds or
+ * removes decoration.lua's `pill-blur` layer_rule in the same call. The
+ * per-open reconcile that used to run from Look.qml's `seed()` moves here
+ * with it — Material's the only row on this page whose stored value can drift
+ * from a hand edit of decoration.lua, so this is the surface that now asks
+ * Store to put the rule back in line on open.
  */
 SettingsSurface {
     id: root
@@ -36,8 +46,35 @@ SettingsSurface {
     readonly property var paletteEntry: Schema.settings.paletteMode
     readonly property var randomEntry: Schema.settings.randomScope
     readonly property var scaleEntry: Schema.settings.uiScale
-    readonly property var motionEntry: Schema.settings.reduceMotion
     readonly property var fontEntry: Schema.settings.uiFont
+
+    readonly property var topGapEntry: Schema.settings.topGap
+    readonly property var appGapEntry: Schema.settings.appGap
+    readonly property var pillOpacityEntry: Schema.settings.pillOpacity
+    readonly property var autoHideEntry: Schema.settings.autoHide
+    readonly property var autoHideDelayEntry: Schema.settings.autoHideDelay
+    readonly property var materialEntry: Schema.settings.material
+
+    /** Per-field values captured on each open; the Shell chrome ScrubValue undo glyphs revert to these. */
+    property var base: ({})
+
+    onActiveChanged: {
+        if (active) {
+            root.base = {
+                topGap: Store.get("topGap"),
+                appGap: Store.get("appGap"),
+                pillOpacity: Store.get("pillOpacity")
+            };
+            // Material is the control, the layer_rule is the state it implies, and
+            // nothing but Store writes either — but a hand edit of decoration.lua
+            // can still separate them, so the rule is put back in line on open. A
+            // no-op (and no file write, no reload) when they already agree.
+            Store.syncPillBlurRule();
+        } else {
+            focusRowItem = null;
+            kbIndex = -1;
+        }
+    }
 
     property string hueArg: String(Math.round(Flags.manualHue))
     property string modeArg: Flags.manualDark ? "dark" : "light"
@@ -398,20 +435,6 @@ SettingsSurface {
         }
 
         SettingsRow {
-            id: motionRow
-            surface: root
-            settingId: "reduceMotion"
-            name: root.motionEntry.label
-            icon: "waves"
-
-            LinkToggle {
-                s: root.s
-                on: Store.get("reduceMotion")
-                onToggled: Store.set("reduceMotion", !Store.get("reduceMotion"))
-            }
-        }
-
-        SettingsRow {
             id: fontRow
             surface: root
             settingId: "uiFont"
@@ -428,6 +451,120 @@ SettingsSurface {
                 color: root.focusRowItem === fontRow ? Theme.cream : Theme.iconDim
                 stroke: 1.9
             }
+        }
+
+        SettingsGroup { id: chromeGrp; s: root.s; hPad: 12 * root.s; title: "Shell chrome"
+
+        SettingsRow {
+            id: pillGapRow
+            surface: root
+            settingId: "topGap"
+            name: root.topGapEntry.label
+            sub: root.topGapEntry.caption
+            captionOnFocus: true
+            ScrubValue {
+                id: pillGapScrub
+                s: root.s
+                value: Store.get("topGap")
+                openValue: root.base.topGap
+                from: root.topGapEntry.from; to: root.topGapEntry.to; step: root.topGapEntry.step; decimals: 1
+                onEdited: v => Store.set("topGap", v)
+            }
+        }
+
+        SettingsRow {
+            id: appGapRow
+            surface: root
+            settingId: "appGap"
+            name: root.appGapEntry.label
+            sub: root.appGapEntry.caption
+            captionOnFocus: true
+            ScrubValue {
+                id: appGapScrub
+                s: root.s
+                value: Store.get("appGap")
+                openValue: root.base.appGap
+                from: root.appGapEntry.from; to: root.appGapEntry.to; step: root.appGapEntry.step; decimals: 1
+                onEdited: v => Store.set("appGap", v)
+            }
+        }
+
+        SettingsRow {
+            id: pillOpRow
+            surface: root
+            settingId: "pillOpacity"
+            name: root.pillOpacityEntry.label
+            sub: root.pillOpacityEntry.caption
+            captionOnFocus: true
+            ScrubValue {
+                id: pillOpScrub
+                s: root.s
+                value: Store.get("pillOpacity")
+                openValue: root.base.pillOpacity
+                from: root.pillOpacityEntry.from; to: root.pillOpacityEntry.to; step: root.pillOpacityEntry.step; decimals: 2
+                onEdited: v => Store.set("pillOpacity", v)
+            }
+        }
+
+        SettingsRow {
+            id: autoHideRow
+            surface: root
+            settingId: "autoHide"
+            name: root.autoHideEntry.label
+            sub: root.autoHideEntry.caption
+            captionOnFocus: true
+            last: !Store.get("autoHide")
+            LinkToggle {
+                s: root.s
+                on: Store.get("autoHide")
+                onToggled: Store.set("autoHide", !Store.get("autoHide"))
+            }
+        }
+
+        SettingsRow {
+            id: hideDelayRow
+            surface: root
+            settingId: "autoHideDelay"
+            name: root.autoHideDelayEntry.label
+            sub: root.autoHideDelayEntry.caption
+            captionOnFocus: true
+            visible: Store.get("autoHide")
+            last: true
+            SettingsSeg {
+                s: root.s
+                options: root.autoHideDelayEntry.options
+                value: Store.get("autoHideDelay")
+                onPicked: v => Store.set("autoHideDelay", v)
+            }
+        }
+
+        }
+
+        SettingsGroup { id: themeGrp; s: root.s; hPad: 12 * root.s; title: "Theme"
+
+        /**
+         * A plain `Store.set` like every other row: Store writes the flag
+         * and, because the material is also the pill's blur, adds or removes
+         * decoration.lua's `pill-blur` layer_rule in the same call. Glass
+         * and frost are translucent and want the frosted glass behind them;
+         * ink is flat opaque, where blurring only costs GPU time.
+         */
+        SettingsRow {
+            id: materialRow
+            surface: root
+            settingId: "material"
+            name: root.materialEntry.label
+            sub: root.materialEntry.caption
+            captionOnFocus: true
+            last: true
+            SettingsSeg {
+                s: root.s
+                options: root.materialEntry.options
+                value: Store.get("material")
+                onPicked: v => Store.set("material", v)
+            }
+        }
+
         }
     }
 }

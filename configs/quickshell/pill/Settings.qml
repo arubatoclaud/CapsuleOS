@@ -48,8 +48,8 @@ SettingsSurface {
             surface: root
             navTarget: "look"
             icon: "app-window"
-            name: "Look"
-            sub: "Gaps, rounding, blur, opacity"
+            name: "Windows"
+            sub: "Gaps, corners, borders, blur, shadow, layout"
 
             GlyphIcon {
                 width: 16 * root.s
@@ -99,8 +99,8 @@ SettingsSurface {
             surface: root
             navTarget: "animation"
             icon: "waves"
-            name: "Animation"
-            sub: "Speed, motion curve, enable"
+            name: "Motion"
+            sub: "Animation speed and feel"
 
             GlyphIcon {
                 width: 16 * root.s

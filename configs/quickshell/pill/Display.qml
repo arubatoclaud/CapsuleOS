@@ -33,6 +33,10 @@ import "Singletons"
  * clobber each other through a stale FileView cache. The card rows join the
  * surface row registry, so hover, the soul seam and keyboard focus behave like
  * the other settings surfaces.
+ *
+ * Below the card sits the Night light group (moved here from Windows in the
+ * settings restructure): mode, warmth and the scheduled on/off times, all
+ * Store's `night` backend and unaffected by the move.
  */
 SettingsSurface {
     id: root
@@ -66,10 +70,23 @@ SettingsSurface {
         { label: "2.0", value: 2 }
     ]
 
+    readonly property var nightLightModeEntry: Schema.settings.nightLightMode
+    readonly property var nightLightTempEntry: Schema.settings.nightLightTemp
+    readonly property var nightLightOnMinEntry: Schema.settings.nightLightOnMin
+    readonly property var nightLightOffMinEntry: Schema.settings.nightLightOffMin
+
+    /** Per-field values captured on each open; the night-light ScrubValue undo glyphs revert to these. */
+    property var base: ({})
+
     onActiveChanged: {
         if (active) {
             cancelCountdown();
             readProc.running = true;
+            root.base = {
+                nlTemp: Store.get("nightLightTemp"),
+                nlOnMin: Store.get("nightLightOnMin"),
+                nlOffMin: Store.get("nightLightOffMin")
+            };
         } else {
             if (root.pendingOut.length > 0) {
                 revertProc.out = root.pendingOut;
@@ -83,6 +100,13 @@ SettingsSurface {
     }
 
     onSelMonChanged: if (selMon) card.syncToCurrent()
+
+    /** Minutes-since-midnight rendered as HH:MM for the night-light schedule scrubs. */
+    function fmtClock(v) {
+        var h = Math.floor(v / 60);
+        var m = v % 60;
+        return h + ":" + (m < 10 ? "0" + m : m);
+    }
 
     /**
      * Reduces a monitor's parsed modes to the list of distinct WxH, each carrying
@@ -987,6 +1011,84 @@ SettingsSurface {
                 font.weight: Font.Medium
                 wrapMode: Text.WordWrap
                 lineHeight: 1.25
+            }
+
+            SettingsGroup { id: nightGrp; s: root.s; title: "Night light"
+
+            SettingsRow {
+                id: nlModeRow
+                surface: root
+                settingId: "nightLightMode"
+                name: root.nightLightModeEntry.label
+                sub: root.nightLightModeEntry.caption
+                captionOnFocus: true
+                last: Store.get("nightLightMode") === "off"
+                SettingsSeg {
+                    s: root.s
+                    options: root.nightLightModeEntry.options
+                    value: Store.get("nightLightMode")
+                    onPicked: v => Store.set("nightLightMode", v)
+                }
+            }
+
+            SettingsRow {
+                id: nlTempRow
+                surface: root
+                settingId: "nightLightTemp"
+                name: root.nightLightTempEntry.label
+                sub: root.nightLightTempEntry.caption
+                captionOnFocus: true
+                visible: Store.get("nightLightMode") !== "off"
+                last: Store.get("nightLightMode") === "on"
+                ScrubValue {
+                    id: nlTempScrub
+                    s: root.s
+                    value: Store.get("nightLightTemp")
+                    openValue: root.base.nlTemp
+                    from: root.nightLightTempEntry.from; to: root.nightLightTempEntry.to; step: root.nightLightTempEntry.step; unit: root.nightLightTempEntry.unit
+                    onEdited: v => Store.set("nightLightTemp", v)
+                }
+            }
+
+            SettingsRow {
+                id: nlOnRow
+                surface: root
+                settingId: "nightLightOnMin"
+                name: root.nightLightOnMinEntry.label
+                sub: root.nightLightOnMinEntry.caption
+                captionOnFocus: true
+                visible: Store.get("nightLightMode") === "scheduled"
+                ScrubValue {
+                    id: nlOnScrub
+                    s: root.s
+                    value: Store.get("nightLightOnMin")
+                    openValue: root.base.nlOnMin
+                    from: root.nightLightOnMinEntry.from; to: root.nightLightOnMinEntry.to; step: root.nightLightOnMinEntry.step
+                    fmt: root.fmtClock
+                    onEdited: v => Store.set("nightLightOnMin", v)
+                }
+            }
+
+            SettingsRow {
+                id: nlOffRow
+                surface: root
+                settingId: "nightLightOffMin"
+                name: root.nightLightOffMinEntry.label
+                sub: root.nightLightOffMinEntry.caption
+                captionOnFocus: true
+                visible: Store.get("nightLightMode") === "scheduled"
+                last: true
+                ScrubValue {
+                    id: nlOffScrub
+                    s: root.s
+                    value: Store.get("nightLightOffMin")
+                    openValue: root.base.nlOffMin
+                    from: root.nightLightOffMinEntry.from; to: root.nightLightOffMinEntry.to; step: root.nightLightOffMinEntry.step
+                    fmt: root.fmtClock
+                    onEdited: v => Store.set("nightLightOffMin", v)
+                }
+            }
+
             }
         }
 

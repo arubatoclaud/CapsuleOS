@@ -14,6 +14,11 @@ import "Singletons"
  * icon themes that carry a `cursors/` folder, since that is a filesystem scan,
  * not a Schema-backed setting. Reached from the settings index; morphs back on
  * the back chevron.
+ *
+ * Resize on border (moved here from Windows in the settings restructure) is a
+ * pointer-drag behavior, not a decoration knob, so it joins the Pointer group
+ * even though it still writes decoration.lua's `resize_on_border` field
+ * through Store's `deco` backend.
  */
 SettingsSurface {
     id: root
@@ -22,6 +27,7 @@ SettingsSurface {
 
     readonly property var sensEntry: Schema.settings.sensitivity
     readonly property var accelEntry: Schema.settings.accelProfile
+    readonly property var resizeOnBorderEntry: Schema.settings.resizeOnBorder
     readonly property var kbLayoutEntry: Schema.settings.kbLayout
     readonly property var rateEntry: Schema.settings.repeatRate
     readonly property var delayEntry: Schema.settings.repeatDelay
@@ -131,12 +137,27 @@ SettingsSurface {
                 sub: root.accelEntry.caption
                 captionOnFocus: true
                 icon: "bolt"
-                last: true
                 SettingsSeg {
                     s: root.s
                     options: root.accelEntry.options
                     value: Store.get("accelProfile")
                     onPicked: (v) => Store.set("accelProfile", v)
+                }
+            }
+
+            SettingsRow {
+                id: resizeRow
+                surface: root
+                settingId: "resizeOnBorder"
+                name: root.resizeOnBorderEntry.label
+                sub: root.resizeOnBorderEntry.caption
+                captionOnFocus: true
+                icon: "app-window"
+                last: true
+                LinkToggle {
+                    s: root.s
+                    on: Store.get("resizeOnBorder")
+                    onToggled: Store.set("resizeOnBorder", !Store.get("resizeOnBorder"))
                 }
             }
 

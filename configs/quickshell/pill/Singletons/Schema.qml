@@ -49,10 +49,10 @@ Singleton {
     /** The settings index, in the order the rows appear today. */
     readonly property var pages: [
         { id: "appearance", title: "Appearance", caption: "Clock, accent palette, scale", icon: "sparkles" },
-        { id: "look", title: "Look", caption: "Gaps, rounding, blur, opacity", icon: "app-window" },
+        { id: "look", title: "Windows", caption: "Gaps, corners, borders, blur, shadow, layout", icon: "app-window" },
         { id: "display", title: "Display", caption: "Resolution, refresh, scale", icon: "monitor" },
         { id: "input", title: "Input", caption: "Pointer, keyboard, cursor", icon: "mouse" },
-        { id: "animation", title: "Animation", caption: "Speed, motion curve, enable", icon: "waves" },
+        { id: "animation", title: "Motion", caption: "Animation speed and feel", icon: "waves" },
         { id: "keybinds", title: "Keybinds", caption: "Rebind, add, set commands", icon: "keyboard" },
         { id: "workspaces", title: "Workspaces", caption: "Special spaces and their keys", icon: "layers" },
         { id: "idlelock", title: "Idle / Lock", caption: "Auto-lock, screen off, suspend", icon: "lock" }
@@ -72,9 +72,11 @@ Singleton {
      * Reordering a page's groups is an edit here, not in the page.
      */
     readonly property var groupOrder: ({
-        look: ["window", "night", "shadow", "blur", "opacity", "pill"],
+        look: ["window", "layout", "shadow", "blur", "opacity"],
+        display: ["night"],
         input: ["pointer", "keyboard", "cursor"],
         animation: ["motion", "curve"],
+        appearance: ["chrome", "theme"],
         recorder: ["options", "audio"]
     })
 
@@ -133,15 +135,59 @@ Singleton {
             control: "seg", type: "real", backend: "flags", key: "uiScale", def: 1.0,
             options: [{ label: "90%", value: 0.9 }, { label: "100%", value: 1.0 }, { label: "110%", value: 1.1 }, { label: "125%", value: 1.25 }]
         },
-        reduceMotion: {
-            page: "appearance", group: "", order: 9,
-            label: "Reduce motion", caption: "",
-            control: "toggle", type: "bool", backend: "flags", key: "reduceMotion", def: false
-        },
         uiFont: {
-            page: "appearance", group: "", order: 10,
+            page: "appearance", group: "", order: 9,
             label: "Font", caption: "",
             control: "nav", type: "string", backend: "flags", key: "uiFont", def: ""
+        },
+
+        // ── Appearance · Shell chrome ────────────────────────────────────
+        topGap: {
+            page: "appearance", group: "chrome", order: 0,
+            label: "Pill gap", caption: "Space above the pill. Lower pulls windows up with it.",
+            control: "scrub", type: "real", backend: "flags", key: "topGap", def: 1.0,
+            from: 0, to: 2, step: 0.1, unit: ""
+        },
+        appGap: {
+            page: "appearance", group: "chrome", order: 1,
+            label: "App gap", caption: "Space under the pill. Lower pulls windows up.",
+            control: "scrub", type: "real", backend: "flags", key: "appGap", def: 1.0,
+            from: 0, to: 2, step: 0.1, unit: ""
+        },
+        pillOpacity: {
+            page: "appearance", group: "chrome", order: 2,
+            label: "Pill opacity", caption: "How see-through the pill sits",
+            control: "scrub", type: "real", backend: "flags", key: "pillOpacity", def: 1.0,
+            from: 0.55, to: 1.0, step: 0.05, unit: ""
+        },
+        autoHide: {
+            page: "appearance", group: "chrome", order: 3,
+            label: "Auto-hide pill", caption: "Slide away at rest, reveal on the top edge",
+            control: "toggle", type: "bool", backend: "flags", key: "autoHide", def: false
+        },
+        autoHideDelay: {
+            page: "appearance", group: "chrome", order: 4,
+            label: "Delay", caption: "Dwell on the edge to reveal, linger before retracting",
+            control: "seg", type: "string", backend: "flags", key: "autoHideDelay", def: "medium",
+            options: [{ label: "Off", value: "off" }, { label: "Short", value: "short" }, { label: "Medium", value: "medium" }, { label: "Long", value: "long" }]
+        },
+
+        // ── Appearance · Theme ───────────────────────────────────────────
+        /**
+         * There is no `pillBlur` entry beside this one anymore. Blur behind the
+         * pill is not separately stored: it is the `pill-blur` layer_rule in
+         * decoration.lua, which Store adds or removes as this seg moves. The
+         * blur is drawn by the compositor from that rule, so nothing on screen
+         * reads it — `Theme.pillBlur` is the one derived form of it, and its one
+         * reader is Store's reconciler. The toggle that used to sit here was a
+         * second control over the same piece of state and could disagree with
+         * it (audit P0-2/P0-4).
+         */
+        material: {
+            page: "appearance", group: "theme", order: 0,
+            label: "Material", caption: "Glass and frost blur what's behind the pill; ink is flat opaque",
+            control: "seg", type: "string", backend: "flags", key: "material", def: "frost",
+            options: [{ label: "Glass", value: "glass" }, { label: "Frost", value: "frost" }, { label: "Ink", value: "ink" }]
         },
 
         // ── Look · Window ─────────────────────────────────────────────────
@@ -175,42 +221,13 @@ Singleton {
             control: "scrub", type: "int", backend: "deco", key: "border_size", def: 0,
             from: 0, to: 8, step: 1, unit: "px"
         },
-        resizeOnBorder: {
-            page: "look", group: "window", order: 5,
-            label: "Resize on border", caption: "Drag a window edge to resize",
-            control: "toggle", type: "bool", backend: "deco", key: "resize_on_border", def: true
-        },
+
+        // ── Look · Layout ─────────────────────────────────────────────────
         layout: {
-            page: "look", group: "window", order: 6,
+            page: "look", group: "layout", order: 0,
             label: "Layout", caption: "Tiling layout for new windows",
             control: "seg", type: "string", backend: "deco", key: "layout", def: "dwindle",
             options: [{ label: "Dwindle", value: "dwindle" }, { label: "Master", value: "master" }]
-        },
-
-        // ── Look · Night light ────────────────────────────────────────────
-        nightLightMode: {
-            page: "look", group: "night", order: 0,
-            label: "Mode", caption: "Off, always warm, or auto by time",
-            control: "seg", type: "string", backend: "night", key: "nightLightMode", def: "off",
-            options: [{ label: "Off", value: "off" }, { label: "On", value: "on" }, { label: "Scheduled", value: "scheduled" }]
-        },
-        nightLightTemp: {
-            page: "look", group: "night", order: 1,
-            label: "Temperature", caption: "Lower is warmer",
-            control: "scrub", type: "int", backend: "night", key: "nightLightTemp", def: 4000,
-            from: 2200, to: 6000, step: 100, unit: "K"
-        },
-        nightLightOnMin: {
-            page: "look", group: "night", order: 2,
-            label: "On at", caption: "Warm tint starts",
-            control: "scrub", type: "int", backend: "night", key: "nightLightOnMin", def: 1260,
-            from: 0, to: 1425, step: 15, unit: ""
-        },
-        nightLightOffMin: {
-            page: "look", group: "night", order: 3,
-            label: "Off at", caption: "Back to neutral",
-            control: "scrub", type: "int", backend: "night", key: "nightLightOffMin", def: 450,
-            from: 0, to: 1425, step: 15, unit: ""
         },
 
         // ── Look · Shadow ─────────────────────────────────────────────────
@@ -263,7 +280,7 @@ Singleton {
             from: 0, to: 0.2, step: 0.01, unit: ""
         },
 
-        // ── Look · Opacity ────────────────────────────────────────────────
+        // ── Look · Transparency ──────────────────────────────────────────
         activeOpacity: {
             page: "look", group: "opacity", order: 0,
             label: "Active window", caption: "Focused window transparency",
@@ -278,56 +295,9 @@ Singleton {
         },
         termBgOpacity: {
             page: "look", group: "opacity", order: 2,
-            label: "Terminal background", caption: "Ghostty background only. Text stays solid.",
+            label: "Ghostty background", caption: "Ghostty background only. Text stays solid.",
             control: "scrub", type: "real", backend: "app", key: "background-opacity", def: 0.85,
             from: 0.5, to: 1.0, step: 0.05, unit: ""
-        },
-
-        // ── Look · Pill ───────────────────────────────────────────────────
-        topGap: {
-            page: "look", group: "pill", order: 0,
-            label: "Pill gap", caption: "Space above the pill. Lower pulls windows up with it.",
-            control: "scrub", type: "real", backend: "flags", key: "topGap", def: 1.0,
-            from: 0, to: 2, step: 0.1, unit: ""
-        },
-        appGap: {
-            page: "look", group: "pill", order: 1,
-            label: "App gap", caption: "Space under the pill. Lower pulls windows up.",
-            control: "scrub", type: "real", backend: "flags", key: "appGap", def: 1.0,
-            from: 0, to: 2, step: 0.1, unit: ""
-        },
-        pillOpacity: {
-            page: "look", group: "pill", order: 2,
-            label: "Pill opacity", caption: "How see-through the pill sits",
-            control: "scrub", type: "real", backend: "flags", key: "pillOpacity", def: 1.0,
-            from: 0.55, to: 1.0, step: 0.05, unit: ""
-        },
-        /**
-         * There is no `pillBlur` entry beside this one anymore. Blur behind the
-         * pill is not separately stored: it is the `pill-blur` layer_rule in
-         * decoration.lua, which Store adds or removes as this seg moves. The
-         * blur is drawn by the compositor from that rule, so nothing on screen
-         * reads it — `Theme.pillBlur` is the one derived form of it, and its one
-         * reader is Store's reconciler. The toggle that used to sit here was a
-         * second control over the same piece of state and could disagree with
-         * it (audit P0-2/P0-4).
-         */
-        material: {
-            page: "look", group: "pill", order: 3,
-            label: "Material", caption: "Glass and frost blur what's behind the pill; ink is flat opaque",
-            control: "seg", type: "string", backend: "flags", key: "material", def: "frost",
-            options: [{ label: "Glass", value: "glass" }, { label: "Frost", value: "frost" }, { label: "Ink", value: "ink" }]
-        },
-        autoHide: {
-            page: "look", group: "pill", order: 4,
-            label: "Auto-hide pill", caption: "Slide away at rest, reveal on the top edge",
-            control: "toggle", type: "bool", backend: "flags", key: "autoHide", def: false
-        },
-        autoHideDelay: {
-            page: "look", group: "pill", order: 5,
-            label: "Delay", caption: "Dwell on the edge to reveal, linger before retracting",
-            control: "seg", type: "string", backend: "flags", key: "autoHideDelay", def: "medium",
-            options: [{ label: "Off", value: "off" }, { label: "Short", value: "short" }, { label: "Medium", value: "medium" }, { label: "Long", value: "long" }]
         },
 
         // ── Display (per-monitor card, custom UI, monitors.lua) ───────────
@@ -352,6 +322,32 @@ Singleton {
             control: "custom", type: "string", backend: "app", key: "", def: ""
         },
 
+        // ── Display · Night light ──────────────────────────────────────────
+        nightLightMode: {
+            page: "display", group: "night", order: 0,
+            label: "Mode", caption: "Off, always warm, or auto by time",
+            control: "seg", type: "string", backend: "night", key: "nightLightMode", def: "off",
+            options: [{ label: "Off", value: "off" }, { label: "On", value: "on" }, { label: "Scheduled", value: "scheduled" }]
+        },
+        nightLightTemp: {
+            page: "display", group: "night", order: 1,
+            label: "Temperature", caption: "Lower is warmer",
+            control: "scrub", type: "int", backend: "night", key: "nightLightTemp", def: 4000,
+            from: 2200, to: 6000, step: 100, unit: "K"
+        },
+        nightLightOnMin: {
+            page: "display", group: "night", order: 2,
+            label: "On at", caption: "Warm tint starts",
+            control: "scrub", type: "int", backend: "night", key: "nightLightOnMin", def: 1260,
+            from: 0, to: 1425, step: 15, unit: ""
+        },
+        nightLightOffMin: {
+            page: "display", group: "night", order: 3,
+            label: "Off at", caption: "Back to neutral",
+            control: "scrub", type: "int", backend: "night", key: "nightLightOffMin", def: 450,
+            from: 0, to: 1425, step: 15, unit: ""
+        },
+
         // ── Input · Pointer ───────────────────────────────────────────────
         sensitivity: {
             page: "input", group: "pointer", order: 0,
@@ -364,6 +360,11 @@ Singleton {
             label: "Acceleration", caption: "How pointer speed follows motion",
             control: "seg", type: "string", backend: "input", key: "accel_profile", def: "flat",
             options: [{ label: "Flat", value: "flat" }, { label: "Adaptive", value: "adaptive" }]
+        },
+        resizeOnBorder: {
+            page: "input", group: "pointer", order: 2,
+            label: "Resize on border", caption: "Drag a window edge to resize",
+            control: "toggle", type: "bool", backend: "deco", key: "resize_on_border", def: true
         },
 
         // ── Input · Keyboard ──────────────────────────────────────────────
@@ -427,6 +428,11 @@ Singleton {
             label: "Speed", caption: "Duration in deciseconds — lower is snappier",
             control: "scrub", type: "real", backend: "anim", key: "speed", def: 3,
             from: 1, to: 10, step: 0.5, unit: ""
+        },
+        reduceMotion: {
+            page: "animation", group: "motion", order: 3,
+            label: "Reduce motion", caption: "",
+            control: "toggle", type: "bool", backend: "flags", key: "reduceMotion", def: false
         },
 
         // ── Animation · Curve ─────────────────────────────────────────────

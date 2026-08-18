@@ -83,8 +83,8 @@ import "../lib/setAnim.js" as SetAnim
  *       restores that mode rather than always picking "on", so a scheduled
  *       night light survives a tap on the chip. Every non-off write of
  *       `nightLightMode` refreshes that memory too — otherwise it goes stale
- *       against Look's seg and the chip restores a mode already replaced. See
- *       `_setNight`.
+ *       against Display's seg and the chip restores a mode already replaced.
+ *       See `_setNight`.
  *
  * Side-effecting flags — DO NOT route the SIDE EFFECT through `Store.set`:
  *
@@ -451,14 +451,14 @@ Singleton {
      * The quick chip is a bool over the same mode key, and a bool cannot express
      * three modes: it used to write "on" whichever mode it interrupted, so
      * flipping a scheduled night light off and straight back on silently
-     * demoted it to always-warm and the Look page's seg had moved under the
+     * demoted it to always-warm and the Display page's seg had moved under the
      * user (audit P0-2's night-light half). It now remembers instead — off
      * stores the mode it is leaving in `Flags.nightPrevMode`, on restores it —
      * the same shape as the `gamePrev*` keys game mode restores from.
      *
      * The memory tracks EVERY non-off mode write, not just the chip's own, which
      * is the difference between remembering and going stale: with only the chip
-     * writing it, chip-off while scheduled → Look picks "on" → Look picks "off"
+     * writing it, chip-off while scheduled → Display picks "on" → Display picks "off"
      * → chip-on restored "scheduled", a mode the user had already replaced. So
      * the mode write below refreshes it too, and the memory means "the last mode
      * the night light was actually in". "off" is never stored, and "on" is the
@@ -534,7 +534,7 @@ Singleton {
      *   "unchanged" — it already read that way. `addNamedRule` and
      *                 `removeNamedRule` both report `ok: false` in that case,
      *                 which is what keeps a no-op call (the common case on every
-     *                 Look open and on startup) from writing the file and
+     *                 Appearance open and on startup) from writing the file and
      *                 reloading Hyprland for nothing.
      *   "failed"    — decoration.lua could not be read, so nothing was attempted.
      *
@@ -849,7 +849,7 @@ Singleton {
      * as the only control of the blur, nothing else reconciles a decoration.lua
      * that never carried the `pill-blur` rule — a fresh install, or the file
      * reset from the repo — so the compositor would sit out of step with the
-     * stored material until the user happened to open Look.
+     * stored material until the user happened to open Appearance.
      *
      * Two orderings have to hold. The reload comes first because it is what
      * loads decoration.lua, and `_setPillBlurRule` refuses on empty text.

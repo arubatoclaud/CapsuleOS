@@ -4,21 +4,18 @@ import QtQuick
 import "Singletons"
 
 /**
- * LOOK sub-surface: edits the window-decoration knobs that live in
- * decoration.lua, the night-light schedule, and the pill's own chrome. Every
- * row reads and writes through Store, which owns decoration.lua/ghostty's
- * config, validates against Schema, rewrites the right field and debounces the
- * Hyprland reload (or, for the terminal row, rewrites ghostty's
- * background-opacity and pokes it with SIGUSR2) — so this surface carries no
- * write plumbing of its own at all: no FileView, no writer, no reload timer.
+ * WINDOWS sub-surface (Schema page id `look`): edits the window-decoration
+ * knobs that live in decoration.lua — gaps, corners, borders, the tiling
+ * layout, shadow, blur and transparency. Every row reads and writes through
+ * Store, which owns decoration.lua/ghostty's config, validates against
+ * Schema, rewrites the right field and debounces the Hyprland reload (or, for
+ * the Ghostty background row, rewrites ghostty's background-opacity and
+ * pokes it with SIGUSR2) — so this surface carries no write plumbing of its
+ * own at all: no FileView, no writer, no reload timer.
  *
- * The pill-blur toggle that used to sit above Material is gone (audit P0-2):
- * blur behind the pill was never independent state, it was what a translucent
- * material implies, and the two controls could be left disagreeing. Material
- * owns it now — Store adds or removes decoration.lua's `pill-blur` layer_rule
- * as the material changes, and `seed` asks Store to reconcile the rule with
- * the material on every open so a hand edit of the Lua cannot leave them
- * apart.
+ * Night light (Display) and the pill's own chrome plus Material (Appearance)
+ * used to live here; both moved out in the settings restructure so this page
+ * is window decoration only.
  *
  * Reached from the settings index; morphs back on the back chevron.
  */
@@ -32,13 +29,7 @@ SettingsSurface {
     readonly property var roundingEntry: Schema.settings.rounding
     readonly property var roundingPowerEntry: Schema.settings.roundingPower
     readonly property var borderSizeEntry: Schema.settings.borderSize
-    readonly property var resizeOnBorderEntry: Schema.settings.resizeOnBorder
     readonly property var layoutEntry: Schema.settings.layout
-
-    readonly property var nightLightModeEntry: Schema.settings.nightLightMode
-    readonly property var nightLightTempEntry: Schema.settings.nightLightTemp
-    readonly property var nightLightOnMinEntry: Schema.settings.nightLightOnMin
-    readonly property var nightLightOffMinEntry: Schema.settings.nightLightOffMin
 
     readonly property var shadowEnabledEntry: Schema.settings.shadowEnabled
     readonly property var shadowRangeEntry: Schema.settings.shadowRange
@@ -53,13 +44,6 @@ SettingsSurface {
     readonly property var activeOpacityEntry: Schema.settings.activeOpacity
     readonly property var inactiveOpacityEntry: Schema.settings.inactiveOpacity
     readonly property var termBgOpacityEntry: Schema.settings.termBgOpacity
-
-    readonly property var topGapEntry: Schema.settings.topGap
-    readonly property var appGapEntry: Schema.settings.appGap
-    readonly property var pillOpacityEntry: Schema.settings.pillOpacity
-    readonly property var materialEntry: Schema.settings.material
-    readonly property var autoHideEntry: Schema.settings.autoHide
-    readonly property var autoHideDelayEntry: Schema.settings.autoHideDelay
 
     /** Per-field values captured on each open; the ScrubValue undo glyphs revert to these. */
     property var base: ({})
@@ -82,12 +66,6 @@ SettingsSurface {
     function seed() {
         Store.reload();
 
-        // Material is the control, the layer_rule is the state it implies, and
-        // nothing but Store writes either — but a hand edit of decoration.lua
-        // can still separate them, so the rule is put back in line on open. A
-        // no-op (and no file write, no reload) when they already agree.
-        Store.syncPillBlurRule();
-
         root.base = {
             gapsIn: Store.get("gapsIn"),
             gapsOut: Store.get("gapsOut"),
@@ -102,21 +80,8 @@ SettingsSurface {
             blurNoise: Store.get("blurNoise"),
             activeOpacity: Store.get("activeOpacity"),
             inactiveOpacity: Store.get("inactiveOpacity"),
-            termBgOpacity: Store.get("termBgOpacity"),
-            pillOpacity: Store.get("pillOpacity"),
-            topGap: Store.get("topGap"),
-            appGap: Store.get("appGap"),
-            nlTemp: Store.get("nightLightTemp"),
-            nlOnMin: Store.get("nightLightOnMin"),
-            nlOffMin: Store.get("nightLightOffMin")
+            termBgOpacity: Store.get("termBgOpacity")
         };
-    }
-
-    /** Minutes-since-midnight rendered as HH:MM for the schedule scrubs. */
-    function fmtClock(v) {
-        var h = Math.floor(v / 60);
-        var m = v % 60;
-        return h + ":" + (m < 10 ? "0" + m : m);
     }
 
     Column {
@@ -132,7 +97,7 @@ SettingsSurface {
         SettingsHeader {
             s: root.s
             glyph: "\uf1fc"
-            title: "LOOK"
+            title: "WINDOWS"
             showBack: true
         }
 
@@ -220,6 +185,7 @@ SettingsSurface {
                 name: root.borderSizeEntry.label
                 sub: root.borderSizeEntry.caption
                 captionOnFocus: true
+                last: true
                 ScrubValue {
                     id: borderScrub
                     s: root.s
@@ -230,19 +196,9 @@ SettingsSurface {
                 }
             }
 
-            SettingsRow {
-                id: resizeRow
-                surface: root
-                settingId: "resizeOnBorder"
-                name: root.resizeOnBorderEntry.label
-                sub: root.resizeOnBorderEntry.caption
-                captionOnFocus: true
-                LinkToggle {
-                    s: root.s
-                    on: Store.get("resizeOnBorder")
-                    onToggled: Store.set("resizeOnBorder", !Store.get("resizeOnBorder"))
-                }
             }
+
+            SettingsGroup { id: layoutGrp; s: root.s; title: "Layout"
 
             SettingsRow {
                 id: layoutRow
@@ -257,84 +213,6 @@ SettingsSurface {
                     options: root.layoutEntry.options
                     value: Store.get("layout")
                     onPicked: v => Store.set("layout", v)
-                }
-            }
-
-            }
-
-            SettingsGroup { id: nightGrp; s: root.s; title: "Night light"
-
-            SettingsRow {
-                id: nlModeRow
-                surface: root
-                settingId: "nightLightMode"
-                name: root.nightLightModeEntry.label
-                sub: root.nightLightModeEntry.caption
-                captionOnFocus: true
-                last: Store.get("nightLightMode") === "off"
-                SettingsSeg {
-                    s: root.s
-                    options: root.nightLightModeEntry.options
-                    value: Store.get("nightLightMode")
-                    onPicked: v => Store.set("nightLightMode", v)
-                }
-            }
-
-            SettingsRow {
-                id: nlTempRow
-                surface: root
-                settingId: "nightLightTemp"
-                name: root.nightLightTempEntry.label
-                sub: root.nightLightTempEntry.caption
-                captionOnFocus: true
-                visible: Store.get("nightLightMode") !== "off"
-                last: Store.get("nightLightMode") === "on"
-                ScrubValue {
-                    id: nlTempScrub
-                    s: root.s
-                    value: Store.get("nightLightTemp")
-                    openValue: root.base.nlTemp
-                    from: root.nightLightTempEntry.from; to: root.nightLightTempEntry.to; step: root.nightLightTempEntry.step; unit: root.nightLightTempEntry.unit
-                    onEdited: v => Store.set("nightLightTemp", v)
-                }
-            }
-
-            SettingsRow {
-                id: nlOnRow
-                surface: root
-                settingId: "nightLightOnMin"
-                name: root.nightLightOnMinEntry.label
-                sub: root.nightLightOnMinEntry.caption
-                captionOnFocus: true
-                visible: Store.get("nightLightMode") === "scheduled"
-                ScrubValue {
-                    id: nlOnScrub
-                    s: root.s
-                    value: Store.get("nightLightOnMin")
-                    openValue: root.base.nlOnMin
-                    from: root.nightLightOnMinEntry.from; to: root.nightLightOnMinEntry.to; step: root.nightLightOnMinEntry.step
-                    fmt: root.fmtClock
-                    onEdited: v => Store.set("nightLightOnMin", v)
-                }
-            }
-
-            SettingsRow {
-                id: nlOffRow
-                surface: root
-                settingId: "nightLightOffMin"
-                name: root.nightLightOffMinEntry.label
-                sub: root.nightLightOffMinEntry.caption
-                captionOnFocus: true
-                visible: Store.get("nightLightMode") === "scheduled"
-                last: true
-                ScrubValue {
-                    id: nlOffScrub
-                    s: root.s
-                    value: Store.get("nightLightOffMin")
-                    openValue: root.base.nlOffMin
-                    from: root.nightLightOffMinEntry.from; to: root.nightLightOffMinEntry.to; step: root.nightLightOffMinEntry.step
-                    fmt: root.fmtClock
-                    onEdited: v => Store.set("nightLightOffMin", v)
                 }
             }
 
@@ -488,7 +366,7 @@ SettingsSurface {
 
             }
 
-            SettingsGroup { id: opGrp; s: root.s; title: "Opacity"
+            SettingsGroup { id: opGrp; s: root.s; title: "Transparency"
 
             SettingsRow {
                 id: opActRow
@@ -539,115 +417,6 @@ SettingsSurface {
                     openValue: root.base.termBgOpacity
                     from: root.termBgOpacityEntry.from; to: root.termBgOpacityEntry.to; step: root.termBgOpacityEntry.step; decimals: 2
                     onEdited: v => Store.set("termBgOpacity", v)
-                }
-            }
-
-            }
-
-            SettingsGroup { id: pillGrp; s: root.s; title: "Pill"
-
-            SettingsRow {
-                id: pillGapRow
-                surface: root
-                settingId: "topGap"
-                name: root.topGapEntry.label
-                sub: root.topGapEntry.caption
-                captionOnFocus: true
-                ScrubValue {
-                    id: pillGapScrub
-                    s: root.s
-                    value: Store.get("topGap")
-                    openValue: root.base.topGap
-                    from: root.topGapEntry.from; to: root.topGapEntry.to; step: root.topGapEntry.step; decimals: 1
-                    onEdited: v => Store.set("topGap", v)
-                }
-            }
-
-            SettingsRow {
-                id: appGapRow
-                surface: root
-                settingId: "appGap"
-                name: root.appGapEntry.label
-                sub: root.appGapEntry.caption
-                captionOnFocus: true
-                ScrubValue {
-                    id: appGapScrub
-                    s: root.s
-                    value: Store.get("appGap")
-                    openValue: root.base.appGap
-                    from: root.appGapEntry.from; to: root.appGapEntry.to; step: root.appGapEntry.step; decimals: 1
-                    onEdited: v => Store.set("appGap", v)
-                }
-            }
-
-            SettingsRow {
-                id: pillOpRow
-                surface: root
-                settingId: "pillOpacity"
-                name: root.pillOpacityEntry.label
-                sub: root.pillOpacityEntry.caption
-                captionOnFocus: true
-                ScrubValue {
-                    id: pillOpScrub
-                    s: root.s
-                    value: Store.get("pillOpacity")
-                    openValue: root.base.pillOpacity
-                    from: root.pillOpacityEntry.from; to: root.pillOpacityEntry.to; step: root.pillOpacityEntry.step; decimals: 2
-                    onEdited: v => Store.set("pillOpacity", v)
-                }
-            }
-
-            /**
-             * A plain `Store.set` like every other row: Store writes the flag
-             * and, because the material is also the pill's blur, adds or removes
-             * decoration.lua's `pill-blur` layer_rule in the same call. Glass
-             * and frost are translucent and want the frosted glass behind them;
-             * ink is flat opaque, where blurring only costs GPU time.
-             */
-            SettingsRow {
-                id: materialRow
-                surface: root
-                settingId: "material"
-                name: root.materialEntry.label
-                sub: root.materialEntry.caption
-                captionOnFocus: true
-                SettingsSeg {
-                    s: root.s
-                    options: root.materialEntry.options
-                    value: Store.get("material")
-                    onPicked: v => Store.set("material", v)
-                }
-            }
-
-            SettingsRow {
-                id: autoHideRow
-                surface: root
-                settingId: "autoHide"
-                name: root.autoHideEntry.label
-                sub: root.autoHideEntry.caption
-                captionOnFocus: true
-                last: !Store.get("autoHide")
-                LinkToggle {
-                    s: root.s
-                    on: Store.get("autoHide")
-                    onToggled: Store.set("autoHide", !Store.get("autoHide"))
-                }
-            }
-
-            SettingsRow {
-                id: hideDelayRow
-                surface: root
-                settingId: "autoHideDelay"
-                name: root.autoHideDelayEntry.label
-                sub: root.autoHideDelayEntry.caption
-                captionOnFocus: true
-                visible: Store.get("autoHide")
-                last: true
-                SettingsSeg {
-                    s: root.s
-                    options: root.autoHideDelayEntry.options
-                    value: Store.get("autoHideDelay")
-                    onPicked: v => Store.set("autoHideDelay", v)
                 }
             }
 

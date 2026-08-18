@@ -5,12 +5,17 @@ import QtQuick.Shapes
 import "Singletons"
 
 /**
- * ANIMATION sub-surface: toggles Hyprland animations and picks the motion
- * Feel, with the exact curve and the ready-made presets folded away underneath.
- * Every value reads and writes through Store, which owns animations.lua,
- * validates against Schema, rewrites the right field and debounces the hyprctl
- * reload — so this surface carries no write plumbing of its own beyond the
- * curve/speed formatting Store's `anim` backend expects.
+ * MOTION sub-surface (Schema page id `animation`): toggles Hyprland animations
+ * and picks the motion Feel, with the exact curve and the ready-made presets
+ * folded away underneath, plus a Reduce motion toggle (moved here from
+ * Appearance in the settings restructure) that scales every shell-side
+ * animation duration via `Motion.mult` — independent of Hyprland's own
+ * `Enabled` toggle above, so it stays visible whether or not Hyprland's
+ * animations are on. Every Store-routed value reads and writes through Store,
+ * which owns animations.lua, validates against Schema, rewrites the right
+ * field and debounces the hyprctl reload — so this surface carries no write
+ * plumbing of its own beyond the curve/speed formatting Store's `anim`
+ * backend expects.
  *
  * Feel is the primary control (R3, audit P0-2): one pick sets the curve AND the
  * speed, which is the whole of the page's motion character. The bezier editor
@@ -44,6 +49,7 @@ SettingsSurface {
     implicitHeight: content.implicitHeight
 
     readonly property bool animOn: Store.get("animEnabled")
+    readonly property var reduceMotionEntry: Schema.settings.reduceMotion
     property real speed: 3
     property var base: ({})
 
@@ -191,7 +197,7 @@ SettingsSurface {
         SettingsHeader {
             s: root.s
             glyph: "\uf04b"
-            title: "ANIMATION"
+            title: "MOTION"
             showBack: true
         }
 
@@ -206,7 +212,6 @@ SettingsSurface {
             sub: "Animate windows, workspaces and fades"
             captionOnFocus: true
             icon: "sparkles"
-            last: !root.animOn
             LinkToggle {
                 s: root.s
                 on: root.animOn
@@ -241,7 +246,6 @@ SettingsSurface {
             captionOnFocus: true
             icon: "bolt"
             visible: root.animOn
-            last: true
             ScrubValue {
                 id: speedScrub
                 s: root.s
@@ -252,6 +256,22 @@ SettingsSurface {
                     root.speed = v;
                     root.writeSpeed(v);
                 }
+            }
+        }
+
+        SettingsRow {
+            id: reduceMotionRow
+            surface: root
+            settingId: "reduceMotion"
+            name: root.reduceMotionEntry.label
+            sub: root.reduceMotionEntry.caption
+            captionOnFocus: true
+            icon: "waves"
+            last: true
+            LinkToggle {
+                s: root.s
+                on: Store.get("reduceMotion")
+                onToggled: Store.set("reduceMotion", !Store.get("reduceMotion"))
             }
         }
 
