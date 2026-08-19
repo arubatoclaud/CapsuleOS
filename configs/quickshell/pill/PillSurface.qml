@@ -56,6 +56,15 @@ Item {
     anchors.bottomMargin: mBottom * s
 
     enabled: open
+
+    /**
+     * Clip only while closing: the pill shrinks over the morph while the fade
+     * runs shorter, and the content column keeps its laid-out height (and
+     * re-wraps taller as the width narrows), so unclipped text visibly hung
+     * below the shrinking pill. Open surfaces stay unclipped so tooltips and
+     * negative-margin hit areas keep working.
+     */
+    clip: !open
     opacity: open ? (settled ? 1 : Math.pow(morphCloseness, 1.3)) : 0
     visible: opacity > 0.01
 
