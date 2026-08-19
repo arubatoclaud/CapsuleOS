@@ -745,7 +745,7 @@ def run(args):
 
         # m. themes.
         if choices["sddm"]:
-            sddm_installer = os.path.join(args.source, "sddm", "themes", "goldengate", "install.sh")
+            sddm_installer = os.path.join(args.source, "sddm", "themes", "capsule", "install.sh")
             if os.path.isfile(sddm_installer):
                 ok, detail = _run(["sh", sddm_installer], dry)
                 record(ok, detail, "Install SDDM theme",

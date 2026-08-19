@@ -195,6 +195,28 @@ wallcolors_failed() {
     command -v notify-send >/dev/null 2>&1 && notify-send -u critical "CapsuleOS" "Wallpaper color pipeline failed — see $WLOG" || true
 }
 
+# Mirror the wallpaper + palette into the SDDM capsule theme: the greeter runs
+# as the sddm user and cannot read $HOME (0700), so the current still, the
+# avatar and a theme.conf.user rendered from colors.json get copied under the
+# theme dir. Best-effort — a failed sudo just leaves the login on the previous
+# look.
+sddm_sync() {
+    local show="$1" dst=/usr/share/sddm/themes/capsule colors tmp
+    colors="${XDG_CACHE_HOME:-$HOME/.cache}/capsuleos/colors.json"
+    [ -f "$colors" ] && [ -f "$show" ] || return 0
+    tmp=$(mktemp)
+    {
+        echo "[General]"
+        echo "background=current/wallpaper"
+        jq -r '"bright=\(.bright)\ncream=\(.cream)\ndim=\(.dim)\nmark=\(.mark)\nerror=\(.primary)"' "$colors"
+    } > "$tmp" 2>/dev/null || { rm -f "$tmp"; return 0; }
+    sudo -n install -m644 "$show" "$dst/current/wallpaper" 2>/dev/null || { rm -f "$tmp"; return 0; }
+    sudo -n install -m644 "$tmp" "$dst/theme.conf.user" 2>/dev/null || true
+    [ -f "$HOME/.face" ] && sudo -n install -m644 "$HOME/.face" "$dst/current/face" 2>/dev/null
+    rm -f "$tmp"
+    return 0
+}
+
 # The palette follows the focused monitor: whatever hangs there drives matugen,
 # the global state file and the global still, so the Settings dynamic re-run
 # and the strip's current marker stay coherent with what the user looks at.
@@ -223,6 +245,7 @@ palette_update() {
     hyprctl reload >/dev/null 2>&1 || true
     busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions \
         Activate "sava{sv}" reload-config 0 0 >/dev/null 2>&1 || true
+    sddm_sync "$show"
 }
 
 map_has_video() {
