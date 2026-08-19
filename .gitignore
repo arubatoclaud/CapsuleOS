@@ -19,7 +19,6 @@ Thumbs.db
 
 # Personal notes / transcripts / planning, local only
 memory/
-Claude.md
 
 # Machine-specific install/partition plan, local only
 configs/partition-day-sequence.md
@@ -63,7 +62,6 @@ wallpapers/
 .playwright-mcp/
 
 # internal / personal, never public
-/CLAUDE.md
 /configs/decisions.md
 /configs/mount-disks.sh
 /configs/grub/probe-sda4.sh
