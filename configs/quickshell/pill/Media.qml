@@ -361,6 +361,7 @@ PillSurface {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "▾"
                         color: Theme.markLit
+                        font.family: Theme.font
                         font.pixelSize: Metrics.tCaption * root.s
                     }
                 }

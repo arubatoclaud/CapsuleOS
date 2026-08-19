@@ -199,7 +199,7 @@ wallcolors_failed() {
 # the global state file and the global still, so the Settings dynamic re-run
 # and the strip's current marker stay coherent with what the user looks at.
 palette_update() {
-    local pmode focused pic show mh md
+    local pmode focused pic show mh ms
     focused=$(focused_output)
     pic=""
     [ -n "$focused" ] && pic=$(map_get "$focused")
@@ -215,8 +215,8 @@ palette_update() {
     mkdir -p "$(dirname "$WLOG")"
     if [ "$pmode" = "manual" ]; then
         mh=$(jq -r '.manualHue // 30' "$flags_file" 2>/dev/null || echo 30)
-        md=$(jq -r 'if .manualDark == false then "light" else "dark" end' "$flags_file" 2>/dev/null || echo dark)
-        python3 "$(dirname "$0")/wallcolors.py" --hue "$mh" "$md" >>"$WLOG" 2>&1 || wallcolors_failed
+        ms=$(jq -r '.manualSat // 0.5' "$flags_file" 2>/dev/null || echo 0.5)
+        python3 "$(dirname "$0")/wallcolors.py" --hue "$mh" "dark" "$ms" >>"$WLOG" 2>&1 || wallcolors_failed
     else
         python3 "$(dirname "$0")/wallcolors.py" "$show" >>"$WLOG" 2>&1 || wallcolors_failed
     fi

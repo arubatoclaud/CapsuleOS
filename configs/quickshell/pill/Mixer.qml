@@ -225,7 +225,7 @@ PillSurface {
 
     /**
      * Header device picker: an icon-only button that toggles its dropdown. It
-     * reads as an open field (onGlow tint and border) while its list is showing,
+     * reads as an open field (markGlow tint and border) while its list is showing,
      * the same affordance the display surface uses, so no chevron is needed.
      */
     component DevicePickerChip: Rectangle {

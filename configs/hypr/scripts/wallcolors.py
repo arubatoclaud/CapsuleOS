@@ -266,19 +266,19 @@ def write_gtk(pill):
     won't resolve, and each gsettings call is independent so a missing
     schema on one key never blocks the rest.
     """
-    dark = True  # Night Glass is dark-only; there is no light palette to track.
+    # Night Glass is dark-only; there is no light palette to track.
 
-    gtk_theme = "Adwaita-dark" if dark else "Adwaita"
+    gtk_theme = "Adwaita-dark"
     if not _gtk_theme_exists(gtk_theme):
         gtk_theme = None
 
-    icon_theme = "Papirus-Dark" if dark else "Papirus"
+    icon_theme = "Papirus-Dark"
     if not _icon_theme_exists(icon_theme):
         icon_theme = "Papirus" if _icon_theme_exists("Papirus") else None
 
     cursor_theme = "Bibata-Modern-Ice" if _icon_theme_exists("Bibata-Modern-Ice") else None
 
-    lines = ["[Settings]", "gtk-application-prefer-dark-theme=%d" % (1 if dark else 0)]
+    lines = ["[Settings]", "gtk-application-prefer-dark-theme=1"]
     if gtk_theme:
         lines.append(f"gtk-theme-name={gtk_theme}")
     if icon_theme:
@@ -305,7 +305,7 @@ def write_gtk(pill):
         _gset("icon-theme", icon_theme)
     if cursor_theme:
         _gset("cursor-theme", cursor_theme)
-    _gset("color-scheme", "prefer-dark" if dark else "default")
+    _gset("color-scheme", "prefer-dark")
 
 
 def _argb(hex6):

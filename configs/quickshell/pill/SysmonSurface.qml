@@ -7,7 +7,7 @@ import "Singletons"
  * SYSTEM surface: a flat washi card of live machine vitals fed by the Sysmon
  * singleton. The header carries the kanji, label and uptime. Below it sit flame
  * dials for CPU, GPU and memory load, each a 270deg arc stroked with the mixer's
- * vermLit-to-vermBurn gradient on a thread track and rounded caps, the sweep
+ * glowBurn-to-markLit gradient on a thread track and rounded caps, the sweep
  * eased over the value change; the centre shows the value, a unit and a sub line
  * (CPU/GPU temperature, memory total). A hairline stripe underneath reports
  * network throughput, root-disk fill, swap and VRAM with their units folded into

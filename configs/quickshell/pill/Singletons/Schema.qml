@@ -157,19 +157,19 @@ Singleton {
             from: 0, to: 359, step: 1, unit: ""
         },
         manualSat: {
-            page: "appearance", group: "", order: 6,
+            page: "appearance", group: "", order: 5,
             label: "Accent saturation", caption: "Set by the hex field with the hue",
             control: "custom", type: "real", backend: "flags", key: "manualSat", def: 0.5,
             from: 0, to: 1, step: 0.01, unit: ""
         },
         uiScale: {
-            page: "appearance", group: "", order: 7,
+            page: "appearance", group: "", order: 6,
             label: "UI scale", caption: "",
             control: "seg", type: "real", backend: "flags", key: "uiScale", def: 1.0,
             options: [{ label: "90%", value: 0.9 }, { label: "100%", value: 1.0 }, { label: "110%", value: 1.1 }, { label: "125%", value: 1.25 }]
         },
         uiFont: {
-            page: "appearance", group: "", order: 8,
+            page: "appearance", group: "", order: 7,
             label: "Font", caption: "",
             control: "nav", type: "string", backend: "flags", key: "uiFont", def: ""
         },
