@@ -22,7 +22,7 @@ Quickshell pill is the entire base. Go star it.
 | | |
 |---|---|
 | <img src="assets/shell.png" alt="Morphing surfaces"> | Every surface grows out of the same bar and folds back in. Network, bluetooth, screen recording and the lock screen included. |
-| <img src="assets/retheme.gif" alt="Live retheme"> | `Super+B` shuffles the wallpaper and recolors the whole desktop from it: shell, borders, terminal, lock screen. Don't like it? Press it again. |
+| <img src="assets/retheme.gif" alt="Live retheme"> | `Super+N` shuffles the wallpaper and recolors the whole desktop from it: shell, borders, terminal, lock screen. Don't like it? Press it again. |
 
 ## What you get
 
@@ -80,11 +80,11 @@ The starter set. Rebind anything in Settings → Keybinds.
 
 | Key | Action |
 |---|---|
-| `Super` + `Return` | terminal |
+| `Super` + `Q` | terminal |
 | `Super` + `Space` | app launcher |
 | `Super` + `V` | clipboard history |
-| `Super` + `C` | wallpaper picker |
-| `Super` + `B` | shuffle wallpaper + retheme |
+| `Super` + `B` | wallpaper picker |
+| `Super` + `N` | shuffle wallpaper + retheme |
 | `Super` + `E` | file manager |
 | `Super` + `T` | toggle floating |
 | `Super` + `L` | lock |
