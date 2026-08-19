@@ -25,7 +25,7 @@ import "Singletons"
  * set and reloading Hyprland and the terminal), which is not a Schema field
  * Store can route. `applyMode` sets the `paletteMode` flag through Store and
  * then drives the process locally. The manual hue strip, tone seg and hex
- * field write `manualHue`/`manualSat`/`manualDark` straight to Flags — Schema
+ * field write `manualHue`/`manualSat` straight to Flags — Schema
  * marks them `control: "custom"` and they stay off Store exactly as before,
  * each edit calling `applyManual()` to debounce the same repaint.
  *
@@ -77,10 +77,9 @@ SettingsSurface {
     }
 
     property string hueArg: String(Math.round(Flags.manualHue))
-    property string modeArg: Flags.manualDark ? "dark" : "light"
     property string satArg: String(Flags.manualSat)
 
-    readonly property color accentColor: Qt.hsla(Flags.manualHue / 360, Flags.manualSat, Flags.manualDark ? 0.5 : 0.62, 1)
+    readonly property color accentColor: Qt.hsla(Flags.manualHue / 360, Flags.manualSat, 0.5, 1)
     readonly property string currentHex: {
         var c = accentColor;
         function h(x) { return ("0" + Math.round(x * 255).toString(16)).slice(-2); }
@@ -89,7 +88,6 @@ SettingsSurface {
 
     function applyManual() {
         hueArg = String(Math.round(Flags.manualHue));
-        modeArg = Flags.manualDark ? "dark" : "light";
         satArg = String(Flags.manualSat);
         applyTimer.restart();
     }
@@ -113,7 +111,7 @@ SettingsSurface {
         id: paletteProc
         command: ["sh", "-c",
             "python3 \"$HOME/.config/hypr/scripts/wallcolors.py\" --hue \"$1\" \"$2\" \"$3\" && hyprctl reload >/dev/null 2>&1; busctl --user call com.mitchellh.ghostty /com/mitchellh/ghostty org.gtk.Actions Activate \"sava{sv}\" reload-config 0 0 >/dev/null 2>&1 || true",
-            "sh", root.hueArg, root.modeArg, root.satArg]
+            "sh", root.hueArg, "dark", root.satArg]
     }
 
     Process {
@@ -212,9 +210,9 @@ SettingsSurface {
         /**
          * Manual hue editor, folded shut unless the palette is on Manual. Holds a
          * rainbow strip with a draggable thumb, then a single line pairing a live
-         * accent swatch and its hex caption with the dark/light choice, and a hex
-         * input that drives both hue and saturation. The strip is mouse-driven and
-         * stays out of the keyboard row registry.
+         * accent swatch with its hex caption, and a hex input that drives both hue
+         * and saturation. The strip is mouse-driven and stays out of the keyboard
+         * row registry.
          */
         Item {
             id: manualSection
@@ -281,7 +279,7 @@ SettingsSurface {
 
                 Item {
                     width: parent.width
-                    height: Math.max(34 * root.s, toneSeg.implicitHeight)
+                    height: 34 * root.s
 
                     Rectangle {
                         id: accentSwatch
@@ -298,8 +296,7 @@ SettingsSurface {
                     Column {
                         anchors.left: accentSwatch.right
                         anchors.leftMargin: 12 * root.s
-                        anchors.right: toneSeg.left
-                        anchors.rightMargin: 12 * root.s
+                        anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 3 * root.s
 
@@ -311,7 +308,7 @@ SettingsSurface {
                             font.weight: Font.DemiBold
                         }
                         Text {
-                            text: root.currentHex + " · " + (Flags.manualDark ? "dark" : "light")
+                            text: root.currentHex
                             color: Theme.faint
                             font.family: Theme.font
                             font.pixelSize: Metrics.tBody * root.s
@@ -319,16 +316,6 @@ SettingsSurface {
                             elide: Text.ElideRight
                             width: parent.width
                         }
-                    }
-
-                    SettingsSeg {
-                        id: toneSeg
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        s: root.s
-                        options: [{ label: "Dark", value: true }, { label: "Light", value: false }]
-                        value: Flags.manualDark
-                        onPicked: (v) => { Flags.manualDark = v; root.applyManual(); }
                     }
                 }
 

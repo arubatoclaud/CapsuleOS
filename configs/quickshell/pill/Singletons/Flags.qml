@@ -27,7 +27,6 @@ Singleton {
     property alias uiScale: adapter.uiScale
     property alias reduceMotion: adapter.reduceMotion
     property alias manualHue: adapter.manualHue
-    property alias manualDark: adapter.manualDark
     property alias manualSat: adapter.manualSat
     property alias uiFont: adapter.uiFont
     /**
@@ -140,7 +139,6 @@ Singleton {
             property real uiScale: 1.0
             property bool reduceMotion: false
             property int manualHue: 30
-            property bool manualDark: true
             property real manualSat: 0.5
             property string uiFont: ""
             /** macOS menubar behaviour: the pill retracts off the top edge at rest and releases its reserved band, and a thin hover strip at the screen edge slides it back. */

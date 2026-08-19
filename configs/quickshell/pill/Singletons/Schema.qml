@@ -156,12 +156,6 @@ Singleton {
             control: "custom", type: "int", backend: "flags", key: "manualHue", def: 30,
             from: 0, to: 359, step: 1, unit: ""
         },
-        manualDark: {
-            page: "appearance", group: "", order: 5,
-            label: "Accent tone", caption: "Dark or light accent",
-            control: "seg", type: "bool", backend: "flags", key: "manualDark", def: true,
-            options: [{ label: "Dark", value: true }, { label: "Light", value: false }]
-        },
         manualSat: {
             page: "appearance", group: "", order: 6,
             label: "Accent saturation", caption: "Set by the hex field with the hue",

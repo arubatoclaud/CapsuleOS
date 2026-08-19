@@ -94,12 +94,12 @@ import "../lib/setAnim.js" as SetAnim
  *       character down to Hyprland; the flag alone would leave the compositor
  *       on the old curve. Both of those halves are `Store.set` calls, so the
  *       files still have one writer; only the flag itself sidesteps validation.
- *   `paletteMode`, `manualHue`, `manualSat`, `manualDark` — Appearance's
+ *   `paletteMode`, `manualHue`, `manualSat` — Appearance's
  *       `applyMode`/`applyManual` also run the wallcolors.py process that
  *       regenerates the whole rice colour set and reloads Hyprland and ghostty;
  *       the flag alone changes nothing on screen. `applyMode` therefore routes
  *       the `paletteMode` flag through `Store.set` and then drives the process
- *       itself; the three manual knobs are `control: "custom"` in Schema and
+ *       itself; the two manual knobs are `control: "custom"` in Schema and
  *       write Flags directly, each edit calling `applyManual` to debounce the
  *       same repaint. The side effect stays on the page either way — Store
  *       validates and stores, it does not run the rice.
