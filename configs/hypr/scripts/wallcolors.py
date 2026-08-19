@@ -470,7 +470,11 @@ def main():
         if i in ANSI_CONTRAST_FLOOR:
             color = clamp_light(color, ANSI_CONTRAST_FLOOR[i], b["base00"])
         lines.append(f'palette = {i}={color}')
-    (CACHE / "ghostty-colors").write_text("\n".join(lines) + "\n")
+    # Atomic swap: a ghostty reload signal can land mid-write, and a truncated
+    # read fails its whole config load (surfaces as a font-init notification).
+    tmp = CACHE / "ghostty-colors.tmp"
+    tmp.write_text("\n".join(lines) + "\n")
+    tmp.replace(CACHE / "ghostty-colors")
     return 0
 
 
