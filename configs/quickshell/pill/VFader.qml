@@ -25,6 +25,16 @@ Item {
 
     readonly property real trackH: 86 * s
 
+    readonly property real clamped: Math.max(0, Math.min(1, value))
+
+    /**
+     * Animated copy of `clamped` that the fill and tick draw from. Animating
+     * this fraction (instead of pixel height/y) keeps both inside the thread
+     * even while the track itself is being resized. Mirrors HFader.
+     */
+    property real vis: clamped
+    Behavior on vis { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
+
     /**
      * Live tick centre in this fader's coordinates. tick.y and root.width are
      * voided because mapToItem creates no QML dependency on the source item's
@@ -71,13 +81,12 @@ Item {
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: parent.height * Math.max(0, Math.min(1, root.value))
+                height: Math.max(0, parent.height) * root.vis
                 radius: parent.radius
                 gradient: Gradient {
                     GradientStop { position: 0.0; color: root.lit ? Theme.markLit : Theme.markDim }
                     GradientStop { position: 1.0; color: root.lit ? Theme.glowBurn : Theme.markDimDeep }
                 }
-                Behavior on height { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
             }
         }
 
@@ -85,14 +94,13 @@ Item {
             id: tick
             anchors.horizontalCenter: parent.horizontalCenter
             y: Math.max(0, Math.min(root.trackH - height,
-                (1 - Math.max(0, Math.min(1, root.value))) * root.trackH - height / 2))
+                (1 - root.vis) * root.trackH - height / 2))
             width: 11 * root.s
             height: 2.5 * root.s
             radius: 2 * root.s
             color: Theme.tickRest
             opacity: root.focused ? 0 : 1
             Behavior on opacity { NumberAnimation { duration: Motion.fast } }
-            Behavior on y { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
         }
 
         MouseArea {

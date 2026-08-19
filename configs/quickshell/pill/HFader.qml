@@ -35,6 +35,14 @@ Item {
 
     readonly property real clamped: Math.max(0, Math.min(1, value))
 
+    /**
+     * Animated copy of `clamped` that the fill and tick draw from. Animating
+     * this fraction (instead of pixel width/x) keeps both inside the track
+     * while the surface's open morph is still resizing the track itself.
+     */
+    property real vis: clamped
+    Behavior on vis { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
+
     Rectangle {
         id: track
         anchors.left: parent.left
@@ -50,25 +58,23 @@ Item {
             anchors.left: parent.left
             anchors.top: parent.top
             anchors.bottom: parent.bottom
-            width: parent.width * root.clamped
+            width: Math.max(0, parent.width) * root.vis
             radius: parent.radius
             gradient: Gradient {
                 orientation: Gradient.Horizontal
                 GradientStop { position: 0.0; color: root.on ? Theme.glowBurn : Theme.markDimDeep }
                 GradientStop { position: 1.0; color: root.on ? Theme.markLit : Theme.markDim }
             }
-            Behavior on width { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
         }
 
         Rectangle {
             id: tick
-            x: Math.max(0, Math.min(track.width - width, track.width * root.clamped - width / 2))
+            x: Math.max(0, Math.min(track.width - width, track.width * root.vis - width / 2))
             anchors.verticalCenter: parent.verticalCenter
             width: 2.5 * root.s
             height: 11 * root.s
             radius: 2 * root.s
             color: Theme.tickRest
-            Behavior on x { enabled: !dragArea.pressed; NumberAnimation { duration: Motion.fast } }
         }
 
         MouseArea {
