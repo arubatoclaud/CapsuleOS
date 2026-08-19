@@ -34,7 +34,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-CACHE = Path.home() / ".cache" / "pillos"
+CACHE = Path.home() / ".cache" / "capsuleos"
 GTK_THEMES_DIR = Path("/usr/share/themes")
 ICON_THEMES_DIR = Path("/usr/share/icons")
 # Adwaita / Adwaita-dark ship compiled into GTK itself (no directory under
@@ -227,7 +227,7 @@ def render_fastfetch(pill):
     tmpl = ff / "config.jsonc.in"
     if not tmpl.is_file():
         print("wallcolors: config.jsonc.in missing in ~/.config/fastfetch, skipping "
-              "fastfetch recolour (apply the PillOS update or re-run the installer)",
+              "fastfetch recolour (apply the CapsuleOS update or re-run the installer)",
               file=sys.stderr)
         return
     seq = lambda h: "%d;%d;%d" % tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
@@ -336,7 +336,7 @@ def write_qtct(pill):
             continue
         colors_dir = home / "colors"
         colors_dir.mkdir(parents=True, exist_ok=True)
-        scheme_path = colors_dir / "pillos.conf"
+        scheme_path = colors_dir / "capsuleos.conf"
         active = _qt_color_list(pill)
         disabled = _qt_color_list(pill, dim_text=True)
         scheme_path.write_text(

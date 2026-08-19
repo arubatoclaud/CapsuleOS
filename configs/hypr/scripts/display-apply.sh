@@ -7,8 +7,8 @@ out=$2
 out=${out//[^A-Za-z0-9_.@:x+-]/}
 
 run_dir="${XDG_RUNTIME_DIR:-/tmp}"
-old_file="$run_dir/pillos-display-$out.old"
-pending_file="$run_dir/pillos-display-$out.pending"
+old_file="$run_dir/capsuleos-display-$out.old"
+pending_file="$run_dir/capsuleos-display-$out.pending"
 
 snapshot_old() {
     spec=$(hyprctl monitors -j | jq -r --arg o "$out" '

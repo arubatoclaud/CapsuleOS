@@ -56,7 +56,7 @@ Singleton {
 
     FileView {
         id: file
-        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/pillos/colors.json"
+        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/capsuleos/colors.json"
         blockLoading: true
         watchChanges: true
         printErrors: false

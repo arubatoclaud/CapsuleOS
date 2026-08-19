@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-The PillOS installer orchestrator: the thin top layer that ties distro
+The CapsuleOS installer orchestrator: the thin top layer that ties distro
 detection, the package planner, the fallback handlers, the config deploy and the
 terminal UI into one real install flow.
 
@@ -181,7 +181,7 @@ def _wizard(args, info, manifest):
     grub = False
     if info["bootloader"] == "grub":
         grub = tui.confirm("GRUB theme", [
-            "Install the PillOS GRUB theme.",
+            "Install the CapsuleOS GRUB theme.",
             "Theme only, it does not touch your boot entries.",
         ])
 
@@ -292,15 +292,15 @@ def _summary_lines(info, choices, plan, args, do_pkgs):
     if choices["grub"]:
         lines.append("Install the GRUB theme.")
     if _is_update(info):
-        lines.append("Update the PillOS config; your Settings are kept.")
+        lines.append("Update the CapsuleOS config; your Settings are kept.")
     else:
-        lines.append("Back up and deploy the PillOS config.")
+        lines.append("Back up and deploy the CapsuleOS config.")
     return lines
 
 
 def _is_update(info):
     """
-    True when this run lands on top of an earlier PillOS deploy, spotted by the
+    True when this run lands on top of an earlier CapsuleOS deploy, spotted by the
     managed marker on the two dirs that always deploy. That flips the messaging
     from "back up and deploy" to "update, your files are kept", since a managed
     replace makes no backup and carries the protected user files across.
@@ -312,23 +312,23 @@ def _is_update(info):
 def seed_wallpapers(dry):
     """
     Give a fresh box a wallpaper to show. Every wallpaper consumer reads
-    ~/PillOS/wallpapers (wallpaper.sh, the picker, the search, the palette), but
+    ~/CapsuleOS/wallpapers (wallpaper.sh, the picker, the search, the palette), but
     that dir is gitignored and untracked, so a clone ships none: no background, an
     empty picker, the palette never fires. Create the dir plus the downloads
-    subfolder and the pillos cache, and when it holds no images yet, copy the
+    subfolder and the capsuleos cache, and when it holds no images yet, copy the
     tracked starter set in so swww, the picker and the palette all light up.
     Fail-soft like every other step: an OSError comes back as (ok, detail) for
     the report instead of aborting the run.
     """
     home = Path.home()
-    wp = home / "PillOS" / "wallpapers"
+    wp = home / "CapsuleOS" / "wallpapers"
     starters = Path(__file__).resolve().parent / "starter-wallpapers"
     if dry:
-        print("  would seed wallpapers -> ~/PillOS/wallpapers")
+        print("  would seed wallpapers -> ~/CapsuleOS/wallpapers")
         return True, ""
     try:
         (wp / "downloads").mkdir(parents=True, exist_ok=True)
-        (home / ".cache" / "pillos").mkdir(parents=True, exist_ok=True)
+        (home / ".cache" / "capsuleos").mkdir(parents=True, exist_ok=True)
         exts = (".jpg", ".jpeg", ".png")
         has_image = any(p.is_file() and p.suffix.lower() in exts for p in wp.iterdir())
         if has_image:
@@ -387,17 +387,17 @@ def bridge_wallpaper_binary(dry):
     return True, "", True
 
 
-def link_pillos_cli(dry):
+def link_capsuleos_cli(dry):
     """
-    Put the `pillos` control CLI on PATH. The script ships inside the deployed
-    config at ~/.config/hypr/scripts/pillos, so symlink it into ~/.local/bin where
+    Put the `capsuleos` control CLI on PATH. The script ships inside the deployed
+    config at ~/.config/hypr/scripts/capsuleos, so symlink it into ~/.local/bin where
     the wallpaper bridge already lives. Returns (ok, detail, linked) so the caller
     folds it into record() and flags the PATH note only when a fresh link was made.
     """
-    target = deploy.CONFIG_ROOT / "hypr" / "scripts" / "pillos"
-    link = Path.home() / ".local" / "bin" / "pillos"
+    target = deploy.CONFIG_ROOT / "hypr" / "scripts" / "capsuleos"
+    link = Path.home() / ".local" / "bin" / "capsuleos"
     if dry:
-        print(f"  would link: pillos -> {target}")
+        print(f"  would link: capsuleos -> {target}")
         return True, "", False
     if not target.exists():
         return True, "", False
@@ -407,8 +407,8 @@ def link_pillos_cli(dry):
             link.unlink()
         link.symlink_to(target)
     except OSError as exc:
-        return False, f"{exc}: link pillos CLI", False
-    print(f"  linked: pillos -> {target}")
+        return False, f"{exc}: link capsuleos CLI", False
+    print(f"  linked: capsuleos -> {target}")
     return True, "", True
 
 
@@ -435,7 +435,7 @@ def _seed_update_baseline(source, config_root, dry):
             capture_output=True, text=True, check=True).stdout.strip()
     except (OSError, subprocess.CalledProcessError):
         return True, ""
-    engine = Path(config_root) / "hypr" / "scripts" / "pillos-update.py"
+    engine = Path(config_root) / "hypr" / "scripts" / "capsuleos-update.py"
     if not head or not engine.exists():
         return True, ""
     try:
@@ -483,7 +483,7 @@ def _report(plan, failures, notes, info, choices, args, do_pkgs, dry):
         cmd = hint[len("Run: "):] if hint.startswith("Run: ") else hint
         attention.append((step, cmd))
 
-    title = "Dry run complete" if dry else "PillOS is in"
+    title = "Dry run complete" if dry else "CapsuleOS is in"
     tui.closing(title, tally, steps, attention, notes or None)
 
 
@@ -505,7 +505,7 @@ def run(args):
         helper_label = "Not needed"
     has_config = any(v["exists"] for v in info["existing"].values())
     if _is_update(info):
-        config_label = "PillOS (this run updates it, your Settings are kept)"
+        config_label = "CapsuleOS (this run updates it, your Settings are kept)"
     elif has_config:
         config_label = "Found (backed up before anything is replaced)"
     else:
@@ -705,7 +705,7 @@ def run(args):
                     migrated = action.get("migrated", [])
                     if migrated:
                         head = "would migrate" if dry else "migrated"
-                        print(f"  {head}: {len(migrated)} ricelin paths to pillos")
+                        print(f"  {head}: {len(migrated)} ricelin paths to capsuleos")
                     continue
                 if action["action"] in ("installed", "skipped-existing"):
                     if action["action"] == "installed":
@@ -729,19 +729,19 @@ def run(args):
             record(False, str(exc), "Neutralize configs",
                    "Check ~/.config permissions and re-run the installer.")
 
-        # k2. put the pillos control CLI on PATH now that the script is deployed.
-        ok, detail, linked = link_pillos_cli(dry)
-        record(ok, detail, "Link pillos CLI",
-               "Symlink ~/.local/bin/pillos to ~/.config/hypr/scripts/pillos yourself.")
+        # k2. put the capsuleos control CLI on PATH now that the script is deployed.
+        ok, detail, linked = link_capsuleos_cli(dry)
+        record(ok, detail, "Link capsuleos CLI",
+               "Symlink ~/.local/bin/capsuleos to ~/.config/hypr/scripts/capsuleos yourself.")
         if linked:
-            notes.append("Linked the pillos CLI into ~/.local/bin. With it on PATH "
-                         "you can run: pillos status, pillos restart, pillos update.")
+            notes.append("Linked the capsuleos CLI into ~/.local/bin. With it on PATH "
+                         "you can run: capsuleos status, capsuleos restart, capsuleos update.")
 
         # l. seed a starter wallpaper so the first boot has a background, a
         #    populated picker and a palette to render.
         ok, detail = seed_wallpapers(dry)
         record(ok, detail, "Seed wallpapers",
-               "Copy any image into ~/PillOS/wallpapers yourself.")
+               "Copy any image into ~/CapsuleOS/wallpapers yourself.")
 
         # m. themes.
         if choices["sddm"]:
@@ -774,7 +774,7 @@ def run(args):
 
 def run_uninstall(args):
     """
-    Remove every PillOS-managed config and put the pre-install backups back.
+    Remove every CapsuleOS-managed config and put the pre-install backups back.
     Packages stay; only the deployed files go. Confirms interactively before
     touching anything, and refuses to run headless, since a piped one-liner
     should never be able to wipe a config unattended.
@@ -784,7 +784,7 @@ def run_uninstall(args):
     plan = deploy.uninstall(config_root=deploy.CONFIG_ROOT, apply=False)
     removals = [a for a in plan if a["action"] == "remove"]
     if not removals:
-        tui.info(["Nothing PillOS-managed found in ~/.config, nothing to remove."])
+        tui.info(["Nothing CapsuleOS-managed found in ~/.config, nothing to remove."])
         tui.outro("Done")
         return 0
 
@@ -801,7 +801,7 @@ def run_uninstall(args):
         tui.outro("Dry run complete")
         return 0
     try:
-        if not tui.confirm("Remove PillOS", lines):
+        if not tui.confirm("Remove CapsuleOS", lines):
             tui.outro("Cancelled")
             return 0
     except RuntimeError:
@@ -814,22 +814,22 @@ def run_uninstall(args):
             tail = f" (restored {a['restored']})" if a["restored"] else ""
             print(f"  removed: {a['dest']}{tail}")
 
-    link = Path.home() / ".local" / "bin" / "pillos"
+    link = Path.home() / ".local" / "bin" / "capsuleos"
     if link.is_symlink():
         try:
             link.unlink()
             print(f"  removed: {link}")
         except OSError:
             pass
-    tui.info(["The repo clone in ~/.local/share/pillos and your wallpapers in "
-              "~/PillOS are left for you to delete."])
-    tui.outro("PillOS removed")
+    tui.info(["The repo clone in ~/.local/share/capsuleos and your wallpapers in "
+              "~/CapsuleOS are left for you to delete."])
+    tui.outro("CapsuleOS removed")
     return 0
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Install the PillOS Hyprland rice across distro families.")
+        description="Install the CapsuleOS Hyprland rice across distro families.")
     parser.add_argument("--dry-run", action="store_true",
                         help="Walk the whole flow and change nothing")
     parser.add_argument("--quickstart", action="store_true",
@@ -843,7 +843,7 @@ def main():
     parser.add_argument("--no-deps", action="store_true",
                         help="Skip the package step, only deploy the configs")
     parser.add_argument("--reinstall", action="store_true",
-                        help="Run the full install over an existing PillOS install")
+                        help="Run the full install over an existing CapsuleOS install")
     parser.add_argument("--uninstall", action="store_true",
                         help="Remove the deployed configs and restore the backups")
     args = parser.parse_args()

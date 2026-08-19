@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-The generic, brick-safe GRUB theme step for the PillOS installer.
+The generic, brick-safe GRUB theme step for the CapsuleOS installer.
 
 It does one thing: drop the goldengate theme into /boot/grub and point GRUB at it. It
 never touches boot entries, never disables os-prober, never deploys a curated
 menu. That keeps it safe on any machine; a wrong menu entry can leave a box
 unbootable, a theme cannot. Erik's personal install-goldengate.sh (hardcoded CachyOS
-disks, a fixed 3-entry menu, 10_pillos, probe-sda4.sh) is the opposite of this
+disks, a fixed 3-entry menu, 10_capsuleos, probe-sda4.sh) is the opposite of this
 and deliberately does not ship.
 
 apply(source, dry) returns the three actions it plans or ran:
@@ -27,7 +27,7 @@ GRUB_ROOT = "/boot/grub"
 THEME_DEST = f"{GRUB_ROOT}/themes/{THEME}"
 THEME_TXT = f"{THEME_DEST}/theme.txt"
 GRUB_DEFAULT = "/etc/default/grub"
-GRUB_BACKUP = "/etc/default/grub.pillos-bak"
+GRUB_BACKUP = "/etc/default/grub.capsuleos-bak"
 GRUB_CFG = f"{GRUB_ROOT}/grub.cfg"
 
 

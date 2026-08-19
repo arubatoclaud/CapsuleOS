@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PillOS installer terminal UI, the widget layer the orchestrator imports.
+CapsuleOS installer terminal UI, the widget layer the orchestrator imports.
 
 This is a clack-style sequential prompt flow, not a full-screen TUI. The terminal
 keeps scrolling: every answered question stays on screen, collapsed to a single
@@ -10,7 +10,7 @@ gave. The screen is never cleared. Only the one currently active prompt redraws 
 place while you move the arrows; the moment you submit it freezes into scrollback
 and the next prompt prints under it.
 
-The skin is the locked PillOS night-bridge: the amber edge marker that echoes the
+The skin is the locked CapsuleOS night-bridge: the amber edge marker that echoes the
 pill's own marks and the goldengate, corner-bracketed answers, square seals for
 multiselect and round dots for single choice, all in the fog palette.
 
@@ -262,16 +262,16 @@ def banner():
         _clip(
             [
                 ("", "  "),
-                (FLAME, "PillOS"),
+                (FLAME, "CapsuleOS"),
                 ("", "   "),
                 (DIM, "A warm Hyprland rice"),
             ],
             width,
         )
     )
-    lines.append(_clip([("", "  "), (FAINT, "github.com/arubatoclaud/PillOS")], width))
+    lines.append(_clip([("", "  "), (FAINT, "github.com/arubatoclaud/CapsuleOS")], width))
     lines.append("")
-    lines.append(_header(INTRO, VERM, "PillOS installer", CREAM, width))
+    lines.append(_header(INTRO, VERM, "CapsuleOS installer", CREAM, width))
     lines.append(_spacer(width))
     _write("\n".join(lines) + "\n")
 

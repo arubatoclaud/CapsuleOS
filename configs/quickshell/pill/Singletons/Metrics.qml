@@ -4,7 +4,7 @@ import Quickshell
 
 /**
  * Radius, type, hairline and icon tokens for the pill shell.
- * Source: the "Night Glass" designer memo, 2026-08 PillOS audit artifact §05.
+ * Source: the "Night Glass" designer memo, 2026-08 CapsuleOS audit artifact §05.
  * Radius family (call 5): 7/9/13/18/22+999, one corner language shell-wide.
  * Type scale (call 7): six fixed steps, no ad hoc font.pixelSize elsewhere.
  */

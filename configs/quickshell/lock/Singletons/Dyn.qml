@@ -33,7 +33,7 @@ Singleton {
     readonly property string glow: adapter.glow.length > 0 ? adapter.glow : adapter.primary_container
 
     FileView {
-        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/pillos/colors.json"
+        path: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/capsuleos/colors.json"
         blockLoading: true
         watchChanges: true
         printErrors: false

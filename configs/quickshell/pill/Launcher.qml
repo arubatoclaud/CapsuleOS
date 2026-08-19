@@ -50,7 +50,7 @@ PillSurface {
     readonly property string appimageScript: Quickshell.env("HOME") + "/.config/hypr/scripts/app-install.sh"
 
     function appimageSlug(entry) {
-        return entry && entry.id && entry.id.indexOf("pillos-") === 0 ? entry.id.substring(8) : "";
+        return entry && entry.id && entry.id.indexOf("capsuleos-") === 0 ? entry.id.substring(8) : "";
     }
 
     Process { id: appimageProc }
@@ -77,7 +77,7 @@ PillSurface {
     ameForm: "caret"
     amePoint: Qt.point(caretX, caretY)
 
-    readonly property string usageFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos/launcher-usage.json"
+    readonly property string usageFile: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/capsuleos/launcher-usage.json"
 
     readonly property var allEntries: {
         var src = DesktopEntries.applications.values;
@@ -286,7 +286,7 @@ PillSurface {
 
             readonly property var entry: root.results[index]
             readonly property bool selected: index === root.selectedIndex
-            readonly property bool isAppImage: entry && entry.id && entry.id.indexOf("pillos-") === 0
+            readonly property bool isAppImage: entry && entry.id && entry.id.indexOf("capsuleos-") === 0
             readonly property bool editing: root.editIndex === index && isAppImage
             property bool armed: false
             onEditingChanged: if (!editing) armed = false

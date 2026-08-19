@@ -17,7 +17,7 @@ copy-on-select = clipboard
 keybind = ctrl+v=paste_from_clipboard
 confirm-close-surface = false
 
-# Cool Fog — PillOS night-bridge default. The wallpaper picker writes a
+# Cool Fog — CapsuleOS night-bridge default. The wallpaper picker writes a
 # matching palette to the cache file below, which overrides everything here.
 background = #0a0e16
 foreground = #c3cddb
@@ -41,4 +41,4 @@ palette = 13=#c0aade
 palette = 14=#99ccd9
 palette = 15=#f2f6fb
 
-config-file = ?~/.cache/pillos/ghostty-colors
+config-file = ?~/.cache/capsuleos/ghostty-colors

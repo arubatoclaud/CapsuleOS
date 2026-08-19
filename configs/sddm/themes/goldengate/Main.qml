@@ -21,7 +21,7 @@ Item {
     readonly property real userScale: parseFloat(cfg("scale", "1.0")) || 1.0
     readonly property real s: (root.height > 0 ? root.height / 1080 : 1) * userScale
 
-    // Night palette (PillOS reskin, Task 4)
+    // Night palette (CapsuleOS reskin, Task 4)
     readonly property color accent: cfg("accent", "#ffb454")
     readonly property color accentDeep: "#ff9838"
     readonly property color accentGlow: Qt.rgba(255 / 255, 180 / 255, 84 / 255, 0.9)

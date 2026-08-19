@@ -24,8 +24,8 @@ sed -i "s|^GRUB_TIMEOUT=.*|GRUB_TIMEOUT='10'|" "$GRUBDEF"
 sed -i "s|^GRUB_GFXMODE=.*|GRUB_GFXMODE='2560x1440,auto'|" "$GRUBDEF"
 
 echo "==> install curated 3-entry menu, disable auto-generators"
-cp -f "$REPO/10_pillos" /etc/grub.d/10_pillos
-chmod 755 /etc/grub.d/10_pillos
+cp -f "$REPO/10_capsuleos" /etc/grub.d/10_capsuleos
+chmod 755 /etc/grub.d/10_capsuleos
 rm -f /etc/grub.d/11_cachyos_old
 for g in 10_linux 30_os-prober 30_uefi-firmware 41_snapshots-btrfs 20_linux_xen 25_bli; do
   [ -e "/etc/grub.d/$g" ] && chmod -x "/etc/grub.d/$g" || true

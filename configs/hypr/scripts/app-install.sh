@@ -25,7 +25,7 @@ cleanup() { local rc=$?; [ -n "${_tmpdir:-}" ] && rm -rf "$_tmpdir"; return "$rc
 # sudoless box straight into the pill's generic install-failed face. pkexec exits
 # 126 when the auth dialog is dismissed and 127 when there is no authentication
 # agent / the user isn't authorized; catch those here and die with the exact
-# command to run by hand instead, mirroring pillos-update.py's native_install_reason.
+# command to run by hand instead, mirroring capsuleos-update.py's native_install_reason.
 pkexec_or_die() {
 	local manual="$1"; shift
 	"$@" && return 0
@@ -181,7 +181,7 @@ extract_install() {
 	local icon_path="$icon_dir/$slug.png"
 	[ -f "$icon_path" ] || { icon_path="$icon_dir/$slug.svg"; [ -f "$icon_path" ] || icon_path=""; }
 
-	local df_out="$desktop_dir/pillos-$slug.desktop"
+	local df_out="$desktop_dir/capsuleos-$slug.desktop"
 	{
 		echo "[Desktop Entry]"
 		echo "Type=Application"
@@ -195,7 +195,7 @@ extract_install() {
 		[ -n "$categories" ] && echo "Categories=$categories"
 		[ -n "$wmclass" ] && echo "StartupWMClass=$wmclass"
 		echo "Terminal=false"
-		echo "X-PillOS-AppImage=true"
+		echo "X-CapsuleOS-AppImage=true"
 	} >"$df_out"
 
 	reg_set "$slug" "$name" "$dest" "$icon_path" "$df_out" "$appid"
@@ -219,9 +219,9 @@ install_font() {
 install_wallpaper() {
 	local src="$1" base="$2" name wpdir dest
 	name="${base%.*}"
-	wpdir="$(jq -r '.wallpaperDir // ""' "${XDG_STATE_HOME:-$HOME/.local/state}/pillos/flags.json" 2>/dev/null || echo "")"
-	[ -n "$wpdir" ] || wpdir="$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper-dir" 2>/dev/null || true)"
-	[ -n "$wpdir" ] || wpdir="$HOME/PillOS/wallpapers"
+	wpdir="$(jq -r '.wallpaperDir // ""' "${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos/flags.json" 2>/dev/null || echo "")"
+	[ -n "$wpdir" ] || wpdir="$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper-dir" 2>/dev/null || true)"
+	[ -n "$wpdir" ] || wpdir="$HOME/CapsuleOS/wallpapers"
 	mkdir -p "$wpdir"
 	case "$(printf '%s' "$base" | tr '[:upper:]' '[:lower:]')" in
 		*.webp) dest="$wpdir/$name.png"; magick "$src" "$dest" ;;

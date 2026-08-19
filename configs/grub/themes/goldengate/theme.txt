@@ -1,4 +1,4 @@
-# Goldengate: PillOS GRUB theme (night palette)
+# Goldengate: CapsuleOS GRUB theme (night palette)
 # Background: night gradient (1920x1080)
 
 desktop-image: "background.png"

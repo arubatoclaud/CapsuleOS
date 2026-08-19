@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PillOS config deploy layer.
+CapsuleOS config deploy layer.
 
 Copies the rice into ~/.config, drops an ownership marker so uninstall knows
 what is safe to pull, makes the deployed copies portable (neutralize), and
@@ -19,7 +19,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-MARKER = ".pillos-managed"
+MARKER = ".capsuleos-managed"
 
 # Repo root is the parent of this installer/ dir; the deployable configs sit
 # under configs/ next to it.
@@ -41,10 +41,10 @@ DEPLOY_SET = [
 # Personal bootloader entries that never deploy. A generic grub-theme installer
 # comes later; these three are tied to Erik's disks and machine, so the deploy
 # set leaves them out on purpose.
-GRUB_EXCLUDED = ["grub/install-goldengate.sh", "grub/probe-sda4.sh", "grub/10_pillos"]
+GRUB_EXCLUDED = ["grub/install-goldengate.sh", "grub/probe-sda4.sh", "grub/10_capsuleos"]
 
 # User-owned config files a re-run must never reset: the same protected set the
-# update engine three-way merges (hand-mirrored from pillos-update.py, which
+# update engine three-way merges (hand-mirrored from capsuleos-update.py, which
 # ships standalone and cannot be imported from here). On a managed re-deploy
 # these are carried across the replace instead of reverting to the repo copy,
 # so a curl|sh re-run stops undoing Settings (idle timeouts, keybinds, layout).
@@ -175,7 +175,7 @@ def _has_nvidia():
 def detect_existing(config_root=CONFIG_ROOT):
     """
     Look at each deploy-set item in ~/.config and report whether it is there
-    and, if so, whether PillOS put it there (carries our marker) or it is a
+    and, if so, whether CapsuleOS put it there (carries our marker) or it is a
     foreign config we would back up before replacing. Returns a dict keyed by
     item name with the path, exists, managed and a plain status word.
     """
@@ -290,7 +290,7 @@ def _fastfetch_palette():
     so a fresh box (or a corrupt colors.json) still renders instead of aborting
     the whole neutralize.
     """
-    cache = Path.home() / ".cache" / "pillos" / "colors.json"
+    cache = Path.home() / ".cache" / "capsuleos" / "colors.json"
     if cache.is_file():
         try:
             data = json.loads(cache.read_text())
@@ -439,7 +439,7 @@ def neutralize(config_root=CONFIG_ROOT, apply=False, src=CONFIGS):
 
 def uninstall(config_root=CONFIG_ROOT, apply=False):
     """
-    Remove every PillOS-managed item from ~/.config and put its pristine .bak
+    Remove every CapsuleOS-managed item from ~/.config and put its pristine .bak
     back. A dest without our marker is the user's own config, left untouched.
     Returns the action list; nothing is removed unless apply is set.
     """
@@ -453,7 +453,7 @@ def uninstall(config_root=CONFIG_ROOT, apply=False):
         is_dir = dest.is_dir() and not dest.is_symlink()
         if not _is_managed(dest, is_dir):
             actions.append({"item": name, "action": "skip",
-                            "reason": "not PillOS-managed", "dest": str(dest)})
+                            "reason": "not CapsuleOS-managed", "dest": str(dest)})
             continue
         bak = dest.with_name(dest.name + ".bak")
         restore = str(bak) if (bak.exists() or bak.is_symlink()) else None
@@ -472,7 +472,7 @@ def uninstall(config_root=CONFIG_ROOT, apply=False):
 
 
 def migrate_state(dry=False):
-    """One-shot: carry Ricelin-era cache/state to the pillos names so a live
+    """One-shot: carry Ricelin-era cache/state to the capsuleos names so a live
     machine's settings, wallpaper and palette survive the rename. Copies only
     when the source exists and the destination doesn't; never deletes."""
     home = Path.home()
@@ -480,11 +480,11 @@ def migrate_state(dry=False):
     cache = Path(os.environ.get("XDG_CACHE_HOME") or home / ".cache")
     data = Path(os.environ.get("XDG_DATA_HOME") or home / ".local" / "share")
     pairs = [
-        (state / "ricelin", state / "pillos"),
-        (cache / "ricelin", cache / "pillos"),
-        (state / "ricelin-wallpaper", state / "pillos-wallpaper"),
-        (state / "ricelin-wallpaper-dir", state / "pillos-wallpaper-dir"),
-        (data / "ricelin-update", data / "pillos-update"),
+        (state / "ricelin", state / "capsuleos"),
+        (cache / "ricelin", cache / "capsuleos"),
+        (state / "ricelin-wallpaper", state / "capsuleos-wallpaper"),
+        (state / "ricelin-wallpaper-dir", state / "capsuleos-wallpaper-dir"),
+        (data / "ricelin-update", data / "capsuleos-update"),
     ]
     migrated = []
     for src, dst in pairs:
@@ -593,7 +593,7 @@ def _selftest():
         check(env_txt == ENV_BASE + (ENV_NVIDIA if nvidia else ""),
               f"env.lua matches base{' + nvidia' if nvidia else ' (nvidia dropped)'}")
         gh = (root / "ghostty" / "config").read_text()
-        check("?~/.cache/pillos/ghostty-colors" in gh,
+        check("?~/.cache/capsuleos/ghostty-colors" in gh,
               "ghostty config-file uses the home-relative colors include")
         idletxt = (root / "hypr" / "hypridle.conf").read_text()
         check(str(Path.home()) + "/.config/hypr/scripts/lock.sh" in idletxt,
@@ -711,7 +711,7 @@ def _selftest():
     # paths, so the selftest holds them byte-equal.
     import importlib.util
     spec = importlib.util.spec_from_file_location(
-        "_pillos_update", REPO_ROOT / "configs" / "hypr" / "scripts" / "pillos-update.py")
+        "_capsuleos_update", REPO_ROOT / "configs" / "hypr" / "scripts" / "capsuleos-update.py")
     engine = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(engine)
     check(PRESERVED == engine.PROTECTED,

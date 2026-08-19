@@ -1,1 +1,1 @@
-Drop Golden-Gate-at-night wallpapers here before release. They seed ~/PillOS/wallpapers on install.
+Drop Golden-Gate-at-night wallpapers here before release. They seed ~/CapsuleOS/wallpapers on install.

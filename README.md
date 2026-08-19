@@ -1,6 +1,6 @@
 <div align="center">
 
-# PillOS
+# CapsuleOS
 
 ### macOS Golden Gate — the release Apple never shipped.
 
@@ -9,7 +9,7 @@
 </div>
 
 Every macOS release is named after a California landmark. Somehow, the most
-famous one never got its turn. PillOS fixes that: a Hyprland + Quickshell
+famous one never got its turn. CapsuleOS fixes that: a Hyprland + Quickshell
 desktop styled as the fictional **macOS Golden Gate** — cold night-bridge
 surfaces, fog-grey type, and International Orange burning through as amber.
 
@@ -37,7 +37,7 @@ Hyprland (Lua) · Quickshell · ghostty · zsh · Inter + JetBrains Mono Nerd ·
 
 > **Warning:** young installer, read it first, keep backups.
 
-    curl -fsSL https://raw.githubusercontent.com/arubatoclaud/PillOS/main/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/arubatoclaud/CapsuleOS/main/install.sh | bash
 
 Flags: `--quickstart` (defaults, no questions) · `--full` (daily apps) ·
 `--sddm` (goldengate login theme) · `--no-deps` (configs only — the sudoless

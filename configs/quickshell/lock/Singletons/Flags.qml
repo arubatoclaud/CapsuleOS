@@ -15,7 +15,7 @@ Singleton {
     readonly property string uiFont: adapter.uiFont
 
     FileView {
-        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/pillos/flags.json"
+        path: (Quickshell.env("XDG_STATE_HOME") || (Quickshell.env("HOME") + "/.local/state")) + "/capsuleos/flags.json"
         blockLoading: true
         watchChanges: true
         printErrors: false

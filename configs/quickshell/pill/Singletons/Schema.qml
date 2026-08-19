@@ -582,7 +582,7 @@ Singleton {
         },
         /**
          * Screen vibrance: a mixer fader, not a flags key. Devices owns it and
-         * persists the percent to its own state file (pillos/nvibrant-value),
+         * persists the percent to its own state file (capsuleos/nvibrant-value),
          * pushing each set to nvibrant, so it routes to Devices.vibrance rather
          * than to any of the file backends the pinned enum names.
          */

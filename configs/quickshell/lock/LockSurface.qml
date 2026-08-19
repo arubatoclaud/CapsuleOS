@@ -49,7 +49,7 @@ Item {
         if (surface.screenName.length === 0)
             return "";
         var dir = Quickshell.env("XDG_RUNTIME_DIR") || "/tmp";
-        return "file://" + dir + "/pillos-lock-" + surface.screenName + ".png";
+        return "file://" + dir + "/capsuleos-lock-" + surface.screenName + ".png";
     }
 
     clip: true

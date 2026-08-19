@@ -11,8 +11,8 @@ Thumbs.db
 *.legacy
 
 # install.sh ownership markers and config backups, only ever live under ~/.config
-.pillos-managed
-*.bak-pillos-*
+.capsuleos-managed
+*.bak-capsuleos-*
 
 # Per-machine
 .envrc
@@ -58,7 +58,7 @@ configs/hypr/.luarc.json
 # Wallpapers: local until final curated 2560x1440 set exists, then un-ignore + commit
 wallpapers/
 
-# PillOS: design specs are committed (upstream ignored docs/)
+# CapsuleOS: design specs are committed (upstream ignored docs/)
 .playwright/
 .playwright-mcp/
 
@@ -67,7 +67,7 @@ wallpapers/
 /configs/decisions.md
 /configs/mount-disks.sh
 /configs/grub/probe-sda4.sh
-/configs/grub/10_pillos
+/configs/grub/10_capsuleos
 __pycache__/
 configs/hypr/hyprsunset.conf
 .impeccable/

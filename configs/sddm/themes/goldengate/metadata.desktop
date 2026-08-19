@@ -1,6 +1,6 @@
 [SddmGreeterTheme]
 Name=goldengate
-Description=PillOS golden gate login
+Description=CapsuleOS golden gate login
 Author=Gakuseei
 License=MIT
 Type=sddm-theme

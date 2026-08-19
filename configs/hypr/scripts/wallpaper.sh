@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/pillos/flags.json"
+flags_file="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos/flags.json"
 WPDIR=$(jq -r '.wallpaperDir // ""' "$flags_file" 2>/dev/null || echo "")
 if [ -z "$WPDIR" ]; then
     # No explicit folder set: adopt an existing collection in the usual spots.
@@ -12,17 +12,17 @@ if [ -z "$WPDIR" ]; then
         n=$(find "$cand" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' \) | head -2 | wc -l)
         if [ "$n" -ge 2 ]; then WPDIR="$cand"; break; fi
     done
-    [ -n "$WPDIR" ] || WPDIR="$HOME/PillOS/wallpapers"
+    [ -n "$WPDIR" ] || WPDIR="$HOME/CapsuleOS/wallpapers"
 fi
-RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper-dir"
+RESOLVED="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper-dir"
 printf '%s\n' "$WPDIR" > "$RESOLVED"
 # No-op mode for the QML side: re-resolve the folder and exit before touching any daemon state.
 [ "${1:-}" = "resolve" ] && exit 0
-STATE="${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper"
-MAP="${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper-map"
-BAG="${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper-bag"
-STILL="${XDG_STATE_HOME:-$HOME/.local/state}/pillos-wallpaper-still.png"
-WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/pillos/wallcolors.log"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper"
+MAP="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper-map"
+BAG="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper-bag"
+STILL="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper-still.png"
+WLOG="${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos/wallcolors.log"
 
 is_video() {
     case "${1##*.}" in
@@ -192,7 +192,7 @@ sync_videos() {
 # implements the notification daemon, so a critical toast gets the user to
 # the log without wallpaper setting itself ever failing on a notify hiccup.
 wallcolors_failed() {
-    command -v notify-send >/dev/null 2>&1 && notify-send -u critical "PillOS" "Wallpaper color pipeline failed — see $WLOG" || true
+    command -v notify-send >/dev/null 2>&1 && notify-send -u critical "CapsuleOS" "Wallpaper color pipeline failed — see $WLOG" || true
 }
 
 # The palette follows the focused monitor: whatever hangs there drives matugen,

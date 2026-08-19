@@ -58,12 +58,12 @@ ShellRoot {
     Process {
         id: updatedToast
         command: ["sh", "-c",
-            "m=\"${XDG_STATE_HOME:-$HOME/.local/state}/pillos/updated\"; [ -f \"$m\" ] || exit 0; "
+            "m=\"${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos/updated\"; [ -f \"$m\" ] || exit 0; "
             + "b=$(cat \"$m\"); rm -f \"$m\"; "
             + "gdbus call --session --dest org.freedesktop.Notifications "
             + "--object-path /org/freedesktop/Notifications "
             + "--method org.freedesktop.Notifications.Notify "
-            + "PillOS 0 '' 'PillOS updated' \"$b\" '[]' '{}' 5000 >/dev/null 2>&1"]
+            + "CapsuleOS 0 '' 'CapsuleOS updated' \"$b\" '[]' '{}' 5000 >/dev/null 2>&1"]
     }
 
     Binding {
@@ -94,7 +94,7 @@ ShellRoot {
      */
     Process {
         running: Flags.keepAwake
-        command: ["systemd-inhibit", "--what=idle:sleep", "--who=PillOS",
+        command: ["systemd-inhibit", "--what=idle:sleep", "--who=CapsuleOS",
                   "--why=keep awake", "--mode=block", "sleep", "infinity"]
     }
 
