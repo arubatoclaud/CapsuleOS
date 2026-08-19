@@ -6,7 +6,7 @@ import "Singletons"
 
 /**
  * MOTION sub-surface (Schema page id `animation`): toggles Hyprland animations
- * and picks the motion Feel, with the exact curve and the ready-made presets
+ * and picks the motion Feel, with the exact curve editor
  * folded away underneath, plus a Reduce motion toggle (moved here from
  * Appearance in the settings restructure) that scales every shell-side
  * animation duration via `Motion.mult` — independent of Hyprland's own
@@ -63,21 +63,16 @@ SettingsSurface {
     property real cy2: 1.0
 
     /**
-     * Single source of truth for every curve preset — the calm/spring/glide
-     * "character" curves `applyMotion` drives and the Smooth/Snappy/Linear
-     * curve presets the Preset row offers — so the coordinates exist exactly
-     * once instead of the three copies (an `applyMotion` ternary chain, this
-     * table, and `snapToPreset`'s own candidates list) that used to drift.
-     * `motion` entries also carry the paired Hyprland duration; `label` entries
-     * are the ones the Preset row's SettingsSeg offers by name.
+     * Single source of truth for the calm/spring/glide "character" curves
+     * `applyMotion` drives — so the coordinates exist exactly once instead of
+     * the copies (an `applyMotion` ternary chain and `snapToPreset`'s own
+     * candidates list) that used to drift. Each entry also carries the paired
+     * Hyprland duration.
      */
     readonly property var presets: [
         { motion: "calm",   x1: 0.32, y1: 0.72, x2: 0.0,  y2: 1.0,  speed: 3.0 },
         { motion: "spring", x1: 0.34, y1: 1.56, x2: 0.64, y2: 1.0,  speed: 4.0 },
-        { motion: "glide",  x1: 0.45, y1: 0.05, x2: 0.15, y2: 1.0,  speed: 5.2 },
-        { label: "Smooth",  x1: 0.23, y1: 1.0,  x2: 0.32, y2: 1.0 },
-        { label: "Snappy",  x1: 0.15, y1: 0.0,  x2: 0.1,  y2: 1.0 },
-        { label: "Linear",  x1: 0.33, y1: 0.33, x2: 0.66, y2: 0.66 }
+        { motion: "glide",  x1: 0.45, y1: 0.05, x2: 0.15, y2: 1.0,  speed: 5.2 }
     ]
 
     function presetByMotion(v) {
@@ -127,8 +122,8 @@ SettingsSurface {
     /**
      * Snaps the handle coordinates to a preset's exact values when a released
      * handle position lands within epsilon of all four of that preset's
-     * coordinates, so nudging a handle and letting go near calm, spring,
-     * glide, Smooth, Snappy or Linear persists the exact preset instead of a
+     * coordinates, so nudging a handle and letting go near calm, spring or
+     * glide persists the exact preset instead of a
      * decimal's worth of drag drift. A curve outside epsilon on any of the
      * four values is left untouched.
      */
@@ -474,35 +469,6 @@ SettingsSurface {
                 }
             }
 
-            /**
-             * Preset and the curve editor above it stay mouse-only, and so claim no
-             * nav slot: a 2D handle drag has no single bump axis, and the preset
-             * strip is a one-shot stamp rather than a value to cycle.
-             */
-            SettingsRow {
-                surface: root
-                name: Schema.settings.animPreset.label
-                sub: Schema.settings.animPreset.caption
-                captionOnFocus: true
-                icon: "waves"
-                last: true
-                SettingsSeg {
-                    s: root.s
-                    options: root.presets.filter(function (p) { return p.label; }).map(function (p) { return { label: p.label, value: p.label }; })
-                    value: ""
-                    onPicked: (v) => {
-                        for (var i = 0; i < root.presets.length; i++) {
-                            if (root.presets[i].label === v) {
-                                var p = root.presets[i];
-                                root.cx1 = p.x1; root.cy1 = p.y1; root.cx2 = p.x2; root.cy2 = p.y2;
-                                editor.syncHandles();
-                                root.writeCurve();
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         Item { width: 1; height: 10 * root.s }

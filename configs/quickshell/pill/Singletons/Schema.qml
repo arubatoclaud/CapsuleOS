@@ -491,11 +491,6 @@ Singleton {
             label: "Curve", caption: "Drag the two bezier control points to override Feel's curve",
             control: "custom", type: "string", backend: "anim", key: "pillMorph", def: "0.32,0.72,0.00,1.00"
         },
-        animPreset: {
-            page: "animation", group: "curve", order: 1,
-            label: "Preset", caption: "Drop in a ready-made curve",
-            control: "custom", type: "string", backend: "anim", key: "", def: ""
-        },
 
         // ── Keybinds / Workspaces (bespoke editors, R4: untouched) ────────
         keybindsEditor: {
