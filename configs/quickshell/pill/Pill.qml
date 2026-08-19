@@ -557,10 +557,26 @@ Item {
 
     onSurfaceOpenChanged: if (surfaceOpen) {
         pinned = false;
+        lingerTimer.stop();
         if (quickHere && ScreenRec.quickChoosing) {
             ScreenRec.quickChoosing = false;
             ScreenRec.quickScreenChoosing = false;
         }
+    } else {
+        /*
+         * A closing surface lands on the hover pill, lingers, then falls to
+         * rest — instead of snapping all the way down. While the pointer is
+         * still on the pill the normal unhover path takes over instead.
+         */
+        hoverLatch = true;
+        if (!hovered)
+            lingerTimer.restart();
+    }
+
+    Timer {
+        id: lingerTimer
+        interval: 1000
+        onTriggered: if (!pill.hovered) graceTimer.restart()
     }
 
     QtObject {
