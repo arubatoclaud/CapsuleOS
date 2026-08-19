@@ -236,6 +236,8 @@ ShellRoot {
             screen: modelData
             color: "transparent"
             exclusionMode: ExclusionMode.Normal
+            /** Don't map until flags.json is read: a first commit made from the adapter default (autoHide false → zone 68) leaves Hyprland holding that reservation even after the real value drops the zone to 0. */
+            visible: Flags.loaded
             /** Auto-hide gives the band back to the windows: nothing is reserved, so tiled clients climb to the screen edge and the pill floats over them on demand. */
             exclusiveZone: Flags.gameMode ? gameBarH : (Flags.autoHide ? 0 : reservedH)
             aboveWindows: true
