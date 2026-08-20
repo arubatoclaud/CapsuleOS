@@ -1082,6 +1082,67 @@ cd ~/capsuleos && git add configs/hypr/scripts/palette-preview.py && git commit 
 
 ---
 
+### Task 13: Complementary punch accent (user addition; executes BEFORE Task 12)
+
+**Files:**
+- Modify: `configs/hypr/scripts/wallcolors.py` (`build_palette` tail, `build_base16` cursor), `configs/hypr/scripts/test_wallcolors.py`, `configs/zsh/zshrc` (fzf pointer), `configs/ghostty/config` (static cursor-color)
+
+**Interfaces:**
+- Produces: `colors.json` key `accent` — hue = dominant+180°, Light band, frost-clamped; achromatic → neutral. `build_base16` cursor = `pill["accent"]`.
+
+- [ ] **Step 1: Tests.** Add to test_wallcolors.py:
+
+```python
+def test_accent_complementary_and_punchy():
+    p = w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
+    h, s, _ = _hue_of(p["accent"])
+    assert abs(w.signed_arc(h, (p["trio"]["dominant"] + 180) % 360)) < 2
+    lo, _ = w.light_band(p["surface"])
+    assert w.rel_luminance(p["accent"]) >= lo - 0.01
+
+def test_accent_achromatic_neutral():
+    p = w.build_palette(0.09, 0.0, 0.3, False, bins={}, chroma_share=0.0)
+    _, s, _ = _hue_of(p["accent"])
+    assert s < 0.1
+```
+
+And amend `test_terminal_ramp_slots`: `assert t["cursor"] == p["mark"]` becomes `assert t["cursor"] == p["accent"]`.
+
+- [ ] **Step 2: Run — new tests fail, cursor assertion fails.**
+
+- [ ] **Step 3: Implement.** In `build_palette`, after the status-token loop, before `return pill`:
+
+```python
+    # Complementary punch: the one pop against the analogous field.
+    comp = (dom + 180.0) % 360.0
+    if chromatic:
+        acc = snap_to_band(tint_deg(comp, sat_cap(comp, ACC_SAT_CAP), 0.55),
+                           light_band(pill["surface"]))
+        pill["accent"] = clamp_light(acc, MARK_CONTRAST, eff_surface)
+    else:
+        pill["accent"] = snap_to_band(tint_deg(comp, 0.05, 0.55),
+                                      light_band(pill["surface"]))
+```
+
+In `build_base16`, the return dict's `"cursor": pill["mark"]` becomes `"cursor": pill["accent"]`.
+
+In `configs/zsh/zshrc`, directly after the FZF_DEFAULT_OPTS export:
+
+```zsh
+[ -f "${XDG_CACHE_HOME:-$HOME/.cache}/capsuleos/colors.json" ] && command -v jq >/dev/null && \
+  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=pointer:$(jq -r .accent "${XDG_CACHE_HOME:-$HOME/.cache}/capsuleos/colors.json")"
+```
+
+In `configs/ghostty/config`, regenerate the static `cursor-color` line: run the Task-9 Step-1 generator command and paste the printed `accent` value.
+
+- [ ] **Step 4: All 35 tests green; `zsh -n zshrc` clean.**
+
+- [ ] **Step 5: Regenerate the contact sheet** (add `"accent"` to `SWATCH_KEYS` in palette-preview.py after `"glow"`) and re-run it to the scratchpad preview dir.
+
+- [ ] **Step 6: Commit** — `git add -u configs && git commit -m "feat: complementary punch accent (token + cursor + fzf pointer)"`
+
+---
+
 ### Task 12: Deploy to live + verify
 
 Only after the Task 11 user gate. The live machine runs from `~/.config` (CapsuleOS deploy gotcha).

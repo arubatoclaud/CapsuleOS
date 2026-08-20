@@ -139,6 +139,22 @@ Consumers re-pointed at them:
 - `wallpaper.sh`'s SDDM mapping `error=\(.primary)` → `error=\(.danger)` —
   the accent stops impersonating an error color.
 
+### Complementary accent (user addition at the pre-deploy gate)
+
+One **punch accent** on complementary color theory: `accent` =
+dominant + 180°, chroma-capped like every accent (`sat_cap` at
+`ACC_SAT_CAP`), snapped to the **Light band** (the loudest single color in
+the rice, still no neon), then frost-clamped like `mark`. Achromatic
+wallpaper → neutral (a complement of grey is an invented hue; the
+semantic exception does not apply). On cool wallpapers the accent lands
+near `warning`'s hue family — they remain distinct by value tier (Light
+vs Voice).
+
+Wiring (focal points only): new `accent` key in `colors.json`; ghostty
+`cursor-color` moves from `mark` to `accent` (dynamic + static fallback
+block); fzf pointer follows via a `jq` read of `colors.json` at shell
+init. Hyprland active border and all pill UI stay on `mark`.
+
 ### Fallback palettes regenerated
 
 The static fallbacks that render before `colors.json` exists still carry
