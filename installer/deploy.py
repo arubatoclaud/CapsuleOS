@@ -35,6 +35,7 @@ DEPLOY_SET = [
     ("quickshell", "quickshell",                            "quickshell"),
     ("ghostty",    "ghostty",                               "ghostty"),
     ("fastfetch",  "fastfetch",                             "fastfetch"),
+    ("bat",        "bat",                                   "bat"),
     ("session",    "systemd/user/hyprland-session.target",  "systemd/user/hyprland-session.target"),
 ]
 
