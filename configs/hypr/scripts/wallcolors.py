@@ -133,10 +133,18 @@ def analyze(wallpaper):
         if not bucket["best"] or score > bucket["best"][0]:
             bucket["best"] = (score, h, s)
     mean_l = lum / total if total else 0.0
+    share = chroma / total if total else 0.0
+    out_bins = {}
+    if chroma:
+        for idx, bk in buckets.items():
+            if bk["best"]:
+                out_bins[idx] = {"weight": bk["wsat"] / sum(v["wsat"] for v in buckets.values()),
+                                 "hue": bk["best"][1] * 360.0,
+                                 "sat": bk["best"][2]}
     if not buckets or chroma < 0.08 * total:
-        return None, 0.0, mean_l
+        return None, 0.0, mean_l, {}, share
     win = max(buckets.values(), key=lambda v: v["wsat"])
-    return win["best"][1], win["best"][2], mean_l
+    return win["best"][1], win["best"][2], mean_l, out_bins, share
 
 
 def matugen(source_hex):
@@ -486,11 +494,12 @@ def main():
         sat = max(0.0, min(1.0, sat))
         mean_l = 0.12
         chromatic = sat > 0.02
+        bins, chroma_share = {}, 1.0
     else:
         wallpaper = sys.argv[1]
         if not Path(wallpaper).is_file():
             return 0
-        hue, sat, mean_l = analyze(wallpaper)
+        hue, sat, mean_l, bins, chroma_share = analyze(wallpaper)
         chromatic = hue is not None
         if not chromatic:
             hue, sat = 0.09, 0.0

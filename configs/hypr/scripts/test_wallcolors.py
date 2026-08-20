@@ -1,6 +1,12 @@
 import wallcolors as w
+import subprocess, tempfile, os
 
 FLOWER = dict(hue=216/360, sat=0.61, mean_l=0.08, chromatic=True)
+
+def _img(spec, size="64x64"):
+    f = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+    subprocess.run(["magick", "-size", size] + spec + [f.name], check=True)
+    return f.name
 
 def test_build_palette_keys_and_contract():
     p = w.build_palette(**FLOWER)
@@ -63,3 +69,24 @@ def test_trio_wraparound_red_dominant():
     t = w.derive_trio(355, _bins((1.0, 355, 0.7)), 0.5)
     assert t["dominant"] == 355
     assert sorted((w.signed_arc(355, t["depth"]), w.signed_arc(355, t["glow"]))) == [-25, 25]
+
+def test_analyze_returns_bins_and_share():
+    path = _img(["xc:#3060c0"])                       # one saturated blue
+    try:
+        hue, sat, mean_l, bins, share = w.analyze(path)
+        assert hue is not None and share > 0.9
+        assert len(bins) >= 1
+        total = sum(b["weight"] for b in bins.values())
+        assert abs(total - 1.0) < 0.01                # weights are fractions
+        top = max(bins.values(), key=lambda b: b["weight"])
+        assert abs(signed := w.signed_arc(top["hue"], hue * 360)) < 15
+    finally:
+        os.unlink(path)
+
+def test_analyze_achromatic_empty_bins():
+    path = _img(["gradient:black-white"])
+    try:
+        hue, sat, mean_l, bins, share = w.analyze(path)
+        assert hue is None and bins == {} and share < 0.08
+    finally:
+        os.unlink(path)
