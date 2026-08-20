@@ -501,13 +501,16 @@ def build_base16(pill, trio, chromatic):
            for n, (h, b) in SEMANTIC_FAMILIES.items()}
     hues = [sem["danger"], sem["ok"], sem["warning"], blue, magenta, cyan]  # ANSI 1..6
 
-    def accent(h_deg, band_t):
-        s = sat_cap(h_deg, ACC_SAT_CAP) if chromatic else 0.05
+    def accent(h_deg, band_t, semantic=False):
+        if semantic:
+            s = sat_cap(h_deg, SEMANTIC_SAT)   # semantics stay colored even on grey walls
+        else:
+            s = sat_cap(h_deg, ACC_SAT_CAP) if chromatic else 0.05
         c = snap_to_band(tint_deg(h_deg, s, 0.55), band_t)
         return clamp_light(c, ANSI_FLOOR, pill["surface"])
 
-    normals = [accent(h, voice) for h in hues]
-    brights = [accent(h, light) for h in hues]
+    normals = [accent(h, voice, semantic=i < 3) for i, h in enumerate(hues)]
+    brights = [accent(h, light, semantic=i < 3) for i, h in enumerate(hues)]
 
     palette = [pill["surface"]] + normals + [pill["subtle"]]          # 0..7
     palette += [clamp_light(pill["faint"], ANSI_FLOOR_BRIGHT_BLACK, pill["surface"])]  # 8

@@ -230,6 +230,16 @@ def test_brights_in_light_band():
     for i in (9, 10, 11, 12, 13, 14):
         assert lo - 0.01 <= w.rel_luminance(t["palette"][i]) <= hi + 0.01, i
 
+def test_achromatic_terminal_keeps_semantic_colors():
+    p = w.build_palette(0.09, 0.0, 0.3, False, bins={}, chroma_share=0.0)
+    t = w.build_base16(p, p.pop("trio"), False)
+    for i in (1, 2, 3, 9, 10, 11):        # red/green/yellow + brights stay colored
+        _, s, _ = _hue_of(t["palette"][i])
+        assert s > 0.1, i
+    for i in (4, 5, 6, 12, 13, 14):       # cool slots stay neutral
+        _, s, _ = _hue_of(t["palette"][i])
+        assert s < 0.1, i
+
 def test_fastfetch_slot_map():
     assert w.FASTFETCH_SLOTS == {
         "__KEYS__": "mark", "__SEP__": "dim",
