@@ -24,7 +24,7 @@ SYNTH = {  # name -> magick args (64x64 is plenty for analyze())
                        "-draw", "rectangle 32,0 63,63"],
 }
 SWATCH_KEYS = ["surface", "surface_container_highest", "outline",
-               "primary_container", "mark", "glow", "danger", "warning", "ok",
+               "primary_container", "mark", "glow", "accent", "danger", "warning", "ok",
                "cream", "dim"]
 
 def render_row(name, wall_png, outdir):

@@ -521,7 +521,7 @@ def build_base16(pill, trio, chromatic):
                                  pill["surface_container_highest"])
 
     return {"bg": pill["surface"], "fg": pill["bright"],
-            "cursor": pill["mark"],
+            "cursor": pill["accent"],
             "sel_bg": pill["surface_container_highest"], "sel_fg": pill["bright"],
             "palette": palette}
 
@@ -564,6 +564,16 @@ def build_palette(hue, sat, mean_l, chromatic, bins=None, chroma_share=1.0):
         h = bend_semantic(base_h, dom, bounds) if chromatic else base_h
         c = snap_to_band(tint_deg(h, sat_cap(h, SEMANTIC_SAT), 0.55), voice)
         pill[name] = clamp_light(c, MARK_CONTRAST, eff_surface)
+
+    # Complementary punch: the one pop against the analogous field.
+    comp = (dom + 180.0) % 360.0
+    if chromatic:
+        acc = snap_to_band(tint_deg(comp, sat_cap(comp, ACC_SAT_CAP), 0.55),
+                           light_band(pill["surface"]))
+        pill["accent"] = clamp_light(acc, MARK_CONTRAST, eff_surface)
+    else:
+        pill["accent"] = snap_to_band(tint_deg(comp, 0.05, 0.55),
+                                      light_band(pill["surface"]))
 
     return pill
 

@@ -190,12 +190,24 @@ def _term(p=None):
     p = p or w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
     return p, w.build_base16(p, p["trio"], True)
 
+def test_accent_complementary_and_punchy():
+    p = w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
+    h, s, _ = _hue_of(p["accent"])
+    assert abs(w.signed_arc(h, (p["trio"]["dominant"] + 180) % 360)) < 2
+    lo, _ = w.light_band(p["surface"])
+    assert w.rel_luminance(p["accent"]) >= lo - 0.01
+
+def test_accent_achromatic_neutral():
+    p = w.build_palette(0.09, 0.0, 0.3, False, bins={}, chroma_share=0.0)
+    _, s, _ = _hue_of(p["accent"])
+    assert s < 0.1
+
 def test_terminal_ramp_slots():
     p, t = _term()
     c = t["palette"]
     assert t["bg"] == c[0] == p["surface"]
     assert c[15] == p["bright"] and c[7] == p["subtle"]
-    assert t["cursor"] == p["mark"]
+    assert t["cursor"] == p["accent"]
     assert t["sel_bg"] == p["surface_container_highest"]
     assert t["sel_fg"] == p["bright"] and t["fg"] == p["bright"]
 

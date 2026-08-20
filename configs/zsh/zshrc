@@ -34,6 +34,8 @@ bindkey -e
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--color=fg:7,bg:-1,hl:6,fg+:15,bg+:0,hl+:14,info:8,border:8,prompt:4,pointer:12,marker:13,spinner:8,header:8"
+[ -f "${XDG_CACHE_HOME:-$HOME/.cache}/capsuleos/colors.json" ] && command -v jq >/dev/null && \
+  export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --color=pointer:$(jq -r .accent "${XDG_CACHE_HOME:-$HOME/.cache}/capsuleos/colors.json")"
 
 # --- zoxide ---
 eval "$(zoxide init zsh)"

@@ -21,7 +21,7 @@ confirm-close-surface = false
 # matching palette to the cache file below, which overrides everything here.
 background = #0a0e16
 foreground = #c3cddb
-cursor-color = #b87735
+cursor-color = #5b9cdc
 selection-background = #2a3547
 selection-foreground = #f2f6fb
 palette = 0=#1b0c0b
