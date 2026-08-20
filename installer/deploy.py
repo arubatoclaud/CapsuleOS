@@ -91,14 +91,14 @@ hl.env("__GL_VRR_ALLOWED",          "0")
 # picked. Matches the baked night-bridge ghostty default. The live wallcolors.py
 # overwrites config.jsonc from the wallpaper palette on every change after.
 NIGHT_DEFAULT = {
-    "primary": "#ffb454",
-    "dim": "#5d6570",
-    "on_primary_container": "#ffe2b8",
-    "surface_container": "#161c28",
-    "surface_container_high": "#1d2534",
-    "subtle": "#a4aebc",
-    "outline": "#263042",
-    "bright": "#f2f6fb",
+    "primary": "#b87735",
+    "dim": "#918a83",
+    "on_primary_container": "#ebdbcb",
+    "surface_container": "#291311",
+    "surface_container_high": "#321715",
+    "subtle": "#bfbab5",
+    "outline": "#9a463f",
+    "bright": "#f8f7f7",
 }
 
 

@@ -42,14 +42,20 @@ Singleton {
 
         JsonAdapter {
             id: adapter
-            property string primary: "#ffb454"
-            property string cream: "#d5dce6"
-            property string bright: "#f2f6fb"
-            property string dim: "#7d8797"
-            property string primary_container: "#c2410c"
+            property string primary: "#b87735"
+            property string cream: "#e7e6e4"
+            property string bright: "#f8f7f7"
+            property string dim: "#918a83"
+            property string primary_container: "#93571a"
             // Empty by default so a pre-split colors.json takes the fallbacks.
             property string mark: ""
             property string glow: ""
+            // Empty by default so a pre-status colors.json takes the fallbacks.
+            // No top-level alias: nothing in the lock consumes these yet
+            // (unlike pill/Dyn.qml, whose Theme.danger reads Dyn.danger).
+            property string danger: ""
+            property string warning: ""
+            property string ok: ""
         }
     }
 }

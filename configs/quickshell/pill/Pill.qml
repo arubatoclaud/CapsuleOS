@@ -1092,7 +1092,7 @@ Item {
 
         Behavior on opacity { NumberAnimation { duration: Motion.standard; easing.type: Motion.easeStandard } }
 
-        readonly property color accent: (pill.dragStage === "bad" || pill.dragStage === "fail") ? "#e0533f" : Theme.markLit
+        readonly property color accent: (pill.dragStage === "bad" || pill.dragStage === "fail") ? Theme.danger : Theme.markLit
         readonly property real brLen: 15 * pill.s
         readonly property real brThick: 2 * pill.s
 

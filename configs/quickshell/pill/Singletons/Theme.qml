@@ -120,6 +120,13 @@ Singleton {
      * and glow are independently curated; dynamically both are Dyn.glow.
      */
     readonly property string glowInk: dyn ? Dyn.glow : "#ff9838"
+    /**
+     * Status accent, not part of the mark/glow split: the one non-neutral
+     * color allowed outside the accent ramp, for destructive/armed states.
+     * Falls back to the curated red whenever dynamic colors are off or the
+     * cache predates the status split (empty adapter string).
+     */
+    readonly property color danger: (dyn && Dyn.danger !== "") ? Dyn.danger : "#e0533f"
 
     /**
      * Night Glass derived accents, promoted out of Task 3's consumer sweep:

@@ -1363,7 +1363,7 @@ PillSurface {
                         width: 15 * root.s
                         height: 15 * root.s
                         radius: width / 2
-                        color: frame.armed ? "#e0533f" : Qt.rgba(0, 0, 0, 0.4)
+                        color: frame.armed ? Theme.danger : Qt.rgba(0, 0, 0, 0.4)
                         opacity: frameArea.containsMouse || delClipArea.containsMouse ? 1 : 0
                         visible: opacity > 0
                         Behavior on opacity { NumberAnimation { duration: Motion.fast } }

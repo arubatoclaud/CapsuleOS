@@ -397,7 +397,7 @@ PillSurface {
                     visible: appRow.editing
                     stroke: 2
                     name: "trash"
-                    color: appRow.armed ? "#e0533f" : Theme.dim
+                    color: appRow.armed ? Theme.danger : Theme.dim
 
                     MouseArea {
                         anchors.fill: parent

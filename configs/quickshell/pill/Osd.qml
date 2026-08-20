@@ -489,7 +489,7 @@ Item {
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
                         GradientStop { position: 0.0; color: "#00ffffff" }
-                        GradientStop { position: 0.5; color: "#55ffe6d6" }
+                        GradientStop { position: 0.5; color: Qt.alpha(Theme.glow, 0.33) }
                         GradientStop { position: 1.0; color: "#00ffffff" }
                     }
 

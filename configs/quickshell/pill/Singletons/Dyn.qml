@@ -46,6 +46,16 @@ Singleton {
     readonly property string glow: adapter.glow.length > 0 ? adapter.glow : primaryContainer
 
     /**
+     * Status accents: passthrough, no in-Dyn fallback. Theme.danger/warning/ok
+     * does the empty-string check itself (against a curated hex, not another
+     * palette field), so these mirror mark/glow's camelCase-alias pattern
+     * without their length-guarded fallback.
+     */
+    readonly property string danger: adapter.danger
+    readonly property string warning: adapter.warning
+    readonly property string ok: adapter.ok
+
+    /**
      * There is deliberately no `brightSurface` here any more. It existed for
      * exactly one consumer — the floor `Theme.surfAlpha` put under glass on a
      * bright wallpaper — and that floor is gone: glass now composites at the
@@ -65,27 +75,32 @@ Singleton {
 
         JsonAdapter {
             id: adapter
-            property string surface: "#0e131c"
-            property string surface_container: "#10151f"
-            property string surface_container_low: "#10151f"
-            property string surface_container_high: "#161c28"
-            property string surface_container_highest: "#2e3a50"
-            property string primary: "#ffb454"
-            property string primary_container: "#c2410c"
-            property string on_primary_container: "#ffcf8f"
-            property string outline: "#3a4658"
-            property string outline_variant: "#263042"
-            property string cream: "#d5dce6"
-            property string bright: "#f2f6fb"
-            property string subtle: "#a4aebc"
-            property string dim: "#7d8797"
-            property string faint: "#5d6570"
-            property string icon_dim: "#b8c2cf"
-            property string tick_rest: "#aab6c6"
+            property string surface: "#1b0c0b"
+            property string surface_container: "#291311"
+            property string surface_container_low: "#23100e"
+            property string surface_container_high: "#321715"
+            property string surface_container_highest: "#3f1d1a"
+            property string primary: "#b87735"
+            property string primary_container: "#93571a"
+            property string on_primary_container: "#ebdbcb"
+            property string outline: "#9a463f"
+            property string outline_variant: "#6c322c"
+            property string cream: "#e7e6e4"
+            property string bright: "#f8f7f7"
+            property string subtle: "#bfbab5"
+            property string dim: "#918a83"
+            property string faint: "#76706b"
+            property string icon_dim: "#d2cfcb"
+            property string tick_rest: "#c4bfba"
             // Empty by default so a pre-split colors.json falls back above
             // instead of pinning the curated hexes onto a wallpaper palette.
             property string mark: ""
             property string glow: ""
+            // Empty by default so a pre-status colors.json falls back in Theme
+            // instead of pinning stale reds onto a wallpaper palette.
+            property string danger: ""
+            property string warning: ""
+            property string ok: ""
         }
     }
 }
