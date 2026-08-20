@@ -33,7 +33,8 @@ def render_row(name, wall_png, outdir):
     if not chromatic:
         hue, sat = 0.09, 0.0
     pill = w.build_palette(hue, sat, mean_l, chromatic, bins=bins, chroma_share=share)
-    term = w.build_base16(pill, pill.pop("trio"), chromatic)
+    ramp = w.chroma_ramp(share) if chromatic else 0.0
+    term = w.build_base16(pill, pill.pop("trio"), chromatic, ramp)
     cells = [pill[k] for k in SWATCH_KEYS] + term["palette"][1:7] + term["palette"][9:15]
     row = outdir / f"row-{name}.png"
     args = ["magick", "(", wall_png, "-resize", "120x68^", "-gravity", "center",

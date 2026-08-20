@@ -481,7 +481,7 @@ def bend_semantic(base_hue_deg, dominant_deg, bounds):
     return circ_clamp(bent, *bounds)
 
 
-def build_base16(pill, trio, chromatic):
+def build_base16(pill, trio, chromatic, ramp=1.0):
     """Terminal scheme straight from the pill palette. Returns bg/fg/cursor/
     selection + a 16-entry ANSI palette list."""
     dep, dom, glo = trio["depth"], trio["dominant"], trio["glow"]
@@ -505,7 +505,7 @@ def build_base16(pill, trio, chromatic):
         if semantic:
             s = sat_cap(h_deg, SEMANTIC_SAT)   # semantics stay colored even on grey walls
         else:
-            s = sat_cap(h_deg, ACC_SAT_CAP) if chromatic else 0.05
+            s = sat_cap(h_deg, ACC_SAT_CAP) * ramp if chromatic else 0.05
         c = snap_to_band(tint_deg(h_deg, s, 0.55), band_t)
         return clamp_light(c, ANSI_FLOOR, pill["surface"])
 
@@ -568,7 +568,7 @@ def build_palette(hue, sat, mean_l, chromatic, bins=None, chroma_share=1.0):
     # Complementary punch: the one pop against the analogous field.
     comp = (dom + 180.0) % 360.0
     if chromatic:
-        acc = snap_to_band(tint_deg(comp, sat_cap(comp, ACC_SAT_CAP), 0.55),
+        acc = snap_to_band(tint_deg(comp, sat_cap(comp, ACC_SAT_CAP) * ramp, 0.55),
                            light_band(pill["surface"]))
         pill["accent"] = clamp_light(acc, MARK_CONTRAST, eff_surface)
     else:
@@ -621,7 +621,8 @@ def main():
     except (OSError, ValueError, KeyError, configparser.Error) as exc:
         print(f"wallcolors: Qt theme fan-out failed ({exc}), skipping", file=sys.stderr)
 
-    term = build_base16(pill, trio, chromatic)
+    ramp = chroma_ramp(chroma_share) if chromatic else 0.0
+    term = build_base16(pill, trio, chromatic, ramp)
     (CACHE / "hypr-colors.lua").write_text(
         'return {\n    active = "%s",\n    inactive = "%s",\n}\n'
         % (pill["primary"], pill["outline_variant"]))

@@ -259,3 +259,18 @@ def test_fastfetch_slot_map():
         "__LOGO3__": "surface_container", "__LOGO4__": "surface_container_high",
         "__LOGO5__": "on_primary_container", "__LOGO6__": "outline",
         "__LOGO7__": "bright"}
+
+def test_terminal_cool_slots_ramp_near_achromatic():
+    p = w.build_palette(216/360, 0.6, 0.1, True, bins={}, chroma_share=0.09)
+    t = w.build_base16(p, p.pop("trio"), True, w.chroma_ramp(0.09))
+    for i in (4, 5, 6):                    # cool slots: a whisper, not vivid
+        _, s, _ = _hue_of(t["palette"][i])
+        assert s < 0.15, i
+    for i in (1, 2, 3):                    # semantics stay colored
+        _, s, _ = _hue_of(t["palette"][i])
+        assert s > 0.1, i
+
+def test_accent_ramps_near_achromatic():
+    p = w.build_palette(216/360, 0.6, 0.1, True, bins={}, chroma_share=0.09)
+    _, s, _ = _hue_of(p["accent"])
+    assert s < 0.15

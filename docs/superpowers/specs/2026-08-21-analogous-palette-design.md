@@ -226,7 +226,8 @@ generated directly.
 - Normal slots normalized to the **Voice** band, brights to **Light**.
 - Uniform 4.5:1 floor as a final safety net (see value architecture).
 
-**Cursor / selection** — exact keys: `cursor-color` = `mark`;
+**Cursor / selection** — exact keys: `cursor-color` = `accent` (complementary
+punch; was `mark` before the accent addition);
 `selection-background` = `surface_container_highest` (Deeps tier — never a
 mid-value key); `selection-foreground` = `bright`. Property test: every
 floored ANSI slot ≥ 3:1 against `selection-background`.
@@ -293,7 +294,9 @@ Property-style assertions that must hold for any input:
   floored slot ≥ 3:1 vs `selection-background`;
 - pairwise hue distance between ANSI 4/5/6 ≥ 30°;
 - no output exceeds its (per-hue-zone) chroma ceiling;
-- companions always 15°–45° from dominant (circular distance);
+- companions always 15°–45° from dominant (circular distance), except the
+  yellow-zone guard may clamp glow to 69°, as close as 4° from a 50–95°
+  dominant;
 - glow hue never inside 70°–110° when the dominant is in the yellow zone;
 - role assignment stable under the dead zone (ΔY < 0.03 → H− companion is
   depth);

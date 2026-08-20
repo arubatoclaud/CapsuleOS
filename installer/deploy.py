@@ -93,6 +93,8 @@ hl.env("__GL_VRR_ALLOWED",          "0")
 # overwrites config.jsonc from the wallpaper palette on every change after.
 NIGHT_DEFAULT = {
     "primary": "#b87735",
+    "mark": "#b87735",
+    "glow": "#a49a29",
     "dim": "#918a83",
     "on_primary_container": "#ebdbcb",
     "surface_container": "#291311",
@@ -316,13 +318,13 @@ def _render_fastfetch(ff_dir, palette, apply):
         return None
     repl = {
         "__GOLDENGATE__": str(ff_dir / "goldengate.txt"),
-        "__KEYS__": _seq(palette["primary"]),
+        "__KEYS__": _seq(palette["mark"]),
         "__SEP__": _seq(palette["dim"]),
-        "__LOGO1__": _seq(palette["primary"]),
-        "__LOGO2__": _seq(palette["on_primary_container"]),
+        "__LOGO1__": _seq(palette["mark"]),
+        "__LOGO2__": _seq(palette["glow"]),
         "__LOGO3__": _seq(palette["surface_container"]),
         "__LOGO4__": _seq(palette["surface_container_high"]),
-        "__LOGO5__": _seq(palette["subtle"]),
+        "__LOGO5__": _seq(palette["on_primary_container"]),
         "__LOGO6__": _seq(palette["outline"]),
         "__LOGO7__": _seq(palette["bright"]),
     }
