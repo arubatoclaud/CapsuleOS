@@ -213,7 +213,8 @@ generated directly.
 
 - red / green / yellow: hue-bent **15° toward the dominant along the
   shortest arc**, clamped to numeric family bounds so each stays
-  recognizable — red ∈ [345°, 20°], green ∈ [95°, 150°], yellow ∈
+  recognizable — red ∈ [345°, 20°], ok/"green" ∈ [140°, 170°] (teal/mint,
+  user re-pick 2026-08-21; base hue 160°), yellow ∈
   [40°, 65°] — and de-saturated to the editorial ceiling.
 - blue = dominant hue; cyan = glow hue; magenta = depth hue — **subject to
   a minimum inter-slot separation**: pairwise hue distance between ANSI

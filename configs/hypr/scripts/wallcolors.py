@@ -468,7 +468,7 @@ def write_qtct(pill):
 ACC_SAT_CAP = 0.65          # was inline 0.82
 
 SEMANTIC_FAMILIES = {"danger": (0.0, (345.0, 20.0)),
-                     "ok": (120.0, (95.0, 150.0)),
+                     "ok": (160.0, (140.0, 170.0)),  # teal/mint (user pick over leafy green)
                      "warning": (55.0, (40.0, 65.0))}
 SEMANTIC_BEND = 15.0
 SEMANTIC_SAT = 0.55         # fixed editorial chroma; NOT scaled by chroma_ramp --

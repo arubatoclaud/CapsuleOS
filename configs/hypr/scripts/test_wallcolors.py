@@ -177,7 +177,7 @@ def test_status_tokens_exist_in_family_and_band():
 
 def test_bend_semantic_shortest_arc_and_clamp():
     assert w.bend_semantic(0, 216, (345, 20)) == 345    # 0 bends toward 216 ccw, clamped
-    assert w.bend_semantic(120, 216, (95, 150)) == 135  # full 15 toward 216
+    assert w.bend_semantic(160, 216, (140, 170)) == 170  # +15 toward 216, clamped at 170
     assert w.bend_semantic(55, 30, (40, 65)) == 40      # bends warm, clamped at 40
 
 def test_status_tokens_survive_achromatic():
