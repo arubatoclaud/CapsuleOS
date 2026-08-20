@@ -152,6 +152,65 @@ def tint(hue, sat, light):
     return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
 
 
+def tint_deg(h_deg, s, l):
+    return tint((h_deg % 360.0) / 360.0, s, l)
+
+
+def signed_arc(a_deg, b_deg):
+    """Signed shortest arc a->b in (-180, 180]."""
+    d = (b_deg - a_deg) % 360.0
+    return d - 360.0 if d > 180.0 else d
+
+
+def circ_clamp(h_deg, lo_deg, hi_deg):
+    """Clamp onto the circular interval lo->hi (walking clockwise lo..hi)."""
+    if (h_deg - lo_deg) % 360.0 <= (hi_deg - lo_deg) % 360.0:
+        return h_deg % 360.0
+    # outside: snap to the nearer endpoint by circular distance
+    if abs(signed_arc(h_deg, lo_deg)) <= abs(signed_arc(h_deg, hi_deg)):
+        return lo_deg % 360.0
+    return hi_deg % 360.0
+
+
+def hue_luminance(h_deg):
+    """Intrinsic luminance of a hue at the spec's fixed reference (s=0.6, l=0.5)."""
+    return rel_luminance(tint_deg(h_deg, 0.6, 0.5))
+
+
+COMPANION_MIN, COMPANION_MAX, COMPANION_OFFSET = 15.0, 45.0, 25.0
+SNAP_BIN_WEIGHT, SNAP_CHROMA_SHARE = 0.08, 0.15
+ROLE_DEAD_ZONE = 0.03
+YELLOW_ZONE, CHARTREUSE_TROUGH, WARM_EDGE = (50.0, 95.0), (70.0, 110.0), 69.0
+
+
+def derive_trio(dominant_deg, bins, chroma_share):
+    """Depth/dominant/glow hues (degrees). bins: {i: {weight, hue, sat}},
+    weight as a fraction of chromatic weight."""
+    def companion(side):  # side: -1 (counter-clockwise) or +1
+        if chroma_share >= SNAP_CHROMA_SHARE:
+            best = None
+            for b in bins.values():
+                d = signed_arc(dominant_deg, b["hue"]) * side
+                if COMPANION_MIN <= d <= COMPANION_MAX and b["weight"] >= SNAP_BIN_WEIGHT:
+                    if best is None or b["weight"] > best["weight"]:
+                        best = b
+            if best:
+                return best["hue"] % 360.0
+        return (dominant_deg + COMPANION_OFFSET * side) % 360.0
+
+    ccw, cw = companion(-1), companion(+1)
+    if abs(hue_luminance(ccw) - hue_luminance(cw)) < ROLE_DEAD_ZONE:
+        depth, glow = ccw, cw            # convention: H- companion is depth
+    elif hue_luminance(ccw) < hue_luminance(cw):
+        depth, glow = ccw, cw
+    else:
+        depth, glow = cw, ccw
+    if YELLOW_ZONE[0] <= dominant_deg % 360.0 <= YELLOW_ZONE[1] \
+            and CHARTREUSE_TROUGH[0] < glow < CHARTREUSE_TROUGH[1]:
+        glow = WARM_EDGE                 # bias warm, out of the olive trough
+    return {"depth": depth, "dominant": dominant_deg % 360.0, "glow": glow}
+
+
 def _linearize(c8):
     c = c8 / 255.0
     return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
