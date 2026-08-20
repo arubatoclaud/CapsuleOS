@@ -755,7 +755,7 @@ def build_base16(pill, trio, chromatic):
     palette += [clamp_light(pill["faint"], ANSI_FLOOR_BRIGHT_BLACK, pill["surface"])]  # 8
     palette += brights + [pill["bright"]]                              # 9..15
 
-    for i in list(range(1, 7)) + list(range(9, 15)):                   # selection safety
+    for i in list(range(1, 7)) + [8] + list(range(9, 15)):             # selection safety
         palette[i] = clamp_light(palette[i], ANSI_SELECTION_FLOOR,
                                  pill["surface_container_highest"])
 
