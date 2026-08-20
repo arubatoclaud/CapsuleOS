@@ -171,7 +171,8 @@ def test_status_tokens_exist_in_family_and_band():
     lo_b, _ = w.voice_band(p["surface"])
     for name, (_, (flo, fhi)) in w.SEMANTIC_FAMILIES.items():
         h, s, _ = _hue_of(p[name])
-        assert _in_family(h, flo, fhi), (name, h)
+        # 1 deg tolerance: 8-bit RGB quantization shifts a boundary hue ~0.3 deg
+        assert _in_family(h, (flo - 1) % 360, (fhi + 1) % 360), (name, h)
         assert w.rel_luminance(p[name]) >= lo_b - 0.01, name
 
 def test_bend_semantic_shortest_arc_and_clamp():
