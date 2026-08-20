@@ -359,32 +359,8 @@ def write_qtct(pill):
             cfg.write(f)
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("usage: wallcolors.py <wallpaper-path>\n"
-              "       wallcolors.py --hue <degrees> [mode] [saturation]\n"
-              "  mode: legacy dark/light word, accepted and IGNORED "
-              "(the palette is dark-only)", file=sys.stderr)
-        return 1
-    if sys.argv[1] == "--hue":
-        hue = (float(sys.argv[2]) % 360) / 360.0
-        # sys.argv[3] is the legacy dark/light mode word. It is accepted and
-        # ignored: Night Glass has no light palette, but callers still pass it,
-        # so dropping the slot would shift the saturation argument.
-        sat = float(sys.argv[4]) if len(sys.argv) > 4 else 0.5
-        sat = max(0.0, min(1.0, sat))
-        mean_l = 0.12
-        chromatic = sat > 0.02
-    else:
-        wallpaper = sys.argv[1]
-        if not Path(wallpaper).is_file():
-            return 0
-        hue, sat, mean_l = analyze(wallpaper)
-        chromatic = hue is not None
-        if not chromatic:
-            hue, sat = 0.09, 0.0
-    CACHE.mkdir(parents=True, exist_ok=True)
-
+def build_palette(hue, sat, mean_l, chromatic, bins=None):
+    """Pure palette derivation: no filesystem, no subprocess. `hue` in turns."""
     # Dark-only depth: mean lightness picks where in the dark end the ramp
     # starts, so a bright wallpaper lifts the surface without inverting it.
     base = DEPTH_MIN + (DEPTH_MAX - DEPTH_MIN) * min(mean_l, DEPTH_PIVOT) / DEPTH_PIVOT
@@ -432,6 +408,36 @@ def main():
     # the QML side is rewired onto the split.
     pill["primary"] = mark
     pill["light"] = False
+    return pill
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("usage: wallcolors.py <wallpaper-path>\n"
+              "       wallcolors.py --hue <degrees> [mode] [saturation]\n"
+              "  mode: legacy dark/light word, accepted and IGNORED "
+              "(the palette is dark-only)", file=sys.stderr)
+        return 1
+    if sys.argv[1] == "--hue":
+        hue = (float(sys.argv[2]) % 360) / 360.0
+        # sys.argv[3] is the legacy dark/light mode word. It is accepted and
+        # ignored: Night Glass has no light palette, but callers still pass it,
+        # so dropping the slot would shift the saturation argument.
+        sat = float(sys.argv[4]) if len(sys.argv) > 4 else 0.5
+        sat = max(0.0, min(1.0, sat))
+        mean_l = 0.12
+        chromatic = sat > 0.02
+    else:
+        wallpaper = sys.argv[1]
+        if not Path(wallpaper).is_file():
+            return 0
+        hue, sat, mean_l = analyze(wallpaper)
+        chromatic = hue is not None
+        if not chromatic:
+            hue, sat = 0.09, 0.0
+    CACHE.mkdir(parents=True, exist_ok=True)
+
+    pill = build_palette(hue, sat, mean_l, chromatic)
 
     (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
     render_fastfetch(pill)
