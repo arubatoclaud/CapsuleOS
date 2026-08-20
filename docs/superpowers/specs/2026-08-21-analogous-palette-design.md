@@ -53,10 +53,11 @@ signed side comparisons must wrap correctly for red/magenta dominants.
   **depth hue** (surfaces), the higher-luminance hue the **glow hue**
   (filament/highlights). If the two differ by **ΔY < 0.03**, assign by
   fixed convention instead: the counter-clockwise (H−) companion is depth.
-  Rationale: near luminance extrema of the hue circle (blue ~230°, yellow
-  ~60°) the companions are near-equal, and without the dead zone a few
-  degrees of histogram jitter would flip surface/glow identity between
-  near-identical wallpapers.
+  Rationale: where the hue circle's luminance curve is locally symmetric
+  (measured: green ~120–160°, blue-violet ~250°, magenta ~310–340°) the
+  companions are near-equal, and without the dead zone a few degrees of
+  histogram jitter would flip surface/glow identity between near-identical
+  wallpapers.
   Example results: blue flower → violet surfaces, steel-cyan glow; orange
   sunset → deep red-orange surfaces, golden glow.
 - **Yellow-zone guard**: when H ∈ ~50°–95°, the glow hue is clamped out of
