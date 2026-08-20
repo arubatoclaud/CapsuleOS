@@ -184,3 +184,48 @@ def test_status_tokens_survive_achromatic():
     p = w.build_palette(0.09, 0.0, 0.3, False, bins={}, chroma_share=0.0)
     h, s, _ = _hue_of(p["danger"])
     assert s > 0.1                                      # danger stays red even on grey walls
+
+
+def _term(p=None):
+    p = p or w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
+    return p, w.build_base16(p, p["trio"], True)
+
+def test_terminal_ramp_slots():
+    p, t = _term()
+    c = t["palette"]
+    assert t["bg"] == c[0] == p["surface"]
+    assert c[15] == p["bright"] and c[7] == p["subtle"]
+    assert t["cursor"] == p["mark"]
+    assert t["sel_bg"] == p["surface_container_highest"]
+    assert t["sel_fg"] == p["bright"] and t["fg"] == p["bright"]
+
+def test_terminal_ramp_monotone():
+    _, t = _term()
+    ys = [w.rel_luminance(c) for c in
+          (t["palette"][0], t["palette"][8],  # bg, bright-black
+           t["palette"][7], t["palette"][15])]
+    assert ys == sorted(ys)
+
+def test_ansi_cool_slots_separated():
+    _, t = _term()
+    hues = [ _hue_of(t["palette"][i])[0] for i in (4, 5, 6) ]  # blue, magenta, cyan
+    for i in range(3):
+        for j in range(i + 1, 3):
+            assert abs(w.signed_arc(hues[i], hues[j])) >= 29.5, (hues[i], hues[j])
+
+def test_ansi_floors_uniform():
+    _, t = _term()
+    for i in list(range(1, 7)) + list(range(9, 15)):
+        assert w.contrast_ratio(t["palette"][i], t["palette"][0]) >= 4.5 - 0.02, i
+    assert w.contrast_ratio(t["palette"][8], t["palette"][0]) >= 3.0 - 0.02
+
+def test_ansi_vs_selection_bg():
+    _, t = _term()
+    for i in list(range(1, 7)) + [8] + list(range(9, 15)):
+        assert w.contrast_ratio(t["palette"][i], t["sel_bg"]) >= 3.0 - 0.02, i
+
+def test_brights_in_light_band():
+    p, t = _term()
+    lo, hi = w.light_band(p["surface"])
+    for i in (9, 10, 11, 12, 13, 14):
+        assert lo - 0.01 <= w.rel_luminance(t["palette"][i]) <= hi + 0.01, i

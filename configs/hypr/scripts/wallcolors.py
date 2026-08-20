@@ -15,8 +15,9 @@ never screams under text and icons, lightness contrast-clamped against the pill
 surface as it actually composites over the wallpaper. `glow` is the filament
 colour: the same hue at the full computed saturation (capped so it stays hot but
 never neon) at a fixed mid-high lightness, used for light effects rather than
-legibility. matugen still builds the dark base16 the always-dark terminal reads;
-the pill JSON carries surfaces, both accents and the contrast-matched text.
+legibility. `build_base16` derives the dark ANSI palette the always-dark
+terminal reads straight from the pill, in-house; the pill JSON carries
+surfaces, both accents and the contrast-matched text.
 
 Usage:
     wallcolors.py <wallpaper-path>
@@ -145,14 +146,6 @@ def analyze(wallpaper):
         return None, 0.0, mean_l, {}, share
     win = max(buckets.values(), key=lambda v: v["wsat"])
     return win["best"][1], win["best"][2], mean_l, out_bins, share
-
-
-def matugen(source_hex):
-    out = subprocess.run(
-        ["matugen", "color", "hex", source_hex, "-m", "dark", "-j", "hex"],
-        capture_output=True, text=True, check=True,
-    )
-    return json.loads(out.stdout)
 
 
 def tint(hue, sat, light):
@@ -325,12 +318,10 @@ def clamp_light(hex_color, target, bg_hex):
 
 
 # Minimum WCAG contrast for each terminal palette slot against the terminal
-# background. base16 maps 1-6 to a bg->fg ramp, but terminal programs use
-# those slots as *foreground* text (ANSI 31-36), so the low steps must stay
-# legible; the graduated targets keep the ramp monotone instead of bunching
-# every step at one floor. Accents (8-15) just get a readability floor.
-ANSI_CONTRAST_FLOOR = {1: 3.0, 2: 3.4, 3: 3.8, 4: 4.3, 5: 4.9, 6: 5.6}
-ANSI_CONTRAST_FLOOR.update({i: 3.0 for i in range(8, 16)})
+# background/selection. Normals (1-6) and brights (9-14) share one floor,
+# bright-black (8) gets a lower one since it's meant to read as a muted grey.
+ANSI_FLOOR, ANSI_FLOOR_BRIGHT_BLACK, ANSI_SELECTION_FLOOR = 4.5, 3.0, 3.0
+COOL_MIN_SEP, COOL_SPREAD = 30.0, 40.0
 
 
 def render_fastfetch(pill):
@@ -493,6 +484,48 @@ def bend_semantic(base_hue_deg, dominant_deg, bounds):
     return circ_clamp(bent, *bounds)
 
 
+def build_base16(pill, trio, chromatic):
+    """Terminal scheme straight from the pill palette. Returns bg/fg/cursor/
+    selection + a 16-entry ANSI palette list."""
+    dep, dom, glo = trio["depth"], trio["dominant"], trio["glow"]
+    voice = voice_band(pill["surface"])
+    light = light_band(pill["surface"])
+
+    # cool slots: dominant/depth/glow, spread out if the trio is too tight
+    blue, magenta, cyan = dom, dep, glo
+    pairs = [(blue, magenta), (blue, cyan), (magenta, cyan)]
+    if chromatic and min(abs(signed_arc(a, b)) for a, b in pairs) < COOL_MIN_SEP:
+        magenta, cyan = (dom - COOL_SPREAD) % 360, (dom + COOL_SPREAD) % 360
+        # keep magenta on the depth side: swap if depth was clockwise of dominant
+        if signed_arc(dom, dep) > 0:
+            magenta, cyan = cyan, magenta
+
+    sem = {n: bend_semantic(h, dom, b) if chromatic else h
+           for n, (h, b) in SEMANTIC_FAMILIES.items()}
+    hues = [sem["danger"], sem["ok"], sem["warning"], blue, magenta, cyan]  # ANSI 1..6
+
+    def accent(h_deg, band_t):
+        s = sat_cap(h_deg, ACC_SAT_CAP) if chromatic else 0.05
+        c = snap_to_band(tint_deg(h_deg, s, 0.55), band_t)
+        return clamp_light(c, ANSI_FLOOR, pill["surface"])
+
+    normals = [accent(h, voice) for h in hues]
+    brights = [accent(h, light) for h in hues]
+
+    palette = [pill["surface"]] + normals + [pill["subtle"]]          # 0..7
+    palette += [clamp_light(pill["faint"], ANSI_FLOOR_BRIGHT_BLACK, pill["surface"])]  # 8
+    palette += brights + [pill["bright"]]                              # 9..15
+
+    for i in list(range(1, 7)) + [8] + list(range(9, 15)):             # selection safety
+        palette[i] = clamp_light(palette[i], ANSI_SELECTION_FLOOR,
+                                 pill["surface_container_highest"])
+
+    return {"bg": pill["surface"], "fg": pill["bright"],
+            "cursor": pill["mark"],
+            "sel_bg": pill["surface_container_highest"], "sel_fg": pill["bright"],
+            "palette": palette}
+
+
 def build_palette(hue, sat, mean_l, chromatic, bins=None, chroma_share=1.0):
     """Anchored analogous palette. `hue` in turns; internal hue math in degrees."""
     base = DEPTH_MIN + (DEPTH_MAX - DEPTH_MIN) * min(mean_l, DEPTH_PIVOT) / DEPTH_PIVOT
@@ -578,30 +611,15 @@ def main():
     except (OSError, ValueError, KeyError, configparser.Error) as exc:
         print(f"wallcolors: Qt theme fan-out failed ({exc}), skipping", file=sys.stderr)
 
-    try:
-        b = {k: v["dark"]["color"] for k, v in
-             matugen(tint(hue, sat, 0.45) if chromatic else "#787878")["base16"].items()}
-    except (OSError, ValueError, KeyError, subprocess.SubprocessError):
-        return 0
-
+    term = build_base16(pill, trio, chromatic)
     (CACHE / "hypr-colors.lua").write_text(
         'return {\n    active = "%s",\n    inactive = "%s",\n}\n'
-        % (pill["primary"], b["base01"]))
-
-    lines = [
-        f'background = {b["base00"]}',
-        f'foreground = {b["base07"]}',
-        f'cursor-color = {pill["primary"]}',
-        f'selection-background = {b["base02"]}',
-        f'selection-foreground = {b["base07"]}',
-    ]
-    # Contrast-floor the foreground-role slots only; the background /
-    # selection lines above keep the untouched darks so the theme stays dark.
-    for i in range(16):
-        color = b["base%02x" % i]
-        if i in ANSI_CONTRAST_FLOOR:
-            color = clamp_light(color, ANSI_CONTRAST_FLOOR[i], b["base00"])
-        lines.append(f'palette = {i}={color}')
+        % (pill["primary"], pill["outline_variant"]))
+    lines = [f'background = {term["bg"]}', f'foreground = {term["fg"]}',
+             f'cursor-color = {term["cursor"]}',
+             f'selection-background = {term["sel_bg"]}',
+             f'selection-foreground = {term["sel_fg"]}']
+    lines += [f'palette = {i}={c}' for i, c in enumerate(term["palette"])]
     # Atomic swap: a ghostty reload signal can land mid-write, and a truncated
     # read fails its whole config load (surfaces as a font-init notification).
     tmp = CACHE / "ghostty-colors.tmp"
