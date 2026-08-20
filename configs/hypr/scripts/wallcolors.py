@@ -219,6 +219,57 @@ def derive_trio(dominant_deg, bins, chroma_share):
     return {"depth": depth, "dominant": dominant_deg % 360.0, "glow": glow}
 
 
+VOICE_CONTRAST, VOICE_WIDTH = 4.5, 0.05
+LIGHT_CONTRAST, LIGHT_WIDTH = 6.0, 0.06
+GREEN_ZONE, GREEN_ZONE_PENALTY = (90.0, 200.0), 0.15
+RAMP_LO, RAMP_HI = 0.08, 0.20
+
+
+def band(target_contrast, base00_hex, width):
+    y = target_contrast * (rel_luminance(base00_hex) + 0.05) - 0.05
+    return (y, y + width)
+
+
+def voice_band(base00_hex):
+    return band(VOICE_CONTRAST, base00_hex, VOICE_WIDTH)
+
+
+def light_band(base00_hex):
+    return band(LIGHT_CONTRAST, base00_hex, LIGHT_WIDTH)
+
+
+def snap_to_band(hex_color, band_tuple):
+    lo, hi = band_tuple
+    if lo <= rel_luminance(hex_color) <= hi:
+        return hex_color
+    r, g, b = (int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    target = (lo + hi) / 2
+    lo_l, hi_l = 0.0, 1.0            # Y is monotone in HSL lightness at fixed h,s
+    for _ in range(40):
+        mid = (lo_l + hi_l) / 2
+        if rel_luminance(tint(h, s, mid)) < target:
+            lo_l = mid
+        else:
+            hi_l = mid
+    return tint(h, s, hi_l)
+
+
+def sat_cap(h_deg, base_cap):
+    h = h_deg % 360.0
+    if GREEN_ZONE[0] <= h <= GREEN_ZONE[1]:
+        return max(0.05, base_cap - GREEN_ZONE_PENALTY)
+    return base_cap
+
+
+def chroma_ramp(share):
+    if share <= RAMP_LO:
+        return 0.0
+    if share >= RAMP_HI:
+        return 1.0
+    return (share - RAMP_LO) / (RAMP_HI - RAMP_LO)
+
+
 def _linearize(c8):
     c = c8 / 255.0
     return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4

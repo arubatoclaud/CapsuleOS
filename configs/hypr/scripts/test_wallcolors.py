@@ -90,3 +90,31 @@ def test_analyze_achromatic_empty_bins():
         assert hue is None and bins == {} and share < 0.08
     finally:
         os.unlink(path)
+
+def _Y(hexc):
+    return w.rel_luminance(hexc)
+
+def test_band_anchoring():
+    lo, hi = w.voice_band("#0a111a")
+    assert abs((lo + 0.05) / (_Y("#0a111a") + 0.05) - 4.5) < 0.01
+    assert abs(hi - lo - 0.05) < 1e-9
+
+def test_snap_to_band_reaches_band_even_for_red():
+    lo, hi = w.voice_band("#0a111a")
+    snapped = w.snap_to_band(w.tint_deg(0, 0.65, 0.30), (lo, hi))
+    assert lo <= _Y(snapped) <= hi
+
+def test_snap_is_noop_inside_band():
+    lo, hi = w.voice_band("#0a111a")
+    c = w.snap_to_band(w.tint_deg(216, 0.5, 0.6), (lo, hi))
+    assert c == w.snap_to_band(c, (lo, hi))
+
+def test_sat_cap_green_zone_tighter():
+    assert w.sat_cap(120, 0.65) == 0.50
+    assert w.sat_cap(216, 0.65) == 0.65
+    assert w.sat_cap(0, 0.65) == 0.65
+
+def test_chroma_ramp_continuous():
+    assert w.chroma_ramp(0.05) == 0.0
+    assert w.chroma_ramp(0.25) == 1.0
+    assert abs(w.chroma_ramp(0.14) - 0.5) < 0.01
