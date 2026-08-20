@@ -162,3 +162,24 @@ def test_manual_hue_mode_offsets():
     p = w.build_palette(30/360, 0.5, 0.12, True, bins=None, chroma_share=1.0)
     t = p["trio"]
     assert sorted((round(w.signed_arc(30, t["depth"])), round(w.signed_arc(30, t["glow"])))) == [-25, 25]
+
+def _in_family(h, lo, hi):
+    return (h - lo) % 360 <= (hi - lo) % 360
+
+def test_status_tokens_exist_in_family_and_band():
+    p = w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
+    lo_b, _ = w.voice_band(p["surface"])
+    for name, (_, (flo, fhi)) in w.SEMANTIC_FAMILIES.items():
+        h, s, _ = _hue_of(p[name])
+        assert _in_family(h, flo, fhi), (name, h)
+        assert w.rel_luminance(p[name]) >= lo_b - 0.01, name
+
+def test_bend_semantic_shortest_arc_and_clamp():
+    assert w.bend_semantic(0, 216, (345, 20)) == 345    # 0 bends toward 216 ccw, clamped
+    assert w.bend_semantic(120, 216, (95, 150)) == 135  # full 15 toward 216
+    assert w.bend_semantic(55, 30, (40, 65)) == 40      # bends warm, clamped at 40
+
+def test_status_tokens_survive_achromatic():
+    p = w.build_palette(0.09, 0.0, 0.3, False, bins={}, chroma_share=0.0)
+    h, s, _ = _hue_of(p["danger"])
+    assert s > 0.1                                      # danger stays red even on grey walls

@@ -479,6 +479,19 @@ def write_qtct(pill):
 
 ACC_SAT_CAP = 0.65          # was inline 0.82
 
+SEMANTIC_FAMILIES = {"danger": (0.0, (345.0, 20.0)),
+                     "ok": (120.0, (95.0, 150.0)),
+                     "warning": (55.0, (40.0, 65.0))}
+SEMANTIC_BEND = 15.0
+SEMANTIC_SAT = 0.55         # fixed editorial chroma; NOT scaled by chroma_ramp --
+                            # status must stay legible on achromatic wallpapers
+
+
+def bend_semantic(base_hue_deg, dominant_deg, bounds):
+    d = signed_arc(base_hue_deg, dominant_deg)
+    bent = base_hue_deg + max(-SEMANTIC_BEND, min(SEMANTIC_BEND, d))
+    return circ_clamp(bent, *bounds)
+
 
 def build_palette(hue, sat, mean_l, chromatic, bins=None, chroma_share=1.0):
     """Anchored analogous palette. `hue` in turns; internal hue math in degrees."""
@@ -513,6 +526,12 @@ def build_palette(hue, sat, mean_l, chromatic, bins=None, chroma_share=1.0):
     pill["mark"], pill["glow"], pill["primary"] = mark, glow, mark
     pill["light"] = False
     pill["trio"] = trio
+
+    for name, (base_h, bounds) in SEMANTIC_FAMILIES.items():
+        h = bend_semantic(base_h, dom, bounds) if chromatic else base_h
+        c = snap_to_band(tint_deg(h, sat_cap(h, SEMANTIC_SAT), 0.55), voice)
+        pill[name] = clamp_light(c, MARK_CONTRAST, eff_surface)
+
     return pill
 
 

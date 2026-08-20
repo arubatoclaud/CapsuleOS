@@ -208,7 +208,7 @@ sddm_sync() {
     {
         echo "[General]"
         echo "background=current/wallpaper"
-        jq -r '"bright=\(.bright)\ncream=\(.cream)\ndim=\(.dim)\nmark=\(.mark)\nerror=\(.primary)"' "$colors"
+        jq -r '"bright=\(.bright)\ncream=\(.cream)\ndim=\(.dim)\nmark=\(.mark)\nerror=\(.danger // .primary)"' "$colors"
     } > "$tmp" 2>/dev/null || { rm -f "$tmp"; return 0; }
     sudo -n install -m644 "$show" "$dst/current/wallpaper" 2>/dev/null || { rm -f "$tmp"; return 0; }
     sudo -n install -m644 "$tmp" "$dst/theme.conf.user" 2>/dev/null || true
