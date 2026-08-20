@@ -1,40 +1,45 @@
 {
   "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
   "logo": {
-    "type": "file",
-    "source": "__GOLDENGATE__",
+    "source": "arch",
     "color": {
       "1": "38;2;__LOGO1__",
-      "2": "38;2;__LOGO2__",
-      "3": "38;2;__LOGO3__",
-      "4": "38;2;__LOGO4__",
-      "5": "38;2;__LOGO5__",
-      "6": "38;2;__LOGO6__",
-      "7": "38;2;__LOGO7__"
+      "2": "38;2;__LOGO2__"
     },
-    "padding": { "top": 1, "left": 2, "right": 6 }
+    "padding": { "top": 1, "left": 2, "right": 5 }
   },
   "display": {
-    "separator": "  ",
+    "separator": " ",
     "color": {
       "keys": "38;2;__KEYS__"
     },
-    "key": { "width": 10 }
+    "key": { "width": 13 },
+    "bar": {
+      "width": 5,
+      "char": { "elapsed": "█", "total": "░" },
+      "border": { "left": "", "right": "" }
+    }
   },
   "modules": [
     "break",
-    { "type": "custom", "format": "\u001b[38;2;__SEP__m── system ──────────────" },
-    { "type": "os", "key": "  os", "format": "{pretty-name}" },
-    { "type": "kernel", "key": "  kernel", "format": "{release}" },
-    { "type": "uptime", "key": "  up" },
-    { "type": "packages", "key": " 󰏖 pkgs", "format": "{all}" },
+    { "type": "custom", "format": "\u001b[38;2;__SEP__m╭─ system ───────────────" },
+    { "type": "os", "key": "│  󰣇 os", "format": "{pretty-name}" },
+    { "type": "kernel", "key": "│  󰌽 kernel", "format": "{release}" },
+    { "type": "uptime", "key": "│  󰅐 up" },
+    { "type": "packages", "key": "│  󰏖 pkgs", "format": "{all}" },
+    { "type": "cpu", "key": "│  󰻠 cpu", "format": "{name}" },
+    { "type": "gpu", "key": "│  󰢮 gpu", "format": "{name}" },
+    { "type": "display", "key": "│  󰍹 display" },
+    { "type": "memory", "key": "│  󰍛 mem", "percent": { "type": ["bar", "num", "bar-monochrome"] } },
+    { "type": "custom", "format": "\u001b[38;2;__SEP__m╰────────────────────────" },
+    { "type": "custom", "format": "\u001b[38;2;__SEP__m╭─ rice ─────────────────" },
+    { "type": "wm", "key": "│  󱂬 wm", "format": "{pretty-name}" },
+    { "type": "shell", "key": "│  󰆍 shell", "format": "{exe-name}" },
+    { "type": "terminal", "key": "│  󰄛 term", "format": "{pretty-name}" },
+    { "type": "custom", "key": "│  󰂜 bar", "format": "quickshell" },
+    { "type": "custom", "key": "│  󰛖 font", "format": "JetBrains Mono Nerd" },
+    { "type": "custom", "format": "\u001b[38;2;__SEP__m╰────────────────────────" },
     "break",
-    { "type": "custom", "format": "\u001b[38;2;__SEP__m── rice ────────────────" },
-    { "type": "wm", "key": "  wm", "format": "{pretty-name}" },
-    { "type": "shell", "key": "  shell", "format": "{exe-name}" },
-    { "type": "terminal", "key": "  term", "format": "{pretty-name}" },
-    { "type": "custom", "key": " 󰂜 bar", "format": "pill (quickshell)" },
-    { "type": "custom", "key": "  font", "format": "JetBrains Mono Nerd" },
-    { "type": "command", "key": " 󰸉 wall", "text": "basename \"$(cat ${XDG_STATE_HOME:-$HOME/.local/state}/capsuleos-wallpaper)\"" }
+    { "type": "custom", "format": "  \u001b[38;2;__LOGO3__m██\u001b[38;2;__LOGO4__m██\u001b[38;2;__LOGO6__m██\u001b[38;2;__LOGO2__m██\u001b[38;2;__LOGO1__m██\u001b[38;2;__LOGO5__m██\u001b[38;2;__LOGO7__m██" }
   ]
 }

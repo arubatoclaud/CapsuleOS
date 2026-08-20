@@ -229,3 +229,11 @@ def test_brights_in_light_band():
     lo, hi = w.light_band(p["surface"])
     for i in (9, 10, 11, 12, 13, 14):
         assert lo - 0.01 <= w.rel_luminance(t["palette"][i]) <= hi + 0.01, i
+
+def test_fastfetch_slot_map():
+    assert w.FASTFETCH_SLOTS == {
+        "__KEYS__": "mark", "__SEP__": "dim",
+        "__LOGO1__": "mark", "__LOGO2__": "glow",
+        "__LOGO3__": "surface_container", "__LOGO4__": "surface_container_high",
+        "__LOGO5__": "on_primary_container", "__LOGO6__": "outline",
+        "__LOGO7__": "bright"}

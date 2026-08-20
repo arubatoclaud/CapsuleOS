@@ -323,6 +323,13 @@ def clamp_light(hex_color, target, bg_hex):
 ANSI_FLOOR, ANSI_FLOOR_BRIGHT_BLACK, ANSI_SELECTION_FLOOR = 4.5, 3.0, 3.0
 COOL_MIN_SEP, COOL_SPREAD = 30.0, 40.0
 
+FASTFETCH_SLOTS = {"__KEYS__": "mark", "__SEP__": "dim",
+                   "__LOGO1__": "mark", "__LOGO2__": "glow",
+                   "__LOGO3__": "surface_container",
+                   "__LOGO4__": "surface_container_high",
+                   "__LOGO5__": "on_primary_container", "__LOGO6__": "outline",
+                   "__LOGO7__": "bright"}
+
 
 def render_fastfetch(pill):
     """
@@ -340,18 +347,8 @@ def render_fastfetch(pill):
               file=sys.stderr)
         return
     seq = lambda h: "%d;%d;%d" % tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
-    repl = {
-        "__GOLDENGATE__": str(ff / "goldengate.txt"),
-        "__KEYS__": seq(pill["primary"]),
-        "__SEP__": seq(pill["dim"]),
-        "__LOGO1__": seq(pill["primary"]),
-        "__LOGO2__": seq(pill["on_primary_container"]),
-        "__LOGO3__": seq(pill["surface_container"]),
-        "__LOGO4__": seq(pill["surface_container_high"]),
-        "__LOGO5__": seq(pill["subtle"]),
-        "__LOGO6__": seq(pill["outline"]),
-        "__LOGO7__": seq(pill["bright"]),
-    }
+    repl = {"__GOLDENGATE__": str(ff / "goldengate.txt")}
+    repl.update({slot: seq(pill[key]) for slot, key in FASTFETCH_SLOTS.items()})
     out = tmpl.read_text()
     for key, val in repl.items():
         out = out.replace(key, val)
