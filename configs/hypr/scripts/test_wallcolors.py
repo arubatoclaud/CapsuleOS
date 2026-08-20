@@ -1,5 +1,5 @@
 import wallcolors as w
-import subprocess, tempfile, os
+import subprocess, tempfile, os, colorsys
 
 FLOWER = dict(hue=216/360, sat=0.61, mean_l=0.08, chromatic=True)
 
@@ -118,3 +118,47 @@ def test_chroma_ramp_continuous():
     assert w.chroma_ramp(0.05) == 0.0
     assert w.chroma_ramp(0.25) == 1.0
     assert abs(w.chroma_ramp(0.14) - 0.5) < 0.01
+
+def _hue_of(hexc):
+    r, g, b = (int(hexc[i:i+2], 16)/255 for i in (1, 3, 5))
+    h, l, s = colorsys.rgb_to_hls(r, g, b)
+    return (h * 360) % 360, s, l
+
+def test_palette_roles_split_across_trio():
+    p = w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
+    t = p["trio"]
+    sh, _, _ = _hue_of(p["surface_container_highest"])
+    assert abs(w.signed_arc(sh, t["depth"])) < 3        # surfaces on depth hue
+    mh, _, _ = _hue_of(p["mark"])
+    assert abs(w.signed_arc(mh, t["dominant"])) < 3     # mark on dominant
+    gh, _, _ = _hue_of(p["glow"])
+    assert abs(w.signed_arc(gh, t["glow"])) < 3         # glow on glow hue
+
+def test_glow_in_light_band_and_capped():
+    p = w.build_palette(**FLOWER, bins={}, chroma_share=1.0)
+    lo, hi = w.light_band(p["surface"])
+    assert lo <= w.rel_luminance(p["glow"]) <= hi
+    _, s, _ = _hue_of(p["glow"])
+    assert s <= w.sat_cap(p["trio"]["glow"], w.GLOW_SAT_CAP) + 0.02
+
+def test_mark_band_or_clamp_whichever_higher():
+    bright = dict(hue=216/360, sat=0.61, mean_l=0.85, chromatic=True)  # snowy wall
+    p = w.build_palette(**bright, bins={}, chroma_share=1.0)
+    lo, _ = w.voice_band(p["surface"])
+    eff = w.alpha_composite(p["surface_container_high"],
+                            w.tint(bright["hue"], bright["sat"], bright["mean_l"]),
+                            w.SURF_ALPHA)
+    assert w.contrast_ratio(p["mark"], eff) >= w.MARK_CONTRAST - 0.01
+    assert w.rel_luminance(p["mark"]) >= lo - 0.01     # never below the band
+
+def test_near_achromatic_ramps_not_cliffs():
+    lo = w.build_palette(216/360, 0.6, 0.1, True, bins={}, chroma_share=0.09)
+    hi = w.build_palette(216/360, 0.6, 0.1, True, bins={}, chroma_share=0.20)
+    _, s_lo, _ = _hue_of(lo["mark"])
+    _, s_hi, _ = _hue_of(hi["mark"])
+    assert s_lo < s_hi * 0.35                           # 9% share is a whisper of tint
+
+def test_manual_hue_mode_offsets():
+    p = w.build_palette(30/360, 0.5, 0.12, True, bins=None, chroma_share=1.0)
+    t = p["trio"]
+    assert sorted((round(w.signed_arc(30, t["depth"])), round(w.signed_arc(30, t["glow"])))) == [-25, 25]

@@ -88,7 +88,7 @@ DEPTH_MIN, DEPTH_MAX, DEPTH_PIVOT = 0.06, 0.16, 0.85
 # gets the "hot but never neon" chroma ceiling and a fixed lightness.
 MARK_SAT_CAP = 0.55
 MARK_CONTRAST = 4.5
-GLOW_SAT_CAP = 0.90
+GLOW_SAT_CAP = 0.60
 GLOW_L = 0.62
 # The pill body renders translucent over the wallpaper (Theme.qml surfAlpha,
 # frost default 0.86), so the accent is clamped against the surface as it
@@ -477,55 +477,42 @@ def write_qtct(pill):
             cfg.write(f)
 
 
-def build_palette(hue, sat, mean_l, chromatic, bins=None):
-    """Pure palette derivation: no filesystem, no subprocess. `hue` in turns."""
-    # Dark-only depth: mean lightness picks where in the dark end the ramp
-    # starts, so a bright wallpaper lifts the surface without inverting it.
+ACC_SAT_CAP = 0.65          # was inline 0.82
+
+
+def build_palette(hue, sat, mean_l, chromatic, bins=None, chroma_share=1.0):
+    """Anchored analogous palette. `hue` in turns; internal hue math in degrees."""
     base = DEPTH_MIN + (DEPTH_MAX - DEPTH_MIN) * min(mean_l, DEPTH_PIVOT) / DEPTH_PIVOT
-    surf_sat = min(max(sat, 0.30 if chromatic else 0.0), 0.45)
-    acc_sat = min(max(sat, 0.30) + 0.12, 0.82) if chromatic else 0.05
-    acc_l, deep_l, on_container_l = 0.70, 0.34, 0.86
+    ramp = chroma_ramp(chroma_share) if chromatic else 0.0
+    H = (hue * 360.0) % 360.0
+    trio = (derive_trio(H, bins or {}, chroma_share) if chromatic
+            else {"depth": H, "dominant": H, "glow": H})
+    dep, dom, glo = trio["depth"], trio["dominant"], trio["glow"]
 
-    pill = {name: tint(hue, surf_sat, base + step) for name, step in zip(SURF_NAMES, DARK_STEPS)}
-    pill["primary_container"] = tint(hue, min(acc_sat + 0.08, 0.9), deep_l)
-    pill["on_primary_container"] = tint(hue, min(acc_sat, 0.45), on_container_l)
-    pill["outline"] = tint(hue, surf_sat, base + 0.35)
+    surf_sat = min(max(sat, 0.30 if chromatic else 0.0), 0.42) * ramp
+    acc_sat = min(max(sat, 0.30) + 0.12, sat_cap(dom, ACC_SAT_CAP)) * ramp if chromatic else 0.05
+
+    pill = {name: tint_deg(dep, surf_sat, base + step)
+            for name, step in zip(SURF_NAMES, DARK_STEPS)}
+    pill["outline"] = tint_deg(dep, surf_sat, base + 0.35)
+    pill["primary_container"] = tint_deg(dom, min(acc_sat + 0.08, sat_cap(dom, 0.90)), 0.34)
+    pill["on_primary_container"] = tint_deg(dom, min(acc_sat, 0.45), 0.86)
     for key, (lit, st) in zip(TEXT_KEYS, DARK_TEXT):
-        pill[key] = tint(hue, st, lit)
+        pill[key] = tint_deg(dom, st * ramp if chromatic else st, lit)
 
-    # Accent split. Both tiers share the winning hue; what differs is their job.
-    # The clamp reference is the pill card as it actually composites over the
-    # wallpaper, not the flat swatch, so a bright wall can't quietly eat the
-    # accent's contrast.
     wall_mean = tint(hue, sat, mean_l)
     eff_surface = alpha_composite(pill["surface_container_high"], wall_mean, SURF_ALPHA)
 
-    # mark: UI duty. Chroma capped so it stays a mark and not a highlighter,
-    # then lifted until it clears MARK_CONTRAST against eff_surface. The lift is
-    # the only correct direction here: the palette is dark-only, so the accent
-    # always sits ABOVE its background, contrast grows with lightness, and
-    # darkening (clamp_dark) would walk away from the target -- on a bright
-    # wallpaper it bottoms out at its near-black best-effort branch. clamp_light
-    # no-ops when acc_l already passes, so this one call covers both cases.
-    mark_sat = min(acc_sat, MARK_SAT_CAP)
-    mark = clamp_light(tint(hue, mark_sat, acc_l), MARK_CONTRAST, eff_surface)
+    voice = voice_band(pill["surface"])
+    mark = snap_to_band(tint_deg(dom, min(acc_sat, sat_cap(dom, MARK_SAT_CAP)), 0.60), voice)
+    mark = clamp_light(mark, MARK_CONTRAST, eff_surface)     # band OR clamp, higher wins
 
-    # glow: filament light, never text. It rides the same saturation ramp as the
-    # accent but under its own, higher ceiling -- hot, but never neon -- at a
-    # fixed mid-high lightness so effects that stack it (gradients, bloom) start
-    # from a predictable place. Deliberately NOT derived from acc_sat: that
-    # would re-impose the accent's 0.82 and make GLOW_SAT_CAP decorative. The
-    # achromatic branch is carried over verbatim so a greyscale wallpaper still
-    # gets a grey glow instead of an invented hue.
-    glow_sat = min(max(sat, 0.30) + 0.12, GLOW_SAT_CAP) if chromatic else 0.05
-    glow = tint(hue, glow_sat, GLOW_L)
+    glow_sat = min(max(sat, 0.30) + 0.12, sat_cap(glo, GLOW_SAT_CAP)) * ramp if chromatic else 0.05
+    glow = snap_to_band(tint_deg(glo, glow_sat, GLOW_L), light_band(pill["surface"]))
 
-    pill["mark"] = mark
-    pill["glow"] = glow
-    # primary is the field every current consumer renders; it tracks mark until
-    # the QML side is rewired onto the split.
-    pill["primary"] = mark
+    pill["mark"], pill["glow"], pill["primary"] = mark, glow, mark
     pill["light"] = False
+    pill["trio"] = trio
     return pill
 
 
@@ -556,7 +543,8 @@ def main():
             hue, sat = 0.09, 0.0
     CACHE.mkdir(parents=True, exist_ok=True)
 
-    pill = build_palette(hue, sat, mean_l, chromatic)
+    pill = build_palette(hue, sat, mean_l, chromatic, bins=bins, chroma_share=chroma_share)
+    trio = pill.pop("trio")
 
     (CACHE / "colors.json").write_text(json.dumps(pill, indent=2) + "\n")
     render_fastfetch(pill)
