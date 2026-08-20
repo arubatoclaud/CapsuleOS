@@ -1,7 +1,8 @@
 # Anchored Analogous Palette — Design Spec
 
 Date: 2026-08-21
-Status: awaiting review (rev 2 — incorporates fresh-eyes UX review findings)
+Status: awaiting review (rev 3 — adds blindspot-round decisions: fzf/bat
+coverage, semantic status tokens, fallback-palette regeneration)
 Supersedes: the discarded triadic palette attempt (2026-08-21)
 
 ## Goal
@@ -18,7 +19,8 @@ Decisions locked during brainstorming:
 - **Vibe**: deep & atmospheric — depth hue sinks into surfaces, dominant
   carries the UI, the third hue is rationed to glow/highlights.
 - **Coverage**: pill/quickshell, ghostty, starship, fastfetch, zsh,
-  SDDM/lock, GTK/Qt, hyprland borders.
+  SDDM/lock, GTK/Qt, hyprland borders, fzf, bat. (btop explicitly out —
+  fullscreen and self-contained, keeps its stock theme.)
 - **Terminal semantics**: hue-bent — red/green/yellow stay recognizable but
   are pulled toward the palette family and value-matched.
 - **No neon**: hard chroma ceilings on every generated color.
@@ -118,6 +120,39 @@ normalization makes the floors near-tautological rather than a corrective.
 - Text ramp: near-neutral with a whisper of dominant (as today) —
   readability untouchable.
 
+### Semantic status tokens
+
+`colors.json` grows three first-class status colors — **`danger`,
+`warning`, `ok`** — generated exactly like the terminal's hue-bent
+red/yellow/green: 15° bend toward the dominant along the shortest arc,
+clamped to the same numeric family bounds, per-hue-zone chroma ceilings,
+Voice-band value. Because they do UI duty over the pill like `mark`, they
+also get the frost-composite contrast clamp (band or clamp, whichever is
+higher).
+
+Consumers re-pointed at them:
+
+- The three hardcoded `#e0533f` armed/fail reds in
+  `pill/Pill.qml`, `pill/Launcher.qml`, `pill/Recorder.qml` → `danger`
+  via Theme.
+- `wallpaper.sh`'s SDDM mapping `error=\(.primary)` → `error=\(.danger)` —
+  the accent stops impersonating an error color.
+
+### Fallback palettes regenerated
+
+The static fallbacks that render before `colors.json` exists still carry
+the old orange scheme; they are regenerated **once** to a representative
+anchored-analogous set (derived from the manual-mode default hue) so a
+fresh install matches the system's character:
+
+- `quickshell/pill/Singletons/Dyn.qml` and
+  `quickshell/lock/Singletons/Dyn.qml` fallback property blocks (now
+  including the status trio);
+- the static palette block in `configs/ghostty/config` (the cache file
+  still overrides it at runtime).
+- `pill/Osd.qml`'s hardcoded warm-white shimmer gradient re-points at the
+  glow hue so light effects follow the palette.
+
 ### Edge cases
 
 - **Achromatic wallpaper** (chromatic share < 8%): all three hues collapse
@@ -203,6 +238,12 @@ changes.
   dominant.
 - **hyprland borders** (`hypr-colors.lua`): `active` = `mark` (as today);
   `inactive` = `outline_variant` (surface-ramp step 6).
+- **fzf**: `FZF_DEFAULT_OPTS` in `zshrc` gains a `--color` spec using
+  **ANSI slot names only** (e.g. `hl:6`, `pointer:4`, `prompt:5`) — it
+  follows the palette through the terminal scheme with no generation step.
+- **bat**: `--theme=ansi` (via `~/.config/bat/config`) — bat's built-in
+  ANSI theme reads the terminal palette; no generation step. The `cat`
+  alias needs no change.
 
 ## 4. Validation
 
@@ -235,6 +276,8 @@ Property-style assertions that must hold for any input:
 - role assignment stable under the dead zone (ΔY < 0.03 → H− companion is
   depth);
 - base03–07 monotone in lightness;
+- `danger`/`warning`/`ok` inside their family bounds, Voice band (or
+  frost clamp, whichever is higher), and chroma ceilings;
 - achromatic in → achromatic out (no invented hue anywhere), and
   saturation ramps continuously across the 8%–20% chromatic window (no
   cliff).
@@ -249,6 +292,7 @@ Rollback = git revert + re-run `wallpaper.sh`.
 
 - Light palettes (Night Glass stays dark-only).
 - Per-wallpaper manual overrides.
+- btop theming (self-contained fullscreen tool, stock theme kept).
 - Rewiring QML consumers onto the `mark`/`glow` split (`primary` keeps
   tracking `mark`).
 - GRUB theme.
