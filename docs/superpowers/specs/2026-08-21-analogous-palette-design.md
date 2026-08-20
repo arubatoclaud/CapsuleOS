@@ -157,7 +157,12 @@ fresh install matches the system's character:
 ### Edge cases
 
 - **Achromatic wallpaper** (chromatic share < 8%): all three hues collapse
-  to the neutral grey ramp, exactly as today. No invented color.
+  to the neutral grey ramp, exactly as today. No invented color — EXCEPT
+  semantic colors (the status trio and the terminal's red/green/yellow
+  slots), which keep their fixed editorial chroma so git diffs and errors
+  stay legible on greyscale wallpapers. The terminal's blue/magenta/cyan
+  DO go neutral (they derive from the trio, which no longer exists).
+  (User-ruled at the contact-sheet gate, 2026-08-21.)
 - **Near-achromatic ramp, not a cliff**: between 8% and 20% chromatic
   share, all saturation ceilings scale linearly from 0 → full, so two
   film-still wallpapers at 7.9% and 8.3% chroma differ by a whisper of
